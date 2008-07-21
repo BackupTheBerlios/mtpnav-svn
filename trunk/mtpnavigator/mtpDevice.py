@@ -118,6 +118,7 @@ class MTPDevice():
     def send_track(self, metadata=None):
         mtp_metadata = pymtp.LIBMTP_Track()
         mtp_metadata.title = metadata.title
+        mtp_metadata.artist = metadata.artist
         mtp_metadata.album = metadata.album
         mtp_metadata.genre = metadata.genre
         mtp_metadata.date = self.__date_to_mtp(metadata.date)

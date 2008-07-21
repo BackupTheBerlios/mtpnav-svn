@@ -21,10 +21,6 @@ class MTPnavigator:
 
         self.__treeview_track = self.gtkbuilder.get_object("treeview_track_list")
 
-        #drag and drop support
-        self.__treeview_track.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY)
-        self.__treeview_track.connect('drag_data_received', self.on_drag_data_received)
-
         self.connect_or_disconnect_device()
 
     def getWidget(self, widget_id):
@@ -42,6 +38,10 @@ class MTPnavigator:
             self.getWidget(w).set_sensitive(sensible)
 
     def __connect_device(self):
+        #drag and drop support
+        self.__treeview_track.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY)
+        self.__treeview_track.connect('drag_data_received', self.on_drag_data_received)
+
         dev = MTPDevice()
         self.__device_engine = DeviceEngine(dev)
         if not self.__device_engine.connect_device():
@@ -88,6 +88,10 @@ class MTPnavigator:
         self.__device_engine.disconnect_device()
         self.__device_engine = None
         self.getWidget("button_connect").set_label("Disconnect device")
+        self.__treeview_track.set_model(None)
+
+    def on_menuitem_delete_files_activate(self):
+        print "DELETE"
 
     def on_button_connect_clicked(self, button):
         self.connect_or_disconnect_device()

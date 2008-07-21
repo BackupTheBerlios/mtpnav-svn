@@ -20,6 +20,7 @@ class GenericFileMetadata:
         self.extension = extension
         self.date = None #@TODO
         self.title =  self.filename
+        self.artist = None
         self.directoryID = 0 #@TODO
         self.album = None
         self.genre = None
@@ -41,6 +42,7 @@ class MP3FileMetadata(GenericFileMetadata):
         #@TODO: get mp3 metadata
         self.title =  os.path.splittext(self.filename)[0]
         self.date = None
+        slf.artist = "baba"
         self.album = "toto"
         self.genre = "tata"
 
