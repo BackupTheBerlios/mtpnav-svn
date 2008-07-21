@@ -4,9 +4,9 @@ def get_metadata_for_type(path):
         path = os.path.normpath(path)
         filename = os.path.split(path)[1]
         extension = os.path.splitext(filename)[1]
-        if extension == "mp3": #FIXME: use mimetype? MP3, others?
+        if extension == ".mp3": #FIXME: use mimetype? MP3, others?
             return MP3FileMetadata(path, filename, extension)
-        elif extension == "ogg":
+        elif extension == ".ogg":
             return OggFileMetadata(path, filename, extension)
         else:
             return GenericFileMetadata(path, filename, extension)
@@ -31,6 +31,7 @@ class GenericFileMetadata:
         self.bitratetype = None
         self.rating = None
         self.usecount = None
+        self.__get_type_specific_metadata()
 
     def __get_type_specific_metadata(self):
         pass
