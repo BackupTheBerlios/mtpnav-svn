@@ -1,6 +1,11 @@
 import gtk
 import gobject
 
+from urlparse import urlparse
+import mimetypes
+
+
+
 class DeviceEngine:
 
     def __init__(self, _device):
@@ -33,14 +38,17 @@ class DeviceEngine:
     def get_file_tree_model(self):
         pass
 
-    def add_file(self, file_url):
+    def send_file(self, file_url):
         print "adding %s", file_url
-        if file_url[:7] != "file://":
+        url = urlparse(file_url)
+        if url.scheme != "file://":
             print "not a local file"
             return
-        self.__device.connect()
-        self.__device.add_track(file_url[7:])
-        self.__device.close()
+        """ TODO check mimetype to get metadata: 
+        mimetypes.init()
+        mimetypes.guess_type(filename) =  'audio/mpeg'"""
+        metadata=None
+        self.__device.add_track(url.path, metadata)
         self.__track_listing_model.append([file_url,"","",""])
 
     def get_device(self):

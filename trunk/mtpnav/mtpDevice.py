@@ -117,7 +117,11 @@ class MTPDevice():
 
     def add_track(self, file, metadata=None):
         track = pymtp.LIBMTP_Track()
-        self.__MTPDevice.send_track_from_file( file, "test.mp3", track, 0, callback=self.__callback)
+        mtp_metadata.title = metadata.title
+        mtp_metadata.album = metadata.album
+        mtp_metadata.genre = metadata.genre
+        mtp_metadata.date = self.__date_to_mt(meta.date)
+        self.__MTPDevice.send_track_from_file( file, , track, metadata, mtp_metadata, callback=self.__callback)
 ##        try:
 ##            # verify free space
 ##            needed = util.calculate_size(episode.local_filename())

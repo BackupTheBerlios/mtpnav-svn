@@ -3,7 +3,7 @@ import gtk
 from DeviceEngine import DeviceEngine
 from mtpDevice import MTPDevice
 
-class Mtpnav:
+class MTPnavigator:
 
     def on_window_destroy(self, widget, data=None):
         self.window.destroy()
@@ -99,13 +99,13 @@ class Mtpnav:
                 self.add_file(uri)
         context.finish(True, False, time)
 
-    def add_file(self, uri):
-        self.getWidget("dialog_transfer").run()
-
-        self.__device_engine.add_file(uri)
+    def send_file(self, uri):
+        #self.getWidget("dialog_transfer").run()
+        #TODO copy whole directory
+        self.__device_engine.send_file(uri)
 
 if __name__ == "__main__":
-    mtpnav = Mtpnav()
+    mtpnav = MTPnavigator()
     mtpnav.window.show()
     gtk.main()
 
