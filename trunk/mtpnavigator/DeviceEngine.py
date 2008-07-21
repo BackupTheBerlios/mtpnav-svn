@@ -3,7 +3,7 @@ import gobject
 
 from urlparse import urlparse
 import mimetypes
-
+import filesMetadata
 
 
 class DeviceEngine:
@@ -47,7 +47,8 @@ class DeviceEngine:
         """ TODO check mimetype to get metadata: 
         mimetypes.init()
         mimetypes.guess_type(filename) =  'audio/mpeg'"""
-        metadata=None
+        #TODO: find correct metadata
+        metadata = filesMetadata.FileMetadata()
         self.__device.add_track(url.path, metadata)
         self.__track_listing_model.append([file_url,"","",""])
 

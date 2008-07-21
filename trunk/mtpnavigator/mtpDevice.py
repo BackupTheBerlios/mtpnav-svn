@@ -116,36 +116,13 @@ class MTPDevice():
         return True
 
     def add_track(self, file, metadata=None):
-        track = pymtp.LIBMTP_Track()
+        metadata = pymtp.LIBMTP_Track()
         mtp_metadata.title = metadata.title
         mtp_metadata.album = metadata.album
         mtp_metadata.genre = metadata.genre
         mtp_metadata.date = self.__date_to_mt(meta.date)
-        self.__MTPDevice.send_track_from_file( file, , track, metadata, mtp_metadata, callback=self.__callback)
-##        try:
-##            # verify free space
-##            needed = util.calculate_size(episode.local_filename())
-##            free = self.get_free_space()
-##            if needed > free :
-##                #log('Not enough space on device %s: %s available, but need at least %s', self.get_name(), util.format_filesize(free), util.format_filesize(needed), sender = self)
-##                self.cancelled = True
-##                return False
-##
-##            # fill metadata
-##
-##            metadata.title = str(episode.title)
-##            metadata.artist = str(episode.channel.title)
-##            metadata.album = str(episode.channel.title)
-##            metadata.genre = "podcast"
-##            metadata.date = self.__date_to_mtp(episode.pubDate)
-##
-##            # send the file
-##            self.__MTPDevice.send_track_from_file( str(episode.local_filename()), episode.basename, metadata, 0, callback=self.__callback)
-##        except Exception, exc:
-##            log('unable to add episode %s (%s)', episode.title, exc, sender=self, traceback=True)
-##            return False
-##
-##        return True
+        #self.__MTPDevice.send_track_from_file( file, metadata.filename, mtp_metadata, callback=self.__callback)
+        self.__MTPDevice.send_file_from_file( file, metadata.filename, callback=self.__callback)
 
     def remove_track(self, sync_track):
         self.notify('status', _('Removing %s') % sync_track.mtptrack.title)
