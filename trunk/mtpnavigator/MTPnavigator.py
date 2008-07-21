@@ -15,7 +15,7 @@ class MTPnavigator:
         self.window = None
 
         self.gtkbuilder = gtk.Builder()
-        self.gtkbuilder.add_from_file("./mtpnav.xml")
+        self.gtkbuilder.add_from_file("./mtpnavigator/MTPnavigator.xml")
         self.window = self.getWidget("window_mtpnav")
         self.gtkbuilder.connect_signals(self)
 
@@ -81,7 +81,6 @@ class MTPnavigator:
         infos = self.__device_engine.get_device().get_information()
         text=""
         for info in infos:
-            print info
             text += "<b>" + info[0] + ":</b> " + info[1] + "</br>"
         self.getWidget("label_information").set_text(text)
 
@@ -96,7 +95,7 @@ class MTPnavigator:
     def on_drag_data_received(self, w, context, x, y, data, info, time):
         if data and data.format == 8:
             for uri in data.data.split('\r\n')[:-1]:
-                self.add_file(uri)
+                self.send_file(uri)
         context.finish(True, False, time)
 
     def send_file(self, uri):
@@ -108,4 +107,5 @@ if __name__ == "__main__":
     mtpnav = MTPnavigator()
     mtpnav.window.show()
     gtk.main()
+
 

@@ -39,17 +39,18 @@ class DeviceEngine:
         pass
 
     def send_file(self, file_url):
-        print "adding %s", file_url
+        print "adding %s" % file_url
         url = urlparse(file_url)
-        if url.scheme != "file://":
-            print "not a local file"
+        print url
+        if url.scheme != "file":
+            print "not a local file (%s)" % url.scheme
             return
-        """ TODO check mimetype to get metadata: 
+        """ TODO check mimetype to get metadata:
         mimetypes.init()
         mimetypes.guess_type(filename) =  'audio/mpeg'"""
         #TODO: find correct metadata
-        metadata = filesMetadata.FileMetadata()
-        self.__device.add_track(url.path, metadata)
+        metadata = filesMetadata.get_metadata_for_type(url.path)
+        self.__device.send_track(metadata)
         self.__track_listing_model.append([file_url,"","",""])
 
     def get_device(self):
