@@ -15,7 +15,7 @@ class Mtpnav:
         self.window = None
 
         self.gtkbuilder = gtk.Builder()
-        self.gtkbuilder.add_from_file("data/mtpnav.xml")
+        self.gtkbuilder.add_from_file("./mtpnav.xml")
         self.window = self.getWidget("window_mtpnav")
         self.gtkbuilder.connect_signals(self)
 
