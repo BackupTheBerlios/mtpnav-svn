@@ -125,16 +125,8 @@ class MTPDevice():
         self.__MTPDevice.send_track_from_file( metadata.path, metadata.filename, mtp_metadata, callback=self.__callback)
         #self.__MTPDevice.send_file_from_file( metadata.path, metadata.filename, callback=self.__callback)
 
-    def remove_track(self, sync_track):
-        self.notify('status', _('Removing %s') % sync_track.mtptrack.title)
-        log("removing %s", sync_track.mtptrack.title, sender=self)
-
-        try:
-            self.__MTPDevice.delete_object(sync_track.mtptrack.item_id)
-        except Exception, exc:
-            log('unable remove file %s (%s)', sync_track.mtptrack.filename, exc, sender=self)
-
-        log('%s removed', sync_track.mtptrack.title , sender=self)
+    def remove_track(self, track_id):
+        self.__MTPDevice.delete_object(track_id)
 
     def get_tracklisting(self):
         listing = []

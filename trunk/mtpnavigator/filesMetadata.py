@@ -34,11 +34,11 @@ class GenericFileMetadata:
         self.usecount = None
         self.__get_type_specific_metadata()
 
-    def __get_type_specific_metadata(self):
-        pass
-
 class MP3FileMetadata(GenericFileMetadata):
-    def __get_type_specific_metadata(self):
+
+    def __init__(self, path, filename, extension)
+        GenericFileMetadata. __init__(self, path, filename, extension)
+
         #@TODO: get mp3 metadata
         self.title =  os.path.splittext(self.filename)[0]
         self.date = None
@@ -47,7 +47,10 @@ class MP3FileMetadata(GenericFileMetadata):
         self.genre = "tata"
 
 class OggFileMetadata(GenericFileMetadata):
-    def __get_type_specific_metadata(self):
+
+    def __init__(self, path, filename, extension)
+        GenericFileMetadata. __init__(self, path, filename, extension)
+
         #@TODO: get ogg metadata
         self.title =  self.filename
         self.date = None

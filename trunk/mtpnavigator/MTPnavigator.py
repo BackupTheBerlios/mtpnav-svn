@@ -1,11 +1,13 @@
 import gtk
 from DeviceEngine import DeviceEngine
 from mtpDevice import MTPDevice
+from TransferManager import TransferManager
 
 class MTPnavigator:
     def __init__(self):
         self.__treeview_track = None
         self.__device_engine = None
+        self.__transferManager = None
 
         # bind to glade
         self.gtkbuilder = gtk.Builder()
@@ -73,6 +75,8 @@ class MTPnavigator:
             # TODO: notify connection failed
             self.__device_engine = None
             return
+        tv = self.gtkbuilder.get_object("treeview_transfer_manager")
+        self.__transferManager = TransferManager(self.__device_engine, tv)
 
         # update model
         model = self.__device_engine.get_track_listing_model()
@@ -135,11 +139,14 @@ class MTPnavigator:
     def send_file(self, uri):
         #self.getWidget("dialog_transfer").run()
         #TODO copy whole directory
-        self.__device_engine.send_file(uri)
+        self.self.__transferManager.send_file(uri)
 
 if __name__ == "__main__":
     mtpnav = MTPnavigator()
+    gtk.gdk.threads_init 
     mtpnav.window.show()
+    #gtk.gdk.threads_enter() #FIXME: needed
     gtk.main()
+    #gtk.gdk.threads_leave()
 
 
