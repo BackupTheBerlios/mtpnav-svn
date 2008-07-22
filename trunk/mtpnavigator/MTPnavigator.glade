@@ -48,7 +48,7 @@
                         <property name="sensitive">False</property>
                         <property name="label" translatable="yes">Send files to device...</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_send_files_activate"/>
+                        <signal name="activate" handler="__on_send_files_activate"/>
                       </widget>
                     </child>
                     <child>
@@ -69,7 +69,7 @@
                       </widget>
                     </child>
                     <child>
-                      <widget class="GtkImageMenuItem" id="menuitem_quit1">
+                      <widget class="GtkImageMenuItem" id="menuitem_quit">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">Quit</property>
                         <property name="use_underline">True</property>
@@ -105,7 +105,7 @@
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">Connect device</property>
                 <property name="stock_id">gtk-connect</property>
-                <signal name="clicked" handler="on_button_connect_clicked"/>
+                <signal name="clicked" handler="__on_connect_activate"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -126,7 +126,7 @@
                 <property name="sensitive">False</property>
                 <property name="label" translatable="yes">Send files...</property>
                 <property name="stock_id">gtk-open</property>
-                <signal name="clicked" handler="on_send_files_activate"/>
+                <signal name="clicked" handler="__on_send_files_activate"/>
               </widget>
               <packing>
                 <property name="expand">False</property>

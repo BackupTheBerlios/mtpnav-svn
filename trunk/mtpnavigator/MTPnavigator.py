@@ -1,33 +1,62 @@
-import sys
 import gtk
 from DeviceEngine import DeviceEngine
 from mtpDevice import MTPDevice
 
 class MTPnavigator:
-
-    def on_window_destroy(self, widget, data=None):
-        self.window.destroy()
-        gtk.main_quit()
-
     def __init__(self):
         self.__treeview_track = None
         self.__device_engine = None
-        self.window = None
 
+        # bind to glade
         self.gtkbuilder = gtk.Builder()
         self.gtkbuilder.add_from_file("./mtpnavigator/MTPnavigator.xml")
-        self.window = self.getWidget("window_mtpnav")
         self.gtkbuilder.connect_signals(self)
 
+        # create the track view
         self.__treeview_track = self.gtkbuilder.get_object("treeview_track_list")
+        col = gtk.TreeViewColumn("treeview", gtk.CellRendererText(), text=0)
+        self.__treeview_track.append_column(col)
+        col = gtk.TreeViewColumn("artist", gtk.CellRendererText(), text=1)
+        self.__treeview_track.append_column(col)
+        col = gtk.TreeViewColumn("length", gtk.CellRendererText(), text=2)
+        self.__treeview_track.append_column(col)
+        col = gtk.TreeViewColumn("date", gtk.CellRendererText(), text=3)
+        self.__treeview_track.append_column(col)
+
+        # add drag and drop support
+        # @TODO: deactivate if not connected
+        self.__treeview_track.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY)
+        self.__treeview_track.connect('drag_data_received', self.on_drag_data_received)
 
         self.connect_or_disconnect_device()
 
-    def getWidget(self, widget_id):
+    def __getWidget(self, widget_id):
         return self.gtkbuilder.get_object(widget_id)
+        
+    #------ EVENTS ----------------------------------
+    def __on_delete_files_activate(self, emiter):
+        print "DELETE"
+
+    def __on_connect_activate(self, emiter):
+        self.connect_or_disconnect_device()
+
+    def __on_window_destroy(self, widget):
+        self.self.getWidget("window_mtpnav").destroy()
+        gtk.main_quit()
+        
+    def __on_send_files_activate(self, widget):
+        #@TODO
+        pass
+
+    def __on_drag_data_received(self, w, context, x, y, data, info, time):
+        if data and data.format == 8:
+            for uri in data.data.split('\r\n')[:-1]:
+                self.send_file(uri)
+        context.finish(True, False, time)
+        
 
     def connect_or_disconnect_device(self):
-        widgets = ["button_add_file", "button_del_file", "hbox_device_information"]
+        widgets = ["menuitem_send_files", "menuitem_delete_files", "button_add_file", "button_del_file", "hbox_device_information"]
         if self.__device_engine:
             self.__disconnect_device()
         else:
@@ -38,10 +67,6 @@ class MTPnavigator:
             self.getWidget(w).set_sensitive(sensible)
 
     def __connect_device(self):
-        #drag and drop support
-        self.__treeview_track.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY)
-        self.__treeview_track.connect('drag_data_received', self.on_drag_data_received)
-
         dev = MTPDevice()
         self.__device_engine = DeviceEngine(dev)
         if not self.__device_engine.connect_device():
@@ -49,18 +74,19 @@ class MTPnavigator:
             self.__device_engine = None
             return
 
+        # update model
         model = self.__device_engine.get_track_listing_model()
         self.__treeview_track.set_model(model)
 
-        col = gtk.TreeViewColumn("treeview", gtk.CellRendererText(), text=0)
-        self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("artist", gtk.CellRendererText(), text=1)
-        self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("length", gtk.CellRendererText(), text=2)
-        self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("date", gtk.CellRendererText(), text=3)
-        self.__treeview_track.append_column(col)
-        self.getWidget("button_connect").set_label("Connect device")
+        # change menu and toobar label and stock
+        text="Disconnect device"
+        stock=gtk.STOCK_DISCONNECT
+        self.getWidget("button_connect").set_label(text)
+        self.getWidget("button_connect").set_stock_id(stock)
+        self.getWidget("menuitem_connect").set_label(text)
+        img = gtk.image_new_from_stock(stock, gtk.ICON_SIZE_LARGE_TOOLBAR)
+        self.getWidget("menuitem_connect").set_image(img)
+        self.getWidget("label_device_name").set_text(self.__device_engine.get_device().getName())
 
         # disk usage
         used = self.__device_engine.get_device().get_diskusage()[0]
@@ -87,20 +113,24 @@ class MTPnavigator:
     def __disconnect_device(self):
         self.__device_engine.disconnect_device()
         self.__device_engine = None
-        self.getWidget("button_connect").set_label("Disconnect device")
         self.__treeview_track.set_model(None)
-
-    def on_menuitem_delete_files_activate(self):
-        print "DELETE"
-
-    def on_button_connect_clicked(self, button):
-        self.connect_or_disconnect_device()
-
-    def on_drag_data_received(self, w, context, x, y, data, info, time):
-        if data and data.format == 8:
-            for uri in data.data.split('\r\n')[:-1]:
-                self.send_file(uri)
-        context.finish(True, False, time)
+        
+        # change menu and toobar label and stock
+        text="Connect device"
+        stock=gtk.STOCK_CONNECT
+        self.getWidget("button_connect").set_label(text)
+        self.getWidget("button_connect").set_stock_id(stock)
+        self.getWidget("menuitem_connect").set_label(text)
+        img = gtk.image_new_from_stock(stock, gtk.ICON_SIZE_LARGE_TOOLBAR)
+        self.getWidget("menuitem_connect").set_image(img)
+        self.getWidget("label_device_name").set_text("No device connected")
+        
+        # device info
+        prog_bar.set_fraction(0)
+        prog_bar.set_text("")
+        prog_bar.set_fraction(0)
+        prog_bar.set_text("")
+        self.getWidget("label_information").set_text("No device connected")
 
     def send_file(self, uri):
         #self.getWidget("dialog_transfer").run()
