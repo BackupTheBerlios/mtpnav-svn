@@ -20,13 +20,28 @@ class TransferManager():
         self.__failed_job = []
         self.__device_engine = device_engine
         self.__process_queue_thread = ProcessQueue(device_engine, self, Queue)
-        #transfer_treeview
+        
+        self.__transfer_treeview = transfer_treeview
+        col = gtk.TreeViewColumn("object_id", gtk.CellRendererText(), text=0)
+        transfer_treeview.append_column(col)
+        col = gtk.TreeViewColumn("action", gtk.CellRendererText(), text=1)
+        transfer_treeview.append_column(col)
+        col = gtk.TreeViewColumn("description", gtk.CellRendererText(), text=2)
+        transfer_treeview.append_column(col)
+        col = gtk.TreeViewColumn("status", gtk.CellRendererText(), text=3)
+        transfer_treeview.append_column(col)
+        
+        self.__model = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
+        transfer_treeview.set_model(self.__model)
         
     self.update_model():
-        pass
+        debug_trace("Updating model. Queue:" + self.__queue, sender=self)
+        self.__model.clear()
+        for job in self.__queue:
+            self.__model.append([job.object_id, job.action, job.description, job.status])
         
-    def __queue_job(object_id, job_type):
-        job = Job(object_id, job_type, STATUS_QUEUED)
+    def __queue_job(object_id, job_type, description):
+        job = Job(object_id, job_type, STATUS_QUEUED, description)
 
         if self.__queue.count(job) > 0: # FIXME: check ignoring the status
             warning_trace("%s already in queue" % file_url, sender=self)
@@ -46,13 +61,13 @@ class TransferManager():
         debug_trace("request for sending %s" % file_url, sender=self)
         url = urlparse(file_url)
         if url.scheme == "file":
-            self.__queue_job(url.path, JOB_SEND)
+            self.__queue_job(url.path, JOB_SEND, url.path)
         else:
             warning_trace("%s is not a file" % file_url, sender=self)
        
-    def del_file(file_id)
+    def del_file(file_id, file_description)
         debug_trace("request dor deleting %s" % file_url, sender=self)
-        self.__queue_job(file_id, JOB_DEL)
+        self.__queue_job(file_id, JOB_DEL, file_description)
     
 class ProcessQueueThread(threading.Thread):
     def __init__(self, device_engine, transfer_manager, _queue):
@@ -90,8 +105,10 @@ class ProcessQueueThread(threading.Thread):
         debug_trace("Processing queue thread finished", sender=self)
             
 class Job():
-    def __init__(self, object_id, action, status):
+    def __init__(self, object_id, action, status, description):
         self.object_id = object_id
         self.action = action
         self.status = status
-        self.exception
+        self.description = description
+        self.exception = None
+        
