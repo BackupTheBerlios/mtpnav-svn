@@ -115,14 +115,14 @@ class MTPDevice():
             return False
         return True
 
-    def send_track(self, metadata=None):
+    def send_track(self, metadata=None, callback=None):
         mtp_metadata = pymtp.LIBMTP_Track()
         mtp_metadata.title = metadata.title
         mtp_metadata.artist = metadata.artist
         mtp_metadata.album = metadata.album
         mtp_metadata.genre = metadata.genre
         mtp_metadata.date = self.__date_to_mtp(metadata.date)
-        self.__MTPDevice.send_track_from_file( metadata.path, metadata.filename, mtp_metadata, callback=self.__callback)
+        self.__MTPDevice.send_track_from_file( metadata.path, metadata.filename, mtp_metadata, callback=callback)
         #self.__MTPDevice.send_file_from_file( metadata.path, metadata.filename, callback=self.__callback)
 
     def remove_track(self, track_id):

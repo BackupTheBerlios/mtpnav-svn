@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Mon Jul 21 21:56:53 2008 -->
+<!--Generated with glade3 3.4.5 on Tue Jul 22 18:50:03 2008 -->
 <glade-interface>
   <widget class="GtkWindow" id="window_mtpnav">
     <property name="title" translatable="yes">MTPnav</property>
@@ -27,6 +27,7 @@
                         <property name="tooltip" translatable="yes">Connect a device</property>
                         <property name="label" translatable="yes">Connect a device</property>
                         <property name="use_underline">True</property>
+                        <signal name="activate" handler="__on_connect_activate"/>
                         <child internal-child="image">
                           <widget class="GtkImage" id="menu-item-image3">
                             <property name="visible">True</property>
@@ -56,6 +57,7 @@
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">Remove files from device</property>
                         <property name="use_underline">True</property>
+                        <signal name="activate" handler="__on_delete_files_activate"/>
                         <child internal-child="image">
                           <widget class="GtkImage" id="menu-item-image2">
                             <property name="stock">gtk-delete</property>
@@ -73,6 +75,7 @@
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">Quit</property>
                         <property name="use_underline">True</property>
+                        <signal name="activate" handler="__on_quit_activate"/>
                         <child internal-child="image">
                           <widget class="GtkImage" id="menu-item-image4">
                             <property name="visible">True</property>
@@ -138,6 +141,7 @@
                 <property name="sensitive">False</property>
                 <property name="label" translatable="yes">Remove files</property>
                 <property name="stock_id">gtk-delete</property>
+                <signal name="clicked" handler="__on_delete_files_activat"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -199,27 +203,27 @@
                         <property name="n_rows">2</property>
                         <property name="n_columns">2</property>
                         <child>
-                          <widget class="GtkVBox" id="vbox2">
+                          <widget class="GtkProgressBar" id="progressbar_batterie_level">
                             <property name="visible">True</property>
-                            <child>
-                              <widget class="GtkImage" id="image1">
-                                <property name="visible">True</property>
-                                <property name="icon_name">battery</property>
-                              </widget>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="label3">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">batterie level</property>
-                              </widget>
-                              <packing>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
+                            <property name="text" translatable="yes"></property>
                           </widget>
                           <packing>
-                            <property name="x_options"></property>
-                            <property name="x_padding">5</property>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="y_options">GTK_EXPAND</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkProgressBar" id="progressbar_disk_usage">
+                            <property name="visible">True</property>
+                            <property name="text" translatable="yes"></property>
+                          </widget>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="y_options">GTK_EXPAND</property>
                           </packing>
                         </child>
                         <child>
@@ -249,27 +253,27 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="GtkProgressBar" id="progressbar_disk_usage">
+                          <widget class="GtkVBox" id="vbox2">
                             <property name="visible">True</property>
-                            <property name="text" translatable="yes"></property>
+                            <child>
+                              <widget class="GtkImage" id="image1">
+                                <property name="visible">True</property>
+                                <property name="icon_name">battery</property>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label3">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">batterie level</property>
+                              </widget>
+                              <packing>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
                           </widget>
                           <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
-                            <property name="y_options">GTK_EXPAND</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkProgressBar" id="progressbar_batterie_level">
-                            <property name="visible">True</property>
-                            <property name="text" translatable="yes"></property>
-                          </widget>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
-                            <property name="y_options">GTK_EXPAND</property>
+                            <property name="x_options"></property>
+                            <property name="x_padding">5</property>
                           </packing>
                         </child>
                       </widget>
@@ -338,6 +342,24 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkScrolledWindow" id="scrolledwindow2">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                <child>
+                  <widget class="GtkTreeView" id="treeview_transfer_manager">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="headers_clickable">True</property>
+                  </widget>
+                </child>
+              </widget>
+              <packing>
+                <property name="position">3</property>
               </packing>
             </child>
           </widget>
