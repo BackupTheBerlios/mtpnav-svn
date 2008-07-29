@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Tue Jul 29 12:09:40 2008 -->
+<!--Generated with glade3 3.4.5 on Tue Jul 29 14:36:43 2008 -->
 <glade-interface>
   <widget class="GtkWindow" id="window_mtpnav">
-    <property name="title" translatable="yes">MTPnav</property>
+    <property name="title" translatable="yes">MTPnavigator</property>
     <property name="window_position">GTK_WIN_POS_CENTER</property>
-    <property name="default_width">800</property>
-    <property name="default_height">600</property>
     <signal name="destroy" handler="on_window_mtpnav_destroy"/>
     <child>
       <widget class="GtkVBox" id="vbox1">

@@ -1,6 +1,6 @@
 import gtk
-import threading
 import gobject
+from threading import Thread
 from urlparse import urlparse
 from DeviceEngine import DeviceEngine
 from notifications import *
@@ -48,8 +48,8 @@ class TransferManager():
             if DEBUG: debug_trace("notified SIGNAL_DEVICE_CONTENT_CHANGED", sender=self)
             self.__device_engine.update_models()
         #refresh gui
-        while gtk.events_pending():
-            gtk.main_iteration(False)
+        #while gtk.events_pending():
+        #    gtk.main_iteration(False)
 
     def __update_model(self):
         if DEBUG: debug_trace("Updating model.", sender=self)
@@ -71,16 +71,16 @@ class TransferManager():
         trace("queued file %s for %s" % (job.object_id, job.action), sender=self)
 
         # process the queue if not active
+        #gtk.gdk.threads_enter()
         if not self.__process_queue_thread.is_running():
             self.__process_queue_thread.start()
+        #gtk.gdk.threads_leave()
 
     def send_file(self, file_url):
         if DEBUG: debug_trace("request for sending %s" % file_url, sender=self)
         url = urlparse(file_url)
         if url.scheme == "file":
-            #gtk.gdk.threads_enter()
             self.__queue_job(url.path, self.ACTION_SEND, url.path)
-            #gtk.gdk.threads_leave()
         else:
             warning_trace("%s is not a file" % file_url, sender=self)
 
@@ -88,7 +88,7 @@ class TransferManager():
         if DEBUG: debug_trace("request for deleting file with id %s (%s)" % (file_id, file_description), sender=self)
         self.__queue_job(file_id, self.ACTION_DEL, file_description)
 
-class ProcessQueueThread(threading.Thread):
+class ProcessQueueThread(Thread):
     SIGNAL_PROGRESSION = 1
     SIGNAL_QUEUE_CHANGED = 2
     SIGNAL_DEVICE_CONTENT_CHANGED = 3
@@ -97,7 +97,7 @@ class ProcessQueueThread(threading.Thread):
         self.__device_engine = device_engine
         self.__queue = _queue
         self.__is_running = False
-        threading.Thread.__init__(self)
+        Thread.__init__(self)
         self.observers = []
 
     def __notify(self, signal, *args):
@@ -109,7 +109,7 @@ class ProcessQueueThread(threading.Thread):
         self.__notify(self.SIGNAL_PROGRESSION, percentage)
 
     def is_running(self):
-        return self.isAlive()
+        return self.__is_running
 
     def add_observer(self, observer):
         if DEBUG and observer in self.observers:
@@ -130,10 +130,12 @@ class ProcessQueueThread(threading.Thread):
             try:
                 if job.action == TransferManager.ACTION_SEND:
                     self.__device_engine.send_file(job.object_id, None) #self.__device_callback)
-                    trace("%s sent succesfully" % job.object_id, sender=self)
-                if job.action == TransferManager.ACTION_DEL:
+                    trace("%s sent successfully" % job.object_id, sender=self)
+                elif job.action == TransferManager.ACTION_DEL:
                     self.__device_engine.del_file(job.object_id)
                     trace("file with id %s deleted succesfully" % job.object_id, sender=self)
+                else:
+                    assert False
                 self.__notify(self.SIGNAL_DEVICE_CONTENT_CHANGED)
                 self.__queue.remove(job)
             except Exception, exc:
@@ -143,8 +145,8 @@ class ProcessQueueThread(threading.Thread):
             finally:
                 todo = [job for job in self.__queue if  job.status == TransferManager.STATUS_QUEUED]
         self.__notify(self.SIGNAL_QUEUE_CHANGED)
-        self.__is_running = False
         if DEBUG: debug_trace("Processing queue thread finished", sender=self)
+        self.__is_running = False
 
 class Job():
     def __init__(self, object_id, action, status, description):

@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+
+import pygtk
+pygtk.require("2.0")
 import gtk
 from DeviceEngine import DeviceEngine
 from mtpDevice import MTPDevice
@@ -60,11 +64,10 @@ class MTPnavigator:
         self.connect_or_disconnect_device()
 
     def on_quit_activate(self, emiter):
-        pass
+        self.exit()
 
     def on_window_mtpnav_destroy(self, widget):
-        self.window.destroy()
-        gtk.main_quit()
+        self.exit()
 
     def on_send_files_activate(self, widget):
         #@TODO
@@ -75,6 +78,10 @@ class MTPnavigator:
             for uri in data.data.split('\r\n')[:-1]:
                 self.send_file(uri)
         context.finish(True, False, time)
+
+    def exit(self):
+        self.window.destroy()
+        gtk.main_quit()
 
     def connect_or_disconnect_device(self):
         widgets = ["menuitem_send_files", "menuitem_delete_files", "button_add_file", "button_del_file", "hbox_device_information"]
@@ -163,6 +170,7 @@ class MTPnavigator:
 
 if __name__ == "__main__":
     mtpnav = MTPnavigator()
+    gtk.gdk.threads_init()
     gtk.main()
 
 
