@@ -10,12 +10,13 @@ class DeviceEngine:
 
     def __init__(self, _device):
         self.__device = _device
-        self.__track_listing_model = None
+        self.__track_listing_model = gtk.ListStore(gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
         self.__file_tree_model = None
 
     def connect_device(self):
         if not self.__device.connect():
             return False
+        if DEBUG: debug_trace("Device connected successfully", sender=self)
         self.update_models()
         return True
 
@@ -25,19 +26,11 @@ class DeviceEngine:
         self.__device.close()
 
     def update_models(self):
+        if DEBUG: debug_trace("updating device models", sender=self)
         tracks_list =  self.__device.get_tracklisting()
-        self.__create_track_listing_model(tracks_list)
-        #self.__create_file_tree_model(file_list)
-
-    def __create_track_listing_model(self, tracks_list):
-        model = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
+        self.__track_listing_model.clear()
         for track in tracks_list:
-            model.append(track)
-        self.__track_listing_model = model
-
-    def __create_file_tree_model(self, file_list):
-        #@TODO
-        pass
+            self.__track_listing_model.append(track)
 
     def get_track_listing_model(self):
         return self.__track_listing_model

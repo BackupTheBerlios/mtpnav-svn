@@ -1,5 +1,7 @@
 import traceback
 
+DEBUG=True
+
 def debug_trace(text, sender=None, exception=None):
     print "%s: %s" % (sender.__class__.__name__, text)
     if exception:

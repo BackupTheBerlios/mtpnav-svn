@@ -123,9 +123,10 @@ class MTPDevice():
         mtp_metadata.genre = metadata.genre
         mtp_metadata.date = self.__date_to_mtp(metadata.date)
         self.__MTPDevice.send_track_from_file( metadata.path, metadata.filename, mtp_metadata, callback=callback)
-        #self.__MTPDevice.send_file_from_file( metadata.path, metadata.filename, callback=self.__callback)
 
     def remove_track(self, track_id):
+        #FIXME: convert rom string to int when model coulumn type fixed to string
+        #t = int(track_id)
         self.__MTPDevice.delete_object(track_id)
 
     def get_tracklisting(self):
@@ -145,9 +146,9 @@ class MTPDevice():
             if artist and len(artist) > 50: artist = artist[0:49] + '...'
             length = track.filesize
             age_in_days = 0
-            date = "" #self.__mtp_to_date(track.date)
+            date = "" #FIXME: self.__mtp_to_date(track.date)
 
-            t = [title, artist, length, date]
+            t = [track.item_id, title, artist, length, date]
             tracks.append(t)
         return tracks
 
@@ -162,7 +163,7 @@ class MTPDevice():
         info.append(["Owner name", self.__MTPDevice.get_devicename()])
         info.append(["Manufacturer", self.__MTPDevice.get_manufacturer()])
         info.append(["Model name", self.__MTPDevice.get_modelname()])
-        info.append(["Serail number", self.__MTPDevice.get_serialnumber()])
+        info.append(["Serial number", self.__MTPDevice.get_serialnumber()])
         info.append(["Firmware version", self.__MTPDevice.get_deviceversion()])
         return info
 

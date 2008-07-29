@@ -10,7 +10,7 @@ class TransferManager():
     ACTION_DEL = "deleting"
     ACTION_GET = "getting"
     ACTION_CREATE_DIR = "creating directory"
-    ACTION_DEL_DIR = "deleltin directory"
+    ACTION_DEL_DIR = "deleleting directory"
     ACTION_CREATE_PLAYLIST = "creating playlist"
     ACTION_DEL_PLAYLIST = "deleting playlist"
 
@@ -23,10 +23,11 @@ class TransferManager():
         self.__failed_job = []
         self.__device_engine = device_engine
         self.__process_queue_thread = ProcessQueueThread(device_engine, self, self.__queue)
+        self.__process_queue_thread.add_observer(self.__observe_queue_thread)
 
         self.__transfer_treeview = transfer_treeview
-        col = gtk.TreeViewColumn("object_id", gtk.CellRendererText(), text=0)
-        transfer_treeview.append_column(col)
+        #col = gtk.TreeViewColumn("object_id", gtk.CellRendererText(), text=0)
+        #transfer_treeview.append_column(col)
         col = gtk.TreeViewColumn("action", gtk.CellRendererText(), text=1)
         transfer_treeview.append_column(col)
         col = gtk.TreeViewColumn("description", gtk.CellRendererText(), text=2)
@@ -37,8 +38,21 @@ class TransferManager():
         self.__model = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
         transfer_treeview.set_model(self.__model)
 
-    def update_model(self):
-        debug_trace("Updating model.", sender=self)
+    def __observe_queue_thread(self, signal, *args):
+        if signal == ProcessQueueThread.SIGNAL_PROGRESSION:
+            text = ('%i%%' % args[0])
+        elif signal == ProcessQueueThread.SIGNAL_QUEUE_CHANGED:
+            if DEBUG: debug_trace("notified SIGNAL_QUEUE_CHANGED", sender=self)
+            self.__update_model()
+        elif signal == ProcessQueueThread.SIGNAL_DEVICE_CONTENT_CHANGED:
+            if DEBUG: debug_trace("notified SIGNAL_DEVICE_CONTENT_CHANGED", sender=self)
+            self.__device_engine.update_models()
+        #refresh gui
+        while gtk.events_pending():
+            gtk.main_iteration(False)
+
+    def __update_model(self):
+        if DEBUG: debug_trace("Updating model.", sender=self)
         self.__model.clear()
         for job in self.__queue:
             self.__model.append([job.object_id, job.action, job.description, job.status])
@@ -51,68 +65,86 @@ class TransferManager():
             return
 
         self.__queue.append(job)
+        #self.__model.append([job.object_id, job.action, job.description, job.status])
+        self.__update_model()
+
         trace("queued file %s for %s" % (job.object_id, job.action), sender=self)
 
-        self.update_model()
-
         # process the queue if not active
-        if not self.__process_queue_thread.isAlive():
-            self.__process_queue_thread.run()
+        if not self.__process_queue_thread.is_running():
+            self.__process_queue_thread.start()
 
     def send_file(self, file_url):
-        debug_trace("request for sending %s" % file_url, sender=self)
+        if DEBUG: debug_trace("request for sending %s" % file_url, sender=self)
         url = urlparse(file_url)
         if url.scheme == "file":
+            #gtk.gdk.threads_enter()
             self.__queue_job(url.path, self.ACTION_SEND, url.path)
+            #gtk.gdk.threads_leave()
         else:
             warning_trace("%s is not a file" % file_url, sender=self)
 
     def del_file(self, file_id, file_description):
-        debug_trace("request for deleting %s" % file_url, sender=self)
+        if DEBUG: debug_trace("request for deleting file with id %s (%s)" % (file_id, file_description), sender=self)
         self.__queue_job(file_id, self.ACTION_DEL, file_description)
 
 class ProcessQueueThread(threading.Thread):
+    SIGNAL_PROGRESSION = 1
+    SIGNAL_QUEUE_CHANGED = 2
+    SIGNAL_DEVICE_CONTENT_CHANGED = 3
+
     def __init__(self, device_engine, transfer_manager, _queue):
         self.__device_engine = device_engine
-        self.__transfer_manager = transfer_manager #FIXME: remove when not needed anymore
         self.__queue = _queue
+        self.__is_running = False
         threading.Thread.__init__(self)
+        self.observers = []
+
+    def __notify(self, signal, *args):
+        for observer in self.observers:
+            observer(signal, *args)
 
     def __device_callback(self, sent, total):
         percentage = round(float(sent)/float(total)*100)
-        text = ('%i%%' % percentage)
-        print text
-        while gtk.events_pending():
-            gtk.main_iteration(False)
+        self.__notify(self.SIGNAL_PROGRESSION, percentage)
+
+    def is_running(self):
+        return self.isAlive()
+
+    def add_observer(self, observer):
+        if DEBUG and observer in self.observers:
+            debug_trace("observer alredy registered to transfer manager", sender=self)
+        else:
+            self.observers.append(observer)
 
     def run(self):
-        debug_trace("Processing queue thread started ", sender=self)
-        while len(self.__queue) > 0: #FIXME: count only status queued
-            job = self.__queue[0]
-            job.status = self.__transfer_manager.STATUS_PROCESSING
-            #TODO debug_trace("Processing " + job, sender=self)
+        self.__is_running = True
+        if DEBUG: debug_trace("Processing queue thread started ", sender=self)
+
+        todo = [job for job in self.__queue if  job.status == TransferManager.STATUS_QUEUED]
+        while len(todo) > 0:
+            job = todo[0]
+            job.status = TransferManager.STATUS_PROCESSING
+            self.__notify(self.SIGNAL_QUEUE_CHANGED)
+            debug_trace("Processing job %s" % job.object_id, sender=self)
             try:
-                if job.action == self.__transfer_manager.ACTION_SEND:
-                    self.__device_engine.send_file(job.object_id, self.__device_callback) #TODO: callback
+                if job.action == TransferManager.ACTION_SEND:
+                    self.__device_engine.send_file(job.object_id, None) #self.__device_callback)
                     trace("%s sent succesfully" % job.object_id, sender=self)
-                if job.action == self.__transfer_manager.ACTION_DEL:
+                if job.action == TransferManager.ACTION_DEL:
                     self.__device_engine.del_file(job.object_id)
                     trace("file with id %s deleted succesfully" % job.object_id, sender=self)
+                self.__notify(self.SIGNAL_DEVICE_CONTENT_CHANGED)
                 self.__queue.remove(job)
-                #FIXME implements observer/observable pattern instead of using gui itself
-                gtk.gdk.threads_enter()
-                self.__device_engine.update_models()
-                gtk.gdk.threads_leave()
             except Exception, exc:
-                debug_trace("Failed to process " + job.object_id , sender=self, exception=exc)
-                job.status = self.__transfer_manager.STATUS_ERROR
+                if DEBUG: debug_trace("Failed to process %s" % job.object_id , sender=self, exception=exc)
+                job.status = TransferManager.STATUS_ERROR
                 job.exception = exc
             finally:
-                #FIXME implements observer/observable pattern instead of using gui itself
-                gtk.gdk.threads_enter()
-                self.__transfer_manager.update_model()
-                gtk.gdk.threads_leave()
-        debug_trace("Processing queue thread finished", sender=self)
+                todo = [job for job in self.__queue if  job.status == TransferManager.STATUS_QUEUED]
+        self.__notify(self.SIGNAL_QUEUE_CHANGED)
+        self.__is_running = False
+        if DEBUG: debug_trace("Processing queue thread finished", sender=self)
 
 class Job():
     def __init__(self, object_id, action, status, description):

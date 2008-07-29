@@ -2,6 +2,7 @@ import gtk
 from DeviceEngine import DeviceEngine
 from mtpDevice import MTPDevice
 from TransferManager import TransferManager
+from notifications import *
 
 class MTPnavigator:
     def __init__(self):
@@ -17,19 +18,24 @@ class MTPnavigator:
 
         # create the track view
         self.__treeview_track = self.gtkbuilder.get_object("treeview_track_list")
-        col = gtk.TreeViewColumn("treeview", gtk.CellRendererText(), text=0)
+        self.__treeview_track.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
+        col = gtk.TreeViewColumn("treeview", gtk.CellRendererText(), text=1)
+        col.set_sort_column_id(1)
         self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("artist", gtk.CellRendererText(), text=1)
+        col = gtk.TreeViewColumn("artist", gtk.CellRendererText(), text=2)
+        col.set_sort_column_id(2)
         self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("length", gtk.CellRendererText(), text=2)
+        col = gtk.TreeViewColumn("length", gtk.CellRendererText(), text=3)
+        col.set_sort_column_id(3)
         self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("date", gtk.CellRendererText(), text=3)
+        col = gtk.TreeViewColumn("date", gtk.CellRendererText(), text=4)
+        col.set_sort_column_id(4)
         self.__treeview_track.append_column(col)
 
         # add drag and drop support
         # @TODO: deactivate if not connected
         self.__treeview_track.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY)
-        self.__treeview_track.connect('drag_data_received', self.__on_drag_data_received)
+        self.__treeview_track.connect('drag_data_received', self.on_drag_data_received)
 
         self.connect_or_disconnect_device()
 
@@ -37,24 +43,33 @@ class MTPnavigator:
         return self.gtkbuilder.get_object(widget_id)
 
     #------ EVENTS ----------------------------------
-    def __on_delete_files_activate(self, emiter):
-        print "DELETE"
+    def on_delete_files_activate(self, emiter):
+        (model, paths) = self.__treeview_track.get_selection().get_selected_rows()
+        to_del = [] #store the files id to delete before stating deleted, else, path may change if more line are selecetd
+        for path in paths:
+            id =  model.get(model.get_iter(path), 0)[0] #FIXME: is there a better way?
+            desc =  model.get(model.get_iter(path), 1)[0]
+            to_del.append((id, desc))
 
-    def __on_connect_activate(self, emiter):
+        for (id, desc) in to_del:
+            if DEBUG: debug_trace("deleting file with ID %s (%s)" % (id, desc), sender=self)
+            self.__transferManager.del_file(id, desc)
+
+    def on_connect_activate(self, emiter):
         self.connect_or_disconnect_device()
 
-    def __on_quit_activate(self, emiter):
+    def on_quit_activate(self, emiter):
         pass
 
-    def __on_window_destroy(self, widget):
+    def on_window_destroy(self, widget):
         self.window.destroy()
         gtk.main_quit()
 
-    def __on_send_files_activate(self, widget):
+    def on_send_files_activate(self, widget):
         #@TODO
         pass
 
-    def __on_drag_data_received(self, w, context, x, y, data, info, time):
+    def on_drag_data_received(self, w, context, x, y, data, info, time):
         if data and data.format == 8:
             for uri in data.data.split('\r\n')[:-1]:
                 self.send_file(uri)
@@ -149,8 +164,6 @@ if __name__ == "__main__":
     mtpnav = MTPnavigator()
     gtk.gdk.threads_init
     mtpnav.window.show()
-    #gtk.gdk.threads_enter() #FIXME: needed
     gtk.main()
-    #gtk.gdk.threads_leave()
 
 
