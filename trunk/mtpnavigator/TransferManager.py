@@ -45,9 +45,6 @@ class TransferManager():
         elif signal == ProcessQueueThread.SIGNAL_DEVICE_CONTENT_CHANGED:
             if DEBUG: debug_trace("notified SIGNAL_DEVICE_CONTENT_CHANGED", sender=self)
             self.__device_engine.update_models()
-        #refresh gui
-        #while gtk.events_pending():
-        #    gtk.main_iteration(False)
 
     def __update_model(self):
         if DEBUG: debug_trace("Updating model.", sender=self)

@@ -1,0 +1,22 @@
+FIX:
+* Fix deleting more files (update model directly without reading device again, prevent multy model_update request when adding many small files)
+* Tab transfer manager and device information
+* fix font for label in device information
+* display used space in Kb/Mb/Gb
+* call file transfer if file is not a track
+
+FEATURE:
+* menu item send file
+* progress bar for transfer window
+* add button to cancel / retry on error job in transfer window
+* add metadata from mp3/ogg tags. Get metadata from directory/file scheme if no tag
+* file view
+* add and manage playlist 
+
+PRERELEASE:
+* logo
+* about dialog
+* translation
+* setup
+* deb
+* web site
