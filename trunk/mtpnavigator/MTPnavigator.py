@@ -38,6 +38,7 @@ class MTPnavigator:
         self.__treeview_track.connect('drag_data_received', self.on_drag_data_received)
 
         self.connect_or_disconnect_device()
+        self.window.show()
 
     def __getWidget(self, widget_id):
         return self.gtkbuilder.get_object(widget_id)
@@ -61,7 +62,7 @@ class MTPnavigator:
     def on_quit_activate(self, emiter):
         pass
 
-    def on_window_destroy(self, widget):
+    def on_window_mtpnav_destroy(self, widget):
         self.window.destroy()
         gtk.main_quit()
 
@@ -162,8 +163,6 @@ class MTPnavigator:
 
 if __name__ == "__main__":
     mtpnav = MTPnavigator()
-    gtk.gdk.threads_init
-    mtpnav.window.show()
     gtk.main()
 
 
