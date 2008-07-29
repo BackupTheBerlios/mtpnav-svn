@@ -101,8 +101,9 @@ class MTPnavigator:
             # TODO: notify connection failed
             self.__device_engine = None
             return
-        tv = self.gtkbuilder.get_object("treeview_transfer_manager")
-        self.__transferManager = TransferManager(self.__device_engine, tv)
+        tv = self.__getWidget("treeview_transfer_manager")
+        notebook = self.__getWidget("notebook_device_info")
+        self.__transferManager = TransferManager(self.__device_engine, tv, notebook)
 
         # update model
         model = self.__device_engine.get_track_listing_model()

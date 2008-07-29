@@ -18,14 +18,17 @@ class TransferManager():
     STATUS_PROCESSING = "processing"
     STATUS_ERROR = "blocked on error"
 
-    def __init__(self, device_engine, transfer_treeview):
+    def __init__(self, device_engine, transfer_treeview, notebook):
         self.__queue = []
         self.__failed_job = []
         self.__device_engine = device_engine
-        self.__process_queue_thread = ProcessQueueThread(device_engine, self, self.__queue)
-        self.__process_queue_thread.add_observer(self.__observe_queue_thread)
-
+        process_queue_thread = ProcessQueueThread(device_engine, self, self.__queue)
+        process_queue_thread.add_observer(self.__observe_queue_thread)
+        process_queue_thread.setDaemon(True)
+        process_queue_thread.start()
         self.__transfer_treeview = transfer_treeview
+        self.__notebook = notebook
+
         #col = gtk.TreeViewColumn("object_id", gtk.CellRendererText(), text=0)
         #transfer_treeview.append_column(col)
         col = gtk.TreeViewColumn("action", gtk.CellRendererText(), text=1)
@@ -66,11 +69,7 @@ class TransferManager():
         self.__model.append([job.object_id, job.action, job.description, job.status])
 
         trace("queued file %s for %s" % (job.object_id, job.action), sender=self)
-
-        # process the queue if not active
-        if not self.__process_queue_thread.isAlive():
-            self.__process_queue_thread.setDaemon(True) # allow to start the thread several times
-            self.__process_queue_thread.start()
+        self.__notebook.set_current_page(1)
 
     def send_file(self, file_url):
         if DEBUG: debug_trace("request for sending %s" % file_url, sender=self)
