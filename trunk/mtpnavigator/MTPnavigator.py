@@ -70,8 +70,18 @@ class MTPnavigator:
         self.exit()
 
     def on_send_files_activate(self, widget):
-        #@TODO
-        pass
+        title = "Select files to transfer to the device"
+        buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        
+        fs = gtk.FileChooserDialog(title, self.window, gtk.FILE_CHOOSER_ACTION_OPEN, buttons)
+        fs.set_select_multiple(True)
+        fs.set_default_response(gtk.RESPONSE_OK)
+        #fs.set_current_folder("") #TODO: remember previous path
+        response = fs.run()
+        if response == gtk.RESPONSE_OK:
+            for uri in fs.get_uris():
+                self.send_file(uri)
+        fs.destroy()
 
     def on_drag_data_received(self, w, context, x, y, data, info, time):
         if data and data.format == 8:
