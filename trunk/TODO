@@ -1,4 +1,5 @@
 FIXME:
+* file pathes with blank and special char
 * Fix deleting more files (update model directly without reading device again, prevent multy model_update request when adding many small files, mutex on connect)
 * fix font for label in device information
 * display used space in Kb/Mb/Gb

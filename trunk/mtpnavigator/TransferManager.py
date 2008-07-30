@@ -20,9 +20,9 @@ class TransferManager():
 
     def __init__(self, device_engine, transfer_treeview, notebook):
         self.__queue = []
-        self.__failed_job = []
+        self.__error_queue = []
         self.__device_engine = device_engine
-        process_queue_thread = ProcessQueueThread(device_engine, self, self.__queue)
+        process_queue_thread = ProcessQueueThread(device_engine, self, self.__queue, self.__error_queue)
         process_queue_thread.add_observer(self.__observe_queue_thread)
         process_queue_thread.setDaemon(True)
         process_queue_thread.start()
@@ -52,7 +52,7 @@ class TransferManager():
     def __update_model(self):
         if DEBUG: debug_trace("Updating model.", sender=self)
         self.__model.clear()
-        for job in self.__queue:
+        for job in self.__queue.join(self.__error_queue):
             status = job.status
             if status==self.STATUS_PROCESSING:
                 status += " %i%%" % job.progress
@@ -112,9 +112,8 @@ class ProcessQueueThread(Thread):
     def run(self):
         if DEBUG: debug_trace("Processing queue thread started ", sender=self)
         while(True):
-            todo = [job for job in self.__queue if  job.status == TransferManager.STATUS_QUEUED]
-            if len(todo) > 0:
-                job = todo[0]
+            if len(self.__queue) > 0:
+                job = self.__queue.pop()
                 self.__current_job = job
                 job.status = TransferManager.STATUS_PROCESSING
                 self.__notify(self.SIGNAL_QUEUE_CHANGED)
@@ -129,11 +128,11 @@ class ProcessQueueThread(Thread):
                     else:
                         assert False
                     self.__notify(self.SIGNAL_DEVICE_CONTENT_CHANGED)
-                    self.__queue.remove(job)
                 except Exception, exc:
                     if DEBUG: debug_trace("Failed to process %s" % job.object_id , sender=self, exception=exc)
                     job.status = TransferManager.STATUS_ERROR
                     job.exception = exc
+                    self.__error.append(job)
                 finally:
                     self.__current_job = None
                     self.__notify(self.SIGNAL_QUEUE_CHANGED)
