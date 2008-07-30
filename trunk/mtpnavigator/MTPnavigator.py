@@ -129,7 +129,7 @@ class MTPnavigator:
         #TODO self.__getWidget("menuitem_connect").set_label(text)
         img = gtk.image_new_from_stock(stock, gtk.ICON_SIZE_LARGE_TOOLBAR)
         #TODO self.__getWidget("menuitem_connect").set_image(img)
-        self.__getWidget("label_device_name").set_text(self.__device_engine.get_device().get_name())
+        self.__getWidget("label_device_name").set_markup("<b>" + self.__device_engine.get_device().get_name() + "</b>")
 
         # disk usage
         used = self.__device_engine.get_device().get_diskusage()[0]
@@ -151,7 +151,7 @@ class MTPnavigator:
         text=""
         for info in infos:
             text += "<b>" + info[0] + ":</b> " + info[1] + "</br>"
-        self.__getWidget("label_information").set_text(text)
+        self.__getWidget("label_information").set_markup(text)
 
     def __disconnect_device(self):
         self.__device_engine.disconnect_device()
@@ -166,7 +166,7 @@ class MTPnavigator:
         self.__getWidget("menuitem_connect").set_label(text)
         img = gtk.image_new_from_stock(stock, gtk.ICON_SIZE_LARGE_TOOLBAR)
         self.__getWidget("menuitem_connect").set_image(img)
-        self.__getWidget("label_device_name").set_text("No device connected")
+        self.__getWidget("label_device_name").set_markup("<b>No device connected</b>")
 
         # device info
         prog_bar.set_fraction(0)
