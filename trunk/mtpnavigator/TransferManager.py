@@ -2,6 +2,7 @@ import gtk
 import gobject
 from threading import Thread
 from urlparse import urlparse
+from urllib import url2pathname
 from DeviceEngine import DeviceEngine
 from notifications import *
 
@@ -75,7 +76,8 @@ class TransferManager():
         if DEBUG: debug_trace("request for sending %s" % file_url, sender=self)
         url = urlparse(file_url)
         if url.scheme == "file":
-            self.__queue_job(url.path, self.ACTION_SEND, url.path)
+            path = url2pathname(url.path)
+            self.__queue_job(path, self.ACTION_SEND, path)
         else:
             warning_trace("%s is not a file" % file_url, sender=self)
 
