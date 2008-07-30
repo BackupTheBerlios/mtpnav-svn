@@ -5,6 +5,7 @@ from urlparse import urlparse
 from urllib import url2pathname
 from DeviceEngine import DeviceEngine
 from notifications import *
+from time import sleep
 
 class TransferManager():
     ACTION_SEND = "sending"
@@ -53,10 +54,12 @@ class TransferManager():
     def __update_model(self):
         if DEBUG: debug_trace("Updating model.", sender=self)
         self.__model.clear()
-        for job in self.__queue.join(self.__error_queue):
+        for job in self.__queue:
             status = job.status
             if status==self.STATUS_PROCESSING:
                 status += " %i%%" % job.progress
+            self.__model.append([job.object_id, job.action, job.description, job.status])
+        for job in self.__error_queue:
             self.__model.append([job.object_id, job.action, job.description, job.status])
 
     def __queue_job(self, object_id, job_type, description):
@@ -89,9 +92,10 @@ class ProcessQueueThread(Thread):
     SIGNAL_QUEUE_CHANGED = 1
     SIGNAL_DEVICE_CONTENT_CHANGED = 2
 
-    def __init__(self, device_engine, transfer_manager, _queue):
+    def __init__(self, device_engine, transfer_manager, _queue, errors):
         self.__device_engine = device_engine
         self.__queue = _queue
+        self.__errors = errors
         self.__current_job = None
         Thread.__init__(self)
         self.observers = []
@@ -115,7 +119,7 @@ class ProcessQueueThread(Thread):
         if DEBUG: debug_trace("Processing queue thread started ", sender=self)
         while(True):
             if len(self.__queue) > 0:
-                job = self.__queue.pop()
+                job = self.__queue[0]
                 self.__current_job = job
                 job.status = TransferManager.STATUS_PROCESSING
                 self.__notify(self.SIGNAL_QUEUE_CHANGED)
@@ -134,10 +138,13 @@ class ProcessQueueThread(Thread):
                     if DEBUG: debug_trace("Failed to process %s" % job.object_id , sender=self, exception=exc)
                     job.status = TransferManager.STATUS_ERROR
                     job.exception = exc
-                    self.__error.append(job)
+                    self.__errors.append(job)
                 finally:
+                    self.__queue.remove(job)
                     self.__current_job = None
                     self.__notify(self.SIGNAL_QUEUE_CHANGED)
+            else:
+                sleep(1)
 
 class Job():
     def __init__(self, object_id, action, status, description):

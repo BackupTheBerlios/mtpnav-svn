@@ -72,7 +72,7 @@ class MTPnavigator:
     def on_send_files_activate(self, widget):
         title = "Select files to transfer to the device"
         buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK)
-        
+
         fs = gtk.FileChooserDialog(title, self.window, gtk.FILE_CHOOSER_ACTION_OPEN, buttons)
         fs.set_select_multiple(True)
         fs.set_default_response(gtk.RESPONSE_OK)
@@ -150,7 +150,7 @@ class MTPnavigator:
         infos = self.__device_engine.get_device().get_information()
         text=""
         for info in infos:
-            text += "<b>" + info[0] + ":</b> " + info[1] + "</br>"
+            text += "<b>" + info[0] + ":</b> " + info[1] + "\n"
         self.__getWidget("label_information").set_markup(text)
 
     def __disconnect_device(self):

@@ -1,8 +1,6 @@
 FIXME:
-* file pathes with blank and special char
 * connect on demand instead of connect once
 * Fix deleting more files (update model directly without reading device again, prevent multy model_update request when adding many small files, mutex on connect)
-* fix font for label in device information
 * display used space in Kb/Mb/Gb
 * call file transfer if file is not a track
 
