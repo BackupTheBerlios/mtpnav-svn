@@ -100,7 +100,6 @@ class MTPDevice():
         try:
             self.__MTPDevice.connect()
             # build the initial tracks_list
-            self.tracks_list = self.get_tracklisting()
         except Exception, exc:
             print('unable to find an MTP device (%s)', exc)
             return False
