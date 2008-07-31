@@ -111,8 +111,8 @@ class ProcessQueueThread(Thread):
             #todo: remove from model
             self.__current_job = job
             job.status = TransferManager.STATUS_PROCESSING
-            #self.__model.remove_job(job) #FIXME: needed to refresh?
-            #self.__model.append(job)
+            self.__model.remove_job(job) #FIXME: modify instead
+            self.__model.append([job.object_id, job.action, job.description, job.status])
             debug_trace("Processing job %s" % job.object_id, sender=self)
             try:
                 if job.action == TransferManager.ACTION_SEND:

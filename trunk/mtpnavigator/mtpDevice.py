@@ -147,7 +147,7 @@ class MTPDevice():
             age_in_days = 0
             date = "" #FIXME: self.__mtp_to_date(track.date)
 
-            t = [track.item_id, title, artist, length, date]
+            t = [str(track.item_id), title, artist, length, date]
             tracks.append(t)
         return tracks
 
