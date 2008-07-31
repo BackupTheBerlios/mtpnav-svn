@@ -1,6 +1,7 @@
 import gtk
 import gobject
-from threading import Thread
+from threading import thread
+from threading import Condition
 from urlparse import urlparse
 from urllib import url2pathname
 from DeviceEngine import DeviceEngine
@@ -24,6 +25,8 @@ class TransferManager():
         self.__queue = []
         self.__error_queue = []
         self.__device_engine = device_engine
+        # needed to block the queue Thread when no data are disponible
+        self.condition = Condition()
         process_queue_thread = ProcessQueueThread(device_engine, self, self.__queue, self.__error_queue)
         process_queue_thread.add_observer(self.__observe_queue_thread)
         process_queue_thread.setDaemon(True)
@@ -68,9 +71,11 @@ class TransferManager():
         if self.__queue.count(job) > 0: # FIXME: check ignoring the status
             warning_trace("%s already in queue" % file_url, sender=self)
             return
-
+        self.condition.acquire()
         self.__queue.append(job)
         self.__model.append([job.object_id, job.action, job.description, job.status])
+        self.condition.notify() # signal that a new item is available
+        self.condition.release()
 
         trace("queued file %s for %s" % (job.object_id, job.action), sender=self)
         self.__notebook.set_current_page(1)
@@ -118,6 +123,7 @@ class ProcessQueueThread(Thread):
     def run(self):
         if DEBUG: debug_trace("Processing queue thread started ", sender=self)
         while(True):
+            transfer_manager.condition.aquire()
             if len(self.__queue) > 0:
                 job = self.__queue[0]
                 self.__current_job = job
@@ -143,8 +149,8 @@ class ProcessQueueThread(Thread):
                     self.__queue.remove(job)
                     self.__current_job = None
                     self.__notify(self.SIGNAL_QUEUE_CHANGED)
-            else:
-                sleep(1)
+            transfer_manager.condition.wait()
+            transfer_manager.condition.release()
 
 class Job():
     def __init__(self, object_id, action, status, description):
