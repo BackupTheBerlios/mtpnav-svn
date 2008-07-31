@@ -48,7 +48,12 @@ class TransferManager():
     def __observe_queue_thread(self, signal, *args):
         if signal == ProcessQueueThread.SIGNAL_DEVICE_CONTENT_CHANGED:
             if DEBUG: debug_trace("notified SIGNAL_DEVICE_CONTENT_CHANGED", sender=self)
-            self.__device_engine.update_models()
+            job = args[0]
+            if job.action==ACTION_SEND:
+                self.__device_engine.get_track_listing_model.add_row(job.object_id, "FIXME","","","") #FIXME: get metadata from file
+            elif job.action==ACTION_DEL:
+                self.__device_engine.get_track_listing_model.remove_object(job.object_id)
+    
 
     def __queue_job(self, object_id, job_type, description):
         job = Job(object_id, job_type, self.STATUS_QUEUED, description)
@@ -118,7 +123,7 @@ class ProcessQueueThread(Thread):
                     trace("file with id %s deleted succesfully" % job.object_id, sender=self)
                 else:
                     assert False
-                self.__notify(self.SIGNAL_DEVICE_CONTENT_CHANGED)
+                self.__notify(self.SIGNAL_DEVICE_CONTENT_CHANGED, job)
             except Exception, exc:
                 if DEBUG: debug_trace("Failed to process %s" % job.object_id , sender=self, exception=exc)
                 job.status = TransferManager.STATUS_ERROR

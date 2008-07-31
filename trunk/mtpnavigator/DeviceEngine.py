@@ -10,7 +10,7 @@ class DeviceEngine:
 
     def __init__(self, _device):
         self.__device = _device
-        self.__track_listing_model = gtk.ListStore(gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
+        self.__track_listing_model = TrackListingModel(_device)
         self.__file_tree_model = None
 
     def connect_device(self):
@@ -24,13 +24,6 @@ class DeviceEngine:
         self.__track_listing_model = None
         self.__file_tree_model = None
         self.__device.close()
-
-    def update_models(self):
-        if DEBUG: debug_trace("updating device models", sender=self)
-        tracks_list =  self.__device.get_tracklisting()
-        self.__track_listing_model.clear()
-        for track in tracks_list:
-            self.__track_listing_model.append(track)
 
     def get_track_listing_model(self):
         return self.__track_listing_model
@@ -53,3 +46,45 @@ class DeviceEngine:
     def get_device(self):
         return self.__device
 
+class TrackListingModel(ListStore):
+    self.OBJECT_ID=0
+    self.TITLE=1
+    self.ARTIST=2
+    self.LENGTH=3
+    self.DATE=4
+    
+    def __init__(self, _device):
+        ListStore.__init__(gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
+        tracks_list =  self.__device.get_tracklisting()
+        self.__cache = {}
+        for track in tracks_list:
+            iter = self.append(track)
+            self.__cache[track[0]] = TreeRowReference(self, self.get_path(iter)
+            
+    def __get_iter(self, object_id):
+        try:
+            return  self.__cache[object_id]
+        except KeyError, exc:
+            return None
+        #FIXME: use pair {id, TreeRowReference} to cache rows?
+        #it = self.get_iter_first()
+        #while it
+        #    if self.get_value(it, self.OBJECT_ID) == object_id:
+        #        return it
+        #    it = self.iter_next()
+        #return None
+        
+    def remove_object(self, object_id):
+        it = __get_iter(object_id)
+        if it:
+            self.remove(it)
+        else:
+            notify_warning("trying to remove non existing object %s from model", object_id)
+            
+    def add_row(self, object_id, title, artist, length, date):
+        self.append([object_id, title, artist, length, date])
+        
+
+        
+        
+        
