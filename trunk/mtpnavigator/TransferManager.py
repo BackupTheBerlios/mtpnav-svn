@@ -108,16 +108,15 @@ class ProcessQueueThread(Thread):
         if DEBUG: debug_trace("Processing queue thread started ", sender=self)
         while(True):
             job = self.__queue.get() # will wait until an job is there
-            #todo: remove from model
             self.__current_job = job
-            job.status = TransferManager.STATUS_PROCESSING
-            self.__model.remove_job(job) #FIXME: modify instead
-            self.__model.append([job.object_id, job.action, job.description, job.status])
+            self.__model.modify(job.object_id, TransfertQueueModel.COL_STATUS, TransferManager.STATUS_PROCESSING)
             debug_trace("Processing job %s" % job.object_id, sender=self)
             try:
+                previous_id=job.object_id
                 if job.action == TransferManager.ACTION_SEND:
                     id = self.__device_engine.send_file(job.object_id, self.__device_callback)
                     trace("%s sent successfully. New id is %s" % (job.object_id, id), sender=self)
+                    self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
                     job.object_id = id
                 elif job.action == TransferManager.ACTION_DEL:
                     self.__device_engine.del_file(job.object_id)
@@ -131,11 +130,14 @@ class ProcessQueueThread(Thread):
                 job.exception = exc
                 self.__model.append([job.object_id, job.action, job.description, job.status])
             finally:
-                self.__model.remove_job(job) #FIXME: needed to refresh?
+                self.__model.remove_job(previous_id)
                 self.__current_job = None
 
 class TransfertQueueModel(gtk.ListStore):
     COL_JOB_ID=0
+    COL_ACTION=1
+    COL_DESCRIPTION=2
+    COL_STATUS=3
 
     def __init__(self):
         gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
@@ -152,12 +154,20 @@ class TransfertQueueModel(gtk.ListStore):
         except KeyError, exc:
             return None
 
-    def remove_job(self, job):
-        it = self.__get_iter(job.object_id)
+    def remove_job(self, object_id):
+        it = self.__get_iter(object_id)
         if it:
             self.remove(it)
         else:
             debug_trace("trying to remove non existing object %s from model" % job.object_id, sender=self)
+
+    def modify(self, object_id, column, value):
+        it = self.__get_iter(object_id)
+        if it:
+            self.set_value(it, column, value)
+        else:
+            debug_trace("trying to update non existing object %s from model" % job.object_id, sender=self)
+
 
 class Job():
     def __init__(self, object_id, action, status, description):
