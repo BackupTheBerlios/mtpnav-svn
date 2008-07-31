@@ -10,14 +10,13 @@ class DeviceEngine:
 
     def __init__(self, _device):
         self.__device = _device
-        self.__track_listing_model = TrackListingModel(_device)
         self.__file_tree_model = None
 
     def connect_device(self):
         if not self.__device.connect():
             return False
         if DEBUG: debug_trace("Device connected successfully", sender=self)
-        self.update_models()
+        self.__track_listing_model = TrackListingModel(self.__device)
         return True
 
     def disconnect_device(self):
@@ -38,53 +37,49 @@ class DeviceEngine:
         mimetypes.guess_type(filename) =  'audio/mpeg'"""
         #TODO: find correct metadata
         metadata = filesMetadata.get_metadata_for_type(url.path)
-        self.__device.send_track(metadata, callback)
+        return self.__device.send_track(metadata, callback)
 
     def del_file(self, file_id):
-        self.__device.remove_track(file_id)
+        return self.__device.remove_track(file_id)
 
     def get_device(self):
         return self.__device
 
-class TrackListingModel(ListStore):
-    self.OBJECT_ID=0
-    self.TITLE=1
-    self.ARTIST=2
-    self.LENGTH=3
-    self.DATE=4
-    
+class TrackListingModel(gtk.ListStore):
+    OBJECT_ID=0
+    TITLE=1
+    ARTIST=2
+    LENGTH=3
+    DATE=4
+
     def __init__(self, _device):
-        ListStore.__init__(gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
-        tracks_list =  self.__device.get_tracklisting()
+        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
         self.__cache = {}
+        tracks_list =  _device.get_tracklisting()
         for track in tracks_list:
-            iter = self.append(track)
-            self.__cache[track[0]] = TreeRowReference(self, self.get_path(iter)
-            
+            self.append(track)
+
+    def append(self, track):
+        iter = gtk.ListStore.append(self, track)
+        self.__cache[track[0]] = gtk.TreeRowReference(self, self.get_path(iter))
+        return iter
+
     def __get_iter(self, object_id):
         try:
-            return  self.__cache[object_id]
+            return  self.get_iter(self.__cache[object_id].get_path())
         except KeyError, exc:
             return None
-        #FIXME: use pair {id, TreeRowReference} to cache rows?
-        #it = self.get_iter_first()
-        #while it
-        #    if self.get_value(it, self.OBJECT_ID) == object_id:
-        #        return it
-        #    it = self.iter_next()
-        #return None
-        
+
     def remove_object(self, object_id):
-        it = __get_iter(object_id)
+        it = self.__get_iter(object_id)
         if it:
             self.remove(it)
         else:
-            notify_warning("trying to remove non existing object %s from model", object_id)
-            
+            debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
+
     def add_row(self, object_id, title, artist, length, date):
         self.append([object_id, title, artist, length, date])
-        
 
-        
-        
-        
+
+
+

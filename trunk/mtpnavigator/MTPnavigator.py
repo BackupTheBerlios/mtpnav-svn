@@ -23,6 +23,9 @@ class MTPnavigator:
         # create the track view
         self.__treeview_track = self.gtkbuilder.get_object("treeview_track_list")
         self.__treeview_track.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
+        if DEBUG:
+            col = gtk.TreeViewColumn("treeview", gtk.CellRendererText(), text=0)
+            self.__treeview_track.append_column(col)
         col = gtk.TreeViewColumn("treeview", gtk.CellRendererText(), text=1)
         col.set_sort_column_id(1)
         self.__treeview_track.append_column(col)

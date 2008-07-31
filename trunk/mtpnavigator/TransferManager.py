@@ -1,7 +1,7 @@
 import gtk
 import gobject
-from threading import thread
-from Queue import Queue 
+from threading import Thread
+from Queue import Queue
 from urlparse import urlparse
 from urllib import url2pathname
 from DeviceEngine import DeviceEngine
@@ -49,11 +49,11 @@ class TransferManager():
         if signal == ProcessQueueThread.SIGNAL_DEVICE_CONTENT_CHANGED:
             if DEBUG: debug_trace("notified SIGNAL_DEVICE_CONTENT_CHANGED", sender=self)
             job = args[0]
-            if job.action==ACTION_SEND:
-                self.__device_engine.get_track_listing_model.add_row(job.object_id, "FIXME","","","") #FIXME: get metadata from file
-            elif job.action==ACTION_DEL:
-                self.__device_engine.get_track_listing_model.remove_object(job.object_id)
-    
+            if job.action==self.ACTION_SEND:
+                self.__device_engine.get_track_listing_model().add_row(job.object_id, "FIXME","","","") #FIXME: get metadata from file
+            elif job.action==self.ACTION_DEL:
+                self.__device_engine.get_track_listing_model().remove_object(job.object_id)
+
 
     def __queue_job(self, object_id, job_type, description):
         job = Job(object_id, job_type, self.STATUS_QUEUED, description)
@@ -84,7 +84,7 @@ class ProcessQueueThread(Thread):
     def __init__(self, device_engine, transfer_manager, _queue, model):
         self.__device_engine = device_engine
         self.__queue = _queue
-        self.__errors
+        self.__model = model
         self.__current_job = None
         Thread.__init__(self)
         self.observers = []
@@ -116,8 +116,9 @@ class ProcessQueueThread(Thread):
             debug_trace("Processing job %s" % job.object_id, sender=self)
             try:
                 if job.action == TransferManager.ACTION_SEND:
-                    self.__device_engine.send_file(job.object_id, self.__device_callback)
-                    trace("%s sent successfully" % job.object_id, sender=self)
+                    id = self.__device_engine.send_file(job.object_id, self.__device_callback)
+                    trace("%s sent successfully. New id is %s" % (job.object_id, id), sender=self)
+                    job.object_id = id
                 elif job.action == TransferManager.ACTION_DEL:
                     self.__device_engine.del_file(job.object_id)
                     trace("file with id %s deleted succesfully" % job.object_id, sender=self)
@@ -128,32 +129,35 @@ class ProcessQueueThread(Thread):
                 if DEBUG: debug_trace("Failed to process %s" % job.object_id , sender=self, exception=exc)
                 job.status = TransferManager.STATUS_ERROR
                 job.exception = exc
-                self.__model.append(job)
+                self.__model.append([job.object_id, job.action, job.description, job.status])
             finally:
                 self.__model.remove_job(job) #FIXME: needed to refresh?
                 self.__current_job = None
 
-class TransfertQueueModel(gtk.ListStore)
-    self.COL_JOB_ID=0
-    
+class TransfertQueueModel(gtk.ListStore):
+    COL_JOB_ID=0
+
     def __init__(self):
-        gtk.ListStore.__init__(gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
-    
+        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
+        self.__cache = {}
+
+    def append(self, track):
+        iter = gtk.ListStore.append(self, track)
+        self.__cache[track[0]] = gtk.TreeRowReference(self, self.get_path(iter))
+        return iter
+
     def __get_iter(self, object_id):
-        #FIXME: use treeiter and if to cache rows?
-        it = self.get_iter_first()
-        while it
-            if self.get_value(it, self.self.COL_JOB_ID) == object_id:
-                return it
-            it = self.iter_next()
-        return None        
-        
+        try:
+            return  self.get_iter(self.__cache[object_id].get_path())
+        except KeyError, exc:
+            return None
+
     def remove_job(self, job):
-        it = __get_row_iter(job.object_id)
+        it = self.__get_iter(job.object_id)
         if it:
             self.remove(it)
         else:
-            notify_warning("trying to remove non existing object %s from model", job.object_id)
+            debug_trace("trying to remove non existing object %s from model" % job.object_id, sender=self)
 
 class Job():
     def __init__(self, object_id, action, status, description):

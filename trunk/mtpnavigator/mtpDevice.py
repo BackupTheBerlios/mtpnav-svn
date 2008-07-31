@@ -121,12 +121,12 @@ class MTPDevice():
         mtp_metadata.album = metadata.album
         mtp_metadata.genre = metadata.genre
         mtp_metadata.date = self.__date_to_mtp(metadata.date)
-        self.__MTPDevice.send_track_from_file( metadata.path, metadata.filename, mtp_metadata, callback=callback)
+        return str(self.__MTPDevice.send_track_from_file( metadata.path, metadata.filename, mtp_metadata, callback=callback))
 
     def remove_track(self, track_id):
         #FIXME: convert rom string to int when model coulumn type fixed to string
-        #t = int(track_id)
-        self.__MTPDevice.delete_object(track_id)
+        t = int(track_id)
+        return str(self.__MTPDevice.delete_object(t))
 
     def get_tracklisting(self):
         listing = []
