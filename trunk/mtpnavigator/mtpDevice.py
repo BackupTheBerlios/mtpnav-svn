@@ -121,6 +121,13 @@ class MTPDevice():
         mtp_metadata.album = metadata.album
         mtp_metadata.genre = metadata.genre
         mtp_metadata.date = self.__date_to_mtp(metadata.date)
+        mtp_metadata.tracknumber = metadata.tracknumber
+		mtp_metadata.duration = metadata.duration
+        mtp_metadata.samplerate = metadata.samplerate
+        mtp_metadata.bitrate = metadata.bitrate
+        mtp_metadata.bitratetype = metadata.bitratetype
+        mtp_metadata.rating = metadata.rating
+        mtp_metadata.usecount = metadata.usecount
         return str(self.__MTPDevice.send_track_from_file( metadata.path, metadata.filename, mtp_metadata, callback=callback))
 
     def remove_track(self, track_id):

@@ -15,5 +15,9 @@ def trace(text, sender=None):
 def notify_error(text):
     print "ERROR %s" % (text)
 
-def notify_warning(text):
-    print "WARNING %s" % (text)
+def notify_warning(text, exception=None):
+    print "WARNING: %s" % (text)
+    if exception:
+        error = traceback.format_exc()
+        if error.strip() != 'None':
+            print error    

@@ -32,10 +32,6 @@ class DeviceEngine:
 
     def send_file(self, file_url, callback):
         url = urlparse(file_url)
-        """ TODO check mimetype to get metadata:
-        mimetypes.init()
-        mimetypes.guess_type(filename) =  'audio/mpeg'"""
-        #TODO: find correct metadata
         metadata = filesMetadata.get_metadata_for_type(url.path)
         return self.__device.send_track(metadata, callback)
 
