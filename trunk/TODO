@@ -7,13 +7,15 @@ FEATURES 0.1:
 * size/resize sort columns
 * progress bar for transfer window
 * add button to cancel / retry on error job in transfer window
-* add metadata from mp3/ogg tags. Get metadata from directory/file scheme if no tag
+* add metadata from ogg tags.
+* paranetrize metadata from directory/file scheme if no tag
 * file view
 * add and manage playlist
 * rigth click context menu
 * preferences
 
 FEATURES post 0.1:
+* accept samba files
 * edit metadata
 * copy and paste from nautilus
 * album view

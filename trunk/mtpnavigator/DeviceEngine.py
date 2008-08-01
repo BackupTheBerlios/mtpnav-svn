@@ -45,11 +45,13 @@ class TrackListingModel(gtk.ListStore):
     OBJECT_ID=0
     TITLE=1
     ARTIST=2
-    LENGTH=3
-    DATE=4
+    ALBUM=3
+    GENRE=4
+    LENGTH=5
+    DATE=6
 
     def __init__(self, _device):
-        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
+        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
         self.__cache = {}
         tracks_list =  _device.get_tracklisting()
         for track in tracks_list:
@@ -73,8 +75,8 @@ class TrackListingModel(gtk.ListStore):
         else:
             debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
 
-    def add_row(self, object_id, title, artist, length, date):
-        self.append([object_id, title, artist, length, date])
+    def add_row(self, object_id, title, artist, album, genre, length, date):
+        self.append([object_id, title, artist, album, genre, length, date])
 
 
 

@@ -50,7 +50,7 @@ class TransferManager():
             if DEBUG: debug_trace("notified SIGNAL_DEVICE_CONTENT_CHANGED", sender=self)
             job = args[0]
             if job.action==self.ACTION_SEND:
-                self.__device_engine.get_track_listing_model().add_row(job.object_id, "FIXME","","","") #FIXME: get metadata from file
+                self.__device_engine.get_track_listing_model().add_row(job.object_id, "FIXME","","","","", "") #FIXME: get metadata from file
             elif job.action==self.ACTION_DEL:
                 self.__device_engine.get_track_listing_model().remove_object(job.object_id)
 
@@ -71,7 +71,7 @@ class TransferManager():
             path = url2pathname(url.path)
             self.__queue_job(path, self.ACTION_SEND, path)
         else:
-            warning_trace("%s is not a file" % file_url, sender=self)
+            notify_warning("%s is not a file" % file_url)
 
     def del_file(self, file_id, file_description):
         if DEBUG: debug_trace("request for deleting file with id %s (%s)" % (file_id, file_description), sender=self)
