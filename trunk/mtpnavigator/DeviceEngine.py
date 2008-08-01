@@ -5,6 +5,7 @@ from urlparse import urlparse
 import mimetypes
 import filesMetadata
 from notifications import *
+import util
 
 class DeviceEngine:
 
@@ -47,15 +48,16 @@ class TrackListingModel(gtk.ListStore):
     ARTIST=2
     ALBUM=3
     GENRE=4
-    LENGTH=5
-    DATE=6
+    LENGTH_STR=5
+    LENGTH_INT=6
+    DATE=7
 
     def __init__(self, _device):
-        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
+        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING)
         self.__cache = {}
         tracks_list =  _device.get_tracklisting()
         for track in tracks_list:
-            self.append(track)
+            self.add_row(track[0], track[1], track[2], track[3], track[4], track[5], track[6])
 
     def append(self, track):
         iter = gtk.ListStore.append(self, track)
@@ -76,7 +78,7 @@ class TrackListingModel(gtk.ListStore):
             debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
 
     def add_row(self, object_id, title, artist, album, genre, length, date):
-        self.append([object_id, title, artist, album, genre, length, date])
+        self.append([object_id, title, artist, album, genre, util.format_filesize(length), length, date])
 
 
 

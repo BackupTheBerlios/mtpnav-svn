@@ -1,6 +1,5 @@
 FIXME:
 * connect on demand instead of connect once
-* display used space in Kb/Mb/Gb
 
 FEATURES 0.1:
 * trace debug and exceptions

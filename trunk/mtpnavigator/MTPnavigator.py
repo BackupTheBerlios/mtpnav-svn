@@ -7,6 +7,8 @@ from DeviceEngine import DeviceEngine
 from mtpDevice import MTPDevice
 from TransferManager import TransferManager
 from notifications import *
+from DeviceEngine import TrackListingModel
+import util
 
 class MTPnavigator:
     def __init__(self):
@@ -23,26 +25,27 @@ class MTPnavigator:
         # create the track view
         self.__treeview_track = self.gtkbuilder.get_object("treeview_track_list")
         self.__treeview_track.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
+        t = TrackListingModel
         if DEBUG:
-            col = gtk.TreeViewColumn("object ID", gtk.CellRendererText(), text=0)
+            col = gtk.TreeViewColumn("object ID", gtk.CellRendererText(), text=t.OBJECT_ID)
             self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("title", gtk.CellRendererText(), text=1)
-        col.set_sort_column_id(1)
+        col = gtk.TreeViewColumn("title", gtk.CellRendererText(), text=t.TITLE)
+        col.set_sort_column_id(t.TITLE)
         self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("artist", gtk.CellRendererText(), text=2)
-        col.set_sort_column_id(2)
+        col = gtk.TreeViewColumn("artist", gtk.CellRendererText(), text=t.ARTIST)
+        col.set_sort_column_id(t.ARTIST)
         self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("album", gtk.CellRendererText(), text=3)
-        col.set_sort_column_id(3)
+        col = gtk.TreeViewColumn("album", gtk.CellRendererText(), text=t.ALBUM)
+        col.set_sort_column_id(t.ALBUM)
         self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("genre", gtk.CellRendererText(), text=4)
-        col.set_sort_column_id(4)
+        col = gtk.TreeViewColumn("genre", gtk.CellRendererText(), text=t.GENRE)
+        col.set_sort_column_id(t.GENRE)
         self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("length", gtk.CellRendererText(), text=5)
-        col.set_sort_column_id(5)
+        col = gtk.TreeViewColumn("length", gtk.CellRendererText(), text=t.LENGTH_STR)
+        col.set_sort_column_id(t.LENGTH_INT)
         self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("date", gtk.CellRendererText(), text=6)
-        col.set_sort_column_id(6)
+        col = gtk.TreeViewColumn("date", gtk.CellRendererText(), text=t.DATE)
+        col.set_sort_column_id(t.DATE)
         self.__treeview_track.append_column(col)
 
         # add drag and drop support
@@ -145,7 +148,7 @@ class MTPnavigator:
         total = self.__device_engine.get_device().get_diskusage()[1]
         prog_bar = self.__getWidget("progressbar_disk_usage")
         prog_bar.set_fraction(float(used)/float(total))
-        prog_bar.set_text("%i of %i" % (used, total))
+        prog_bar.set_text("%s of %s" % (util.format_filesize(used), util.format_filesize(total)))
 
         # batterie level
         max = self.__device_engine.get_device().get_batterylevel()[0]
