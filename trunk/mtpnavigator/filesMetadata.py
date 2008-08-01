@@ -16,7 +16,7 @@ def get_metadata_for_type(path):
         #FIXME: use mimetype? MP3, others?
         #mimetypes.init()
         #mimetypes.guess_type(filename) =  'audio/mpeg'"""
-        if extension == ".mp3" and has_eyed3: 
+        if extension == ".mp3" and has_eyed3:
             return MP3FileMetadata(path, filename, extension)
         elif extension == ".ogg":
             return OggFileMetadata(path, filename, extension)
@@ -31,24 +31,33 @@ class GenericFileMetadata:
         self.filename = filename
         self.extension = extension
         self.directoryID = 0 #@TODO
-        
+
         # get metadata from path and file name
         # todo: parametrize how it should be done for nom consider .../artiste/album/title.mp3
         self.title =  self.filename
-        (path, tail) = split(path)
+        (path, tail) = os.path.split(path)
         self.album = tail
-        (path, tail) = split(path)
+        (path, tail) = os.path.split(path)
         self.artist = tail
         self.genre = None
         self.date = None
-        self.tracknumber = None
-        self.duration = None
-        self.samplerate = None
-        self.bitrate = None
-        self.bitratetype = None # 0 = unused, 1 = constant, 2 = VBR, 3 = free
-        self.rating = None
-        self.usecount = None
+        self.tracknumber = 0
+        self.duration = 0
+        self.samplerate = 0
+        self.bitrate = 0
+        self.bitratetype = 0 # 0 = unused, 1 = constant, 2 = VBR, 3 = free
+        self.rating = 0
+        self.usecount = 0
         self.year = None
+
+    if DEBUG:
+        def to_string(self):
+            str = ""
+            if self.title: str += " title=" + self.title
+            if self.album: str += " album=" + self.album
+            if self.artist: str += " artist="+ self.artist
+            if self.genre: str += " genre=" + self.genre
+            return str
 
 class MP3FileMetadata(GenericFileMetadata):
 
@@ -57,26 +66,32 @@ class MP3FileMetadata(GenericFileMetadata):
 
         tag = eyeD3.tag.Tag()
         try:
-            if tag.link(filename): # tags are present
+            if tag.link(path): # tags are present
+                if DEBUG:
+                    debug_trace("Mp3 tags found for file %s" % filename, sender=self)
                 self.title =  tag.getTitle()
-                self.album = tag.getAlbum
+                self.album = tag.getAlbum()
                 self.artist = tag.getArtist()
-                self.genre = tag.getGenre().getName()
+                if tag.getGenre(): self.genre = tag.getGenre().getName()
                 self.date = tag.getDate()
-                self.tracknumer = tag.getTrackNum()
-                self.duration = None # todo
-                self.samplerate = tag.getSampleFreq()
-                (variable, bitrate) = tag.getBitRate()
+                self.tracknumer = 0 #TODO: convert int tag.getTrackNum()
+                self.duration = 0 # todo
+                mp3 = eyeD3.tag.Mp3AudioFile(path)
+                self.samplerate = mp3.getSampleFreq()
+                (variable, bitrate) = mp3.getBitRate()
                 self.bitrate = bitrate
                 self.bitratetype = 1
                 if variable:
                     self.bitratetype = 2
-                self.usecount = tag.getPlayCount()
+                if tag.getPlayCount(): self.usecount = tag.getPlayCount()
                 self.year = tag.getYear()
-            else:
+            elif DEBUG:
                 debug_trace("No tag found for mp3 file %s" % filename, sender=self)
         except Exception, exc:
-            notify_warning("Error while getting mp3 tags for file %s" % filename, exc)
+            notify_error("Error while getting mp3 tags for file %s" % filename, exc)
+        finally:
+            if DEBUG:
+                debug_trace("Tags are %s" % self.to_string(), sender=self)
 
 class OggFileMetadata(GenericFileMetadata):
 

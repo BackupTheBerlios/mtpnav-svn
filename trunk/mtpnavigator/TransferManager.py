@@ -177,9 +177,9 @@ class Job():
         self.description = description
         self.exception = None
         self.progress = 0
-        
-    def get_list():
+
+    def get_list(self):
         """
             return a list of attributes. needed for model
         """
-        return [job.object_id, job.action, job.description, job.status]
+        return [self.object_id, self.action, self.description, self.status]
