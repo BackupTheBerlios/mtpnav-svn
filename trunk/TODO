@@ -1,19 +1,34 @@
 FIXME:
 * connect on demand instead of connect once
 
-FEATURES 0.1:
-* trace debug and exceptions
-* size/resize sort columns
-* progress bar for transfer window
-* add button to cancel / retry on error job in transfer window
-* add metadata from ogg tags.
-* paranetrize metadata from directory/file scheme if no tag
-* file view
-* add and manage playlist
-* rigth click context menu
-* preferences
+RELEASE 0.1.0:
+--------------
+    FEATURES 0.0.1a:
+    * size/resize columns
+    * progress bar for transfer window
 
-FEATURES post 0.1:
+    FEATURE 0.0.2a:
+    * file view
+    * add button to cancel / retry on error job in transfer window
+    * add metadata from ogg tags.
+
+    FEATURE 0.0.3a:
+    * trace debug and exceptions
+    * add and manage playlist
+    * parametrize metadata from directory/file scheme if no tag
+    * rigth click context menu
+    * preferences
+
+    PRERELEASE:
+    * logo
+    * about dialog
+    * translation
+    * setup
+    * deb
+    * web site
+
+RELEASE 0.2.0:
+--------------
 * accept samba files
 * edit metadata
 * copy and paste from nautilus
@@ -22,10 +37,3 @@ FEATURES post 0.1:
 * support for fs based device
 * cover
 
-PRERELEASE:
-* logo
-* about dialog
-* translation
-* setup
-* deb
-* web site
