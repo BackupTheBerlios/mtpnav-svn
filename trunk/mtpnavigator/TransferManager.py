@@ -59,7 +59,7 @@ class TransferManager():
         job = Job(object_id, job_type, self.STATUS_QUEUED, description)
 
         self.__queue.put_nowait(job)
-        self.__model.append([job.object_id, job.action, job.description, job.status])
+        self.__model.append(job.get_list())
 
         trace("queued file %s for %s" % (job.object_id, job.action), sender=self)
         self.__notebook.set_current_page(1)
@@ -128,7 +128,7 @@ class ProcessQueueThread(Thread):
                 if DEBUG: debug_trace("Failed to process %s" % job.object_id , sender=self, exception=exc)
                 job.status = TransferManager.STATUS_ERROR
                 job.exception = exc
-                self.__model.append([job.object_id, job.action, job.description, job.status])
+                self.__model.append(job.get_list())
             finally:
                 self.__model.remove_job(previous_id)
                 self.__current_job = None
@@ -177,3 +177,9 @@ class Job():
         self.description = description
         self.exception = None
         self.progress = 0
+        
+    def get_list():
+        """
+            return a list of attributes. needed for model
+        """
+        return [job.object_id, job.action, job.description, job.status]
