@@ -1,5 +1,6 @@
 FIXME:
 * connect on demand instead of connect once
+* fix metadata and filenames encoding (accent ans special charaters)
 
 RELEASE 0.1.0:
 --------------

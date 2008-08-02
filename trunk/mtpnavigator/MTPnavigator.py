@@ -21,8 +21,11 @@ class MTPnavigator:
         self.gtkbuilder.add_from_file("./mtpnavigator/MTPnavigator.xml")
         self.gtkbuilder.connect_signals(self)
         self.window = self.__getWidget("window_mtpnav")
-        self.window.set_default_size(800,600)
+        wwidth=800  #TODO save size
+        wheight=600
+        self.window.set_default_size(wwidth, wheight)
         self.window.set_size_request(500,350)
+        self.__getWidget("vpaned_main").set_position(wheight-250) #TODO: save position
 
         # create the track view
         self.__treeview_track = self.gtkbuilder.get_object("treeview_track_list")
