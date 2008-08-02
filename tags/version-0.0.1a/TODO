@@ -1,0 +1,40 @@
+FIXME:
+* connect on demand instead of connect once
+* fix metadata and filenames encoding (accent and special charaters)
+
+RELEASE 0.1.0:
+--------------
+    FEATURES 0.0.1a: released
+
+    FEATURE 0.0.2a:
+    * size/resize columns
+    * file view
+    * add button to cancel / retry on error job in transfer window
+    * add metadata from ogg tags.
+
+    FEATURE 0.0.3a:
+    * trace debug and exceptions
+    * add and manage playlist
+    * get file from device
+    * parametrize metadata from directory/file scheme if no tag
+    * rigth click context menu
+    * preferences
+
+    PRERELEASE:
+    * logo
+    * about dialog
+    * translation
+    * setup
+    * deb
+    * web site
+
+RELEASE 0.2.0:
+--------------
+* accept samba files
+* edit metadata
+* copy and paste from nautilus
+* album view
+* multi device
+* support for fs based device
+* cover
+
