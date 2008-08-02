@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import pygtk
 pygtk.require("2.0")
 import gtk
@@ -9,6 +8,9 @@ from TransferManager import TransferManager
 from notifications import *
 from DeviceEngine import TrackListingModel
 import util
+
+
+VERSION="0.0.1a"
 
 class MTPnavigator:
     def __init__(self):
@@ -25,6 +27,7 @@ class MTPnavigator:
         wheight=600
         self.window.set_default_size(wwidth, wheight)
         self.window.set_size_request(500,350)
+        self.window.set_title("MTP navigatore " + VERSION)
         self.__getWidget("vpaned_main").set_position(wheight-250) #TODO: save position
 
         # create the track view

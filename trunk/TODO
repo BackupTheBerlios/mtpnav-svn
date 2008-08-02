@@ -1,14 +1,13 @@
 FIXME:
 * connect on demand instead of connect once
-* fix metadata and filenames encoding (accent ans special charaters)
+* fix metadata and filenames encoding (accent and special charaters)
 
 RELEASE 0.1.0:
 --------------
-    FEATURES 0.0.1a:
-    * size/resize columns
-    * progress bar for transfer window
+    FEATURES 0.0.1a: released
 
     FEATURE 0.0.2a:
+    * size/resize columns
     * file view
     * add button to cancel / retry on error job in transfer window
     * add metadata from ogg tags.
@@ -16,6 +15,7 @@ RELEASE 0.1.0:
     FEATURE 0.0.3a:
     * trace debug and exceptions
     * add and manage playlist
+    * get file from device
     * parametrize metadata from directory/file scheme if no tag
     * rigth click context menu
     * preferences
