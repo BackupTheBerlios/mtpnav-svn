@@ -7,6 +7,7 @@ from urllib import url2pathname
 from DeviceEngine import DeviceEngine
 from notifications import *
 from time import sleep
+import os
 
 class TransferManager():
     ACTION_SEND = "sending"
@@ -34,14 +35,17 @@ class TransferManager():
         self.__transfer_treeview = transfer_treeview
         self.__notebook = notebook
 
-        if DEBUG:
-            col = gtk.TreeViewColumn("object_id", gtk.CellRendererText(), text=0)
+        t=TransfertQueueModel
+        if False:
+            col = gtk.TreeViewColumn("object_id", gtk.CellRendererText(), text=t.COL_JOB_ID)
             transfer_treeview.append_column(col)
-        col = gtk.TreeViewColumn("action", gtk.CellRendererText(), text=1)
+        col = gtk.TreeViewColumn("action", gtk.CellRendererText(), text=t.COL_ACTION)
         transfer_treeview.append_column(col)
-        col = gtk.TreeViewColumn("description", gtk.CellRendererText(), text=2)
+        col = gtk.TreeViewColumn("description", gtk.CellRendererText(), text=t.COL_DESCRIPTION)
         transfer_treeview.append_column(col)
-        col = gtk.TreeViewColumn("status", gtk.CellRendererText(), text=3)
+        col = gtk.TreeViewColumn("status", gtk.CellRendererText(), text=t.COL_STATUS)
+        transfer_treeview.append_column(col)
+        col = gtk.TreeViewColumn("progress", gtk.CellRendererProgress(), value=t.COL_PROGRESS)
         transfer_treeview.append_column(col)
         transfer_treeview.set_model(self.__model)
 
@@ -50,7 +54,7 @@ class TransferManager():
             if DEBUG: debug_trace("notified SIGNAL_DEVICE_CONTENT_CHANGED", sender=self)
             job = args[0]
             if job.action==self.ACTION_SEND:
-                self.__device_engine.get_track_listing_model().add_row(job.object_id, "FIXME","","","","", "") #FIXME: get metadata from file
+                self.__device_engine.get_track_listing_model().add_row(job.object_id, "FIXME","","","",0, "") #FIXME: get metadata from file
             elif job.action==self.ACTION_DEL:
                 self.__device_engine.get_track_listing_model().remove_object(job.object_id)
 
@@ -69,7 +73,7 @@ class TransferManager():
         url = urlparse(file_url)
         if url.scheme == "file":
             path = url2pathname(url.path)
-            self.__queue_job(path, self.ACTION_SEND, path)
+            self.__queue_job(path, self.ACTION_SEND, os.path.split(path)[1])
         else:
             notify_warning("%s is not a file" % file_url)
 
@@ -96,7 +100,7 @@ class ProcessQueueThread(Thread):
     def __device_callback(self, sent, total):
         percentage = round(float(sent)/float(total)*100)
         self.__current_job.progress=percentage
-        #FIXME: self.__notify(self.SIGNAL_QUEUE_CHANGED)
+        self.__model.modify(self.__current_job.object_id, TransfertQueueModel.COL_PROGRESS, percentage)
 
     def add_observer(self, observer):
         if DEBUG and observer in self.observers:
@@ -138,9 +142,10 @@ class TransfertQueueModel(gtk.ListStore):
     COL_ACTION=1
     COL_DESCRIPTION=2
     COL_STATUS=3
+    COL_PROGRESS=4
 
     def __init__(self):
-        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)
+        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_FLOAT)
         self.__cache = {}
 
     def append(self, track):
@@ -182,4 +187,4 @@ class Job():
         """
             return a list of attributes. needed for model
         """
-        return [self.object_id, self.action, self.description, self.status]
+        return [self.object_id, self.action, self.description, self.status, self.progress]

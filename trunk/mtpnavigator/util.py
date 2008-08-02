@@ -1,4 +1,4 @@
-def format_filesize(bytesize, use_si_units=False, digits=2):
+def format_filesize(bytesize, digits=2):
     """
     Formats the given size in bytes to be human-readable,
 
@@ -7,30 +7,19 @@ def format_filesize(bytesize, use_si_units=False, digits=2):
 
     Author: Thomas Perl (from gPodder)
     """
-    si_units = (
-            ( 'kB', 10**3 ),
-            ( 'MB', 10**6 ),
-            ( 'GB', 10**9 ),
-    )
-
-    binary_units = (
-            ( 'KiB', 2**10 ),
-            ( 'MiB', 2**20 ),
-            ( 'GiB', 2**30 ),
+    units = (
+            ( 'KB', 2**10 ),
+            ( 'MB', 2**20 ),
+            ( 'GB', 2**30 ),
     )
 
     try:
         bytesize = float( bytesize)
     except:
-        return _('(unknown)')
+        return ""
 
     if bytesize < 0:
-        return _('(unknown)')
-
-    if use_si_units:
-        units = si_units
-    else:
-        units = binary_units
+        return ""
 
     ( used_unit, used_value ) = ( 'B', bytesize )
 
