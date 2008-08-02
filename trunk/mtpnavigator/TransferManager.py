@@ -10,9 +10,9 @@ from time import sleep
 import os
 
 class TransferManager():
-    ACTION_SEND = "sending"
-    ACTION_DEL = "deleting"
-    ACTION_GET = "getting"
+    ACTION_SEND = "SEND"
+    ACTION_DEL = "DELETE"
+    ACTION_GET = "GET"
     ACTION_CREATE_DIR = "creating directory"
     ACTION_DEL_DIR = "deleleting directory"
     ACTION_CREATE_PLAYLIST = "creating playlist"
@@ -20,7 +20,7 @@ class TransferManager():
 
     STATUS_QUEUED = "queued"
     STATUS_PROCESSING = "processing"
-    STATUS_ERROR = "blocked on error"
+    STATUS_ERROR = "error"
 
     def __init__(self, device_engine, transfer_treeview, notebook):
         self.__queue = Queue()
@@ -43,9 +43,7 @@ class TransferManager():
         transfer_treeview.append_column(col)
         col = gtk.TreeViewColumn("description", gtk.CellRendererText(), text=t.COL_DESCRIPTION)
         transfer_treeview.append_column(col)
-        col = gtk.TreeViewColumn("status", gtk.CellRendererText(), text=t.COL_STATUS)
-        transfer_treeview.append_column(col)
-        col = gtk.TreeViewColumn("progress", gtk.CellRendererProgress(), value=t.COL_PROGRESS)
+        col = gtk.TreeViewColumn("progress", gtk.CellRendererProgress(), value=t.COL_PROGRESS, text=t.COL_STATUS)
         transfer_treeview.append_column(col)
         transfer_treeview.set_model(self.__model)
 
@@ -101,6 +99,7 @@ class ProcessQueueThread(Thread):
         percentage = round(float(sent)/float(total)*100)
         self.__current_job.progress=percentage
         self.__model.modify(self.__current_job.object_id, TransfertQueueModel.COL_PROGRESS, percentage)
+        self.__model.modify(self.__current_job.object_id, TransfertQueueModel.COL_STATUS, "%i%%" % percentage)
 
     def add_observer(self, observer):
         if DEBUG and observer in self.observers:
@@ -128,13 +127,13 @@ class ProcessQueueThread(Thread):
                 else:
                     assert False
                 self.__notify(self.SIGNAL_DEVICE_CONTENT_CHANGED, job)
+                self.__model.remove_job(previous_id)
             except Exception, exc:
                 if DEBUG: debug_trace("Failed to process %s" % job.object_id , sender=self, exception=exc)
                 job.status = TransferManager.STATUS_ERROR
                 job.exception = exc
-                self.__model.append(job.get_list())
+                self.__model.modify(job.object_id, TransfertQueueModel.COL_STATUS, TransferManager.STATUS_ERROR + ': ' + str(exc))
             finally:
-                self.__model.remove_job(previous_id)
                 self.__current_job = None
 
 class TransfertQueueModel(gtk.ListStore):
@@ -171,7 +170,7 @@ class TransfertQueueModel(gtk.ListStore):
         if it:
             self.set_value(it, column, value)
         else:
-            debug_trace("trying to update non existing object %s from model" % job.object_id, sender=self)
+            debug_trace("trying to update non existing object %s from model" % object_id, sender=self)
 
 
 class Job():
