@@ -75,7 +75,7 @@ class TrackListingModel(gtk.ListStore):
         if DEBUG: debug_trace("Requesting lock", sender=self)
         self.__lock.acquire()
         if DEBUG: debug_trace("Lock acquired", sender=self)
-        iter = gtk.ListStore.append(self, [m.id, m.title, m.artist, m.album, m.genre, util.format_filesize(m.duration), m.duration, m.date, m])
+        iter = gtk.ListStore.append(self, [m.id, m.title, m.artist, m.album, m.genre, util.format_filesize(m.length), m.length, m.date, m])
         self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()
         if DEBUG: debug_trace("Lock released", sender=self)
@@ -123,7 +123,7 @@ class FileTreeModel(gtk.TreeStore):
         self.__lock.acquire()
         if DEBUG: debug_trace("Lock acquired", sender=self)
         parent = None # todo: retrieve parent iter
-        iter = gtk.TreeStore.append(self, parent, [m.id, m.parent_id, m.title, util.format_filesize(m.duration), m.duration, m.date, m])
+        iter = gtk.TreeStore.append(self, parent, [m.id, m.parent_id, m.title, util.format_filesize(m.length), m.length, m.date, m])
         self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()
         if DEBUG: debug_trace("Lock released", sender=self)

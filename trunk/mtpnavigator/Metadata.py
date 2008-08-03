@@ -74,7 +74,7 @@ def get_from_MTPTrack(track):
     m.artist = track.artist
     m.album = track.album
     m.genre = track.genre
-    m.filesize = track.filesize
+    m.length = track.filesize
     m.date = "" #FIXME: self.__mtp_to_date(track.date)
     if DEBUG: debug_trace("Metadata gotten from MTPtrack. They are %s" % m.to_string())
     return m
