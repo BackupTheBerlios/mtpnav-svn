@@ -6,6 +6,7 @@ import mimetypes
 import Metadata
 from notifications import *
 import util
+from threading import Lock
 
 class DeviceEngine:
 
@@ -54,20 +55,13 @@ class TrackListingModel(gtk.ListStore):
     def __init__(self, _device):
         gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)
         self.__cache = {}
-        tracks_list =  _device.get_tracklisting()
+        # lock to prevent more thread for uodating the model at the same time
+        self.__lock = Lock()
+
+        tracks_list = _device.get_tracklisting()
         for track_metadata in tracks_list:
             assert type(track_metadata) is type(Metadata.Metadata())
             self.append(track_metadata)
-
-    def append(self, metadata):
-        assert type(metadata) is type(Metadata.Metadata())
-        m=metadata
-        iter = gtk.ListStore.append(self, [m.id, m.title, m.artist, m.album, m.genre, util.format_filesize(m.duration), m.duration, m.date, m])
-        self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
-        return iter
-
-    def get_row(self, path):
-        return self.get(self.get_iter(path), self.METADATA)[0]
 
     def __get_iter(self, object_id):
         try:
@@ -75,11 +69,30 @@ class TrackListingModel(gtk.ListStore):
         except KeyError, exc:
             return None
 
+    def append(self, metadata):
+        assert type(metadata) is type(Metadata.Metadata())
+        m=metadata
+        if DEBUG: debug_trace("Requesting lock", sender=self)
+        self.__lock.acquire()
+        if DEBUG: debug_trace("Lock acquired", sender=self)
+        iter = gtk.ListStore.append(self, [m.id, m.title, m.artist, m.album, m.genre, util.format_filesize(m.duration), m.duration, m.date, m])
+        self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
+        self.__lock.release()
+        if DEBUG: debug_trace("Lock released", sender=self)
+        return iter
+
+    def get_row(self, path):
+        return self.get(self.get_iter(path), self.METADATA)[0]
+
     def remove_object(self, object_id):
+        if DEBUG: debug_trace("Requesting lock", sender=self)
+        self.__lock.acquire()
+        if DEBUG: debug_trace("Lock acquired", sender=self)
         it = self.__get_iter(object_id)
         if it:
             self.remove(it)
         else:
             debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
-
+        self.__lock.release()
+        if DEBUG: debug_trace("Lock released", sender=self)
 
