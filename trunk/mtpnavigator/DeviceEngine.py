@@ -12,13 +12,13 @@ class DeviceEngine:
 
     def __init__(self, _device):
         self.__device = _device
-        self.__file_tree_model = None
 
     def connect_device(self):
         if not self.__device.connect():
             return False
         if DEBUG: debug_trace("Device connected successfully", sender=self)
         self.__track_listing_model = TrackListingModel(self.__device)
+        self.__file_tree_model = FileTreeModel(self.__device)
         return True
 
     def disconnect_device(self):
@@ -95,4 +95,39 @@ class TrackListingModel(gtk.ListStore):
             debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
         self.__lock.release()
         if DEBUG: debug_trace("Lock released", sender=self)
+
+class FileTreeModel(gtk.TreeStore):
+    OBJECT_ID=0
+    PARENT_ID=0
+    FILENAME=1
+    LENGTH_STR=5
+    LENGTH_INT=6
+    DATE=7
+    METADATA=8
+
+    def __init__(self, _device):
+        gtk.TreeStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)
+        self.__cache = {}
+        # lock to prevent more thread for updating the model at the same time
+        self.__lock = Lock()
+
+        folder_list = _device.get_folder_list()
+        for dir in folder_list:
+            assert type(dir) is type(Metadata.Metadata())
+            self.append(dir)
+
+    def append(self, metadata):
+        assert type(metadata) is type(Metadata.Metadata())
+        m=metadata
+        if DEBUG: debug_trace("Requesting lock", sender=self)
+        self.__lock.acquire()
+        if DEBUG: debug_trace("Lock acquired", sender=self)
+        parent = None # todo: retrieve parent iter
+        iter = gtk.TreeStore.append(self, parent, [m.id, m.parent_id, m.title, util.format_filesize(m.duration), m.duration, m.date, m])
+        self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
+        self.__lock.release()
+        if DEBUG: debug_trace("Lock released", sender=self)
+        return iter
+
+
 

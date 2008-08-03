@@ -19,6 +19,7 @@ except:
 class Metadata:
     def __init__(self):
         self.id = None
+        self.parent_id = None
         self.path = None # path + filename + extension
         self.filename = None # filename + extension
         self.extension = None
@@ -57,6 +58,8 @@ class Metadata:
     if DEBUG:
         def to_string(self):
             str = ""
+            str += " id=" + self.id
+            if self.parent_id: str += " parent_id=" + self.parent_id
             if self.title: str += " title=" + self.title
             if self.album: str += " album=" + self.album
             if self.artist: str += " artist="+ self.artist
@@ -74,6 +77,14 @@ def get_from_MTPTrack(track):
     m.filesize = track.filesize
     m.date = "" #FIXME: self.__mtp_to_date(track.date)
     if DEBUG: debug_trace("Metadata gotten from MTPtrack. They are %s" % m.to_string())
+    return m
+
+def get_from_MTPFolder(folder):
+    m = Metadata()
+    m.id = str(folder.folder_id)
+    m.parent_id = str(folder.parent_id)
+    m.title = folder.name
+    if DEBUG: debug_trace("Metadata gotten from MTPfolder. They are %s" % m.to_string())
     return m
 
 def get_from_file(path):
