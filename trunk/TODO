@@ -2,6 +2,7 @@ FIXME:
 * connect on demand instead of connect once
 * fix metadata and filenames encoding (accent and special charaters)
 * refresh free space progress bar on each operation
+* check if job already present before adding
 
 RELEASE 0.1.0:
 --------------
@@ -12,6 +13,7 @@ RELEASE 0.1.0:
     * file view
     * add button to cancel / retry on error job in transfer window
     * add metadata from ogg tags.
+    * identify transfer errors (already on device/device full)
 
     FEATURE 0.0.3a:
     * trace debug and exceptions

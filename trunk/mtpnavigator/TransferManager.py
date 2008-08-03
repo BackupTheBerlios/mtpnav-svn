@@ -128,7 +128,7 @@ class ProcessQueueThread(Thread):
                     job.metadata = metadata
                 elif job.action == TransferManager.ACTION_DEL:
                     self.__device_engine.del_file(job.object_id)
-                    trace("file with id %s deleted succesfully" % job.object_id, sender=self)
+                    trace("file with id %s (%s) deleted succesfully" % (job.object_id, job.metadata.title), sender=self)
                 else:
                     assert False
                 self.__notify(self.SIGNAL_DEVICE_CONTENT_CHANGED, job)
