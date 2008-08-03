@@ -3,7 +3,7 @@ import gobject
 
 from urlparse import urlparse
 import mimetypes
-import filesMetadata
+import Metadata
 from notifications import *
 import util
 
@@ -33,7 +33,7 @@ class DeviceEngine:
 
     def send_file(self, file_url, callback):
         url = urlparse(file_url)
-        metadata = filesMetadata.get_metadata_for_type(url.path)
+        metadata = Metadata.get_from_file(url.path)
         return self.__device.send_track(metadata, callback)
 
     def del_file(self, file_id):
