@@ -12,11 +12,13 @@ except:
 has_pymtp = True
 try:
     import pymtp
+    import mtpDevice
 except:
     has_pymtp = False
 
 class Metadata:
     def __init__(self):
+        self.id = None
         self.path = None # path + filename + extension
         self.filename = None # filename + extension
         self.extension = None
@@ -25,6 +27,7 @@ class Metadata:
         self.artist = None
         self.genre = None
         self.date = None
+        self.length = 0
         self.tracknumber = 0
         self.duration = 0
         self.samplerate = 0
@@ -33,6 +36,23 @@ class Metadata:
         self.rating = 0
         self.usecount = 0
         self.year = None
+
+    def to_MTPTrack(self):
+        mtp_metadata = pymtp.LIBMTP_Track()
+        mtp_metadata.title = self.title
+        mtp_metadata.artist = self.artist
+        mtp_metadata.album = self.album
+        mtp_metadata.genre = self.genre
+        mtp_metadata.date = mtpDevice.date_to_mtp(self.date)
+        mtp_metadata.filesize = self.length
+        mtp_metadata.tracknumber =self.tracknumber
+        mtp_metadata.duration = self.duration
+        mtp_metadata.samplerate = self.samplerate
+        mtp_metadata.bitrate = self.bitrate
+        mtp_metadata.bitratetype = self.bitratetype
+        mtp_metadata.rating = self.rating
+        mtp_metadata.usecount = self.usecount
+        return mtp_metadata
 
     if DEBUG:
         def to_string(self):
@@ -43,12 +63,26 @@ class Metadata:
             if self.genre: str += " genre=" + self.genre
             return str
 
+def get_from_MTPTrack(track):
+    m = Metadata()
+    m.id = str(track.item_id)
+    m.title = track.title
+    if not m.title or m.title=="": m.title=track.filename
+    m.artist = track.artist
+    m.album = track.album
+    m.genre = track.genre
+    m.filesize = track.filesize
+    m.date = "" #FIXME: self.__mtp_to_date(track.date)
+    if DEBUG: debug_trace("Metadata gotten from MTPtrack. They are %s" % m.to_string())
+    return m
+
 def get_from_file(path):
     m = Metadata()
     m.path = os.path.normpath(path)
+    m.id = m.path
     m.filename = os.path.split(path)[1]
     m.extension = os.path.splitext(m.filename)[1]
-    #FIXME: use mimetype? MP3, others?
+    #FIXME: use mimetype? extension, others?
     #mimetypes.init()
     #mimetypes.guess_type(filename) =  'audio/mpeg'"""
     if m.extension == ".mp3" and has_eyed3:
@@ -65,7 +99,7 @@ def __get_from_filepath(m):
         m.album = tail
         (path, tail) = os.path.split(path)
         m.artist = tail
-        if DEBUG: debug_trace("Tags gotten from file. They are %s" % m.to_string(), sender="Metadate")
+        if DEBUG: debug_trace("Tags gotten from file. They are %s" % m.to_string())
         return m
 
 def __get_from_MP3tags(m):
@@ -73,13 +107,14 @@ def __get_from_MP3tags(m):
         try:
             if tag.link(m.path): # tags are present
                 if DEBUG:
-                    debug_trace("Mp3 tags found for file %s" % m.filename, sender="Metadate")
+                    debug_trace("Mp3 tags found for file %s" % m.filename)
                 m.title =  tag.getTitle()
                 m.album = tag.getAlbum()
                 m.artist = tag.getArtist()
                 if tag.getGenre(): m.genre = tag.getGenre().getName()
                 m.date = tag.getDate()
                 m.tracknumer = 0 #TODO: convert int tag.getTrackNum()
+                m.length = 0 # todo
                 m.duration = 0 # todo
                 mp3 = eyeD3.tag.Mp3AudioFile(m.path)
                 msamplerate = mp3.getSampleFreq()
@@ -89,18 +124,16 @@ def __get_from_MP3tags(m):
                     m.bitratetype = 2
                 if tag.getPlayCount(): m.usecount = tag.getPlayCount()
                 m.year = tag.getYear()
-                if DEBUG: debug_trace("Tags gotten from mp3. They are %s" % m.to_string(), sender="Metadate")
+                if DEBUG: debug_trace("Tags gotten from mp3. They are %s" % m.to_string())
                 return m
             elif DEBUG:
-                debug_trace("No tag found for mp3 file %s" % m.filename, sender="Metadate")
+                debug_trace("No tag found for mp3 file %s" % m.filename)
                 return __get_from_filepath(m)
         except Exception, exc:
             notify_error("Error while getting mp3 tags for file %s" % m.filename, exc)
             return __get_from_filepath(m)
 
-class OggFileMetadata():
-
-    def __init__(self):
+def __get_from_oggtags(m):
         m = Metadata()
         #TODO
         return __get_from_filepath(m)

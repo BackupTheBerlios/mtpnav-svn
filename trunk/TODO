@@ -1,6 +1,7 @@
 FIXME:
 * connect on demand instead of connect once
 * fix metadata and filenames encoding (accent and special charaters)
+* refresh free space progress bar on each operation
 
 RELEASE 0.1.0:
 --------------
@@ -19,6 +20,7 @@ RELEASE 0.1.0:
     * parametrize metadata from directory/file scheme if no tag
     * rigth click context menu
     * preferences
+    * display tooltips on tarc view and job list (artist, title genre...)
 
     PRERELEASE:
     * logo

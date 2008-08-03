@@ -5,6 +5,64 @@ try:
     import pymtp
 except:
     pymtp_available = False
+import Metadata
+
+def date_to_mtp(date):
+    """
+    this function format the given date and time to a string representation
+    according to MTP specifications: YYYYMMDDThhmmss.s
+
+    return
+        the string representation od the given date
+    """
+    if not date: return ""
+    try:
+        d = time.gmtime()
+        s = []
+        s.append(time.strftime("%Y",d))
+        s.append(time.strftime("%m",d))
+        s.append(time.strftime("%d",d))
+        s.append("-") # free separator
+        s.append(time.strftime("%H",d))
+        s.append(time.strftime("%M",d))
+        s.append(time.strftime("%S",d))
+        s.append(".0Z") # indicates that a gmt time is storded
+        return ''.join(s)
+    except Exception, exc:
+        return None
+
+def mtp_to_date(mtp_string_date):
+    """
+    this parse the mtp's string representation for date
+    according to specifications (YYYYMMDDThhmmss.s) to
+    a python time object
+
+    """
+    mtp = mtp_string_date
+    if not mtp or mtp=="": return None
+    try:
+        d = time.strptime(mtp[:8] + mtp[9:15],"%Y%m%d%H%M%S")
+        _date = calendar.timegm(d)
+        if len(mtp)==20:
+            # TIME ZONE SHIFTING: the string contains a hour/min shift relative to a time zone
+            try:
+                shift_direction=mtp[15]
+                hour_shift = int(mtp[16:18])
+                minute_shift = int(mtp[18:20])
+                shift_in_sec = hour_shift * 3600 + minute_shift * 60
+                if shift_direction == "+":
+                    _date += shift_in_sec
+                elif shift_direction == "-":
+                    _date -= shift_in_sec
+                else:
+                    raise ValueError("Expected + or -")
+            except Exception, exc:
+                print('WARNING: ignoring invalid time zone information for %s (%s)', mtp, exc)
+        return _date
+    except Exception, exc:
+        print('WARNING: the mtp date "%s" can not be parsed against mtp specification (%s)', mtp, exc)
+        return None
+
 
 class MTPDevice():
 
@@ -15,61 +73,6 @@ class MTPDevice():
     def __callback(self, sent, total):
         percentage = round(float(sent)/float(total)*100)
         text = ('%i%%' % percentage)
-
-    def __date_to_mtp(self, date):
-        """
-        this function format the given date and time to a string representation
-        according to MTP specifications: YYYYMMDDThhmmss.s
-
-        return
-            the string representation od the given date
-        """
-        if not date: return ""
-        try:
-            d = time.gmtime()
-            s = []
-            s.append(time.strftime("%Y",d))
-            s.append(time.strftime("%m",d))
-            s.append(time.strftime("%d",d))
-            s.append("-") # free separator
-            s.append(time.strftime("%H",d))
-            s.append(time.strftime("%M",d))
-            s.append(time.strftime("%S",d))
-            s.append(".0Z") # indicates that a gmt time is storded
-            return ''.join(s)
-        except Exception, exc:
-            return None
-
-    def __mtp_to_date(self, mtp):
-        """
-        this parse the mtp's string representation for date
-        according to specifications (YYYYMMDDThhmmss.s) to
-        a python time object
-
-        """
-        if not mtp or mtp=="": return None
-        try:
-            d = time.strptime(mtp[:8] + mtp[9:15],"%Y%m%d%H%M%S")
-            _date = calendar.timegm(d)
-            if len(mtp)==20:
-                # TIME ZONE SHIFTING: the string contains a hour/min shift relative to a time zone
-                try:
-                    shift_direction=mtp[15]
-                    hour_shift = int(mtp[16:18])
-                    minute_shift = int(mtp[18:20])
-                    shift_in_sec = hour_shift * 3600 + minute_shift * 60
-                    if shift_direction == "+":
-                        _date += shift_in_sec
-                    elif shift_direction == "-":
-                        _date -= shift_in_sec
-                    else:
-                        raise ValueError("Expected + or -")
-                except Exception, exc:
-                    print('WARNING: ignoring invalid time zone information for %s (%s)', mtp, exc)
-            return _date
-        except Exception, exc:
-            print('WARNING: the mtp date "%s" can not be parsed against mtp specification (%s)', mtp, exc)
-            return None
 
     def get_name(self):
         """
@@ -115,23 +118,11 @@ class MTPDevice():
         return True
 
     def send_track(self, metadata=None, callback=None):
-        mtp_metadata = pymtp.LIBMTP_Track()
-        mtp_metadata.title = metadata.title
-        mtp_metadata.artist = metadata.artist
-        mtp_metadata.album = metadata.album
-        mtp_metadata.genre = metadata.genre
-        mtp_metadata.date = self.__date_to_mtp(metadata.date)
-        mtp_metadata.tracknumber = metadata.tracknumber
-        mtp_metadata.duration = metadata.duration
-        mtp_metadata.samplerate = metadata.samplerate
-        mtp_metadata.bitrate = metadata.bitrate
-        mtp_metadata.bitratetype = metadata.bitratetype
-        mtp_metadata.rating = metadata.rating
-        mtp_metadata.usecount = metadata.usecount
-        return str(self.__MTPDevice.send_track_from_file( metadata.path, metadata.filename, mtp_metadata, callback=callback))
+        new_id =self.__MTPDevice.send_track_from_file( metadata.path, metadata.filename, metadata.to_MTPTrack(), callback=callback)
+        metadata.id = str(new_id)
+        return metadata
 
     def remove_track(self, track_id):
-        #FIXME: convert rom string to int when model coulumn type fixed to string
         t = int(track_id)
         return str(self.__MTPDevice.delete_object(t))
 
@@ -145,17 +136,8 @@ class MTPDevice():
 
         tracks = []
         for track in listing:
-            title = track.title
-            if not title or title=="": title=track.filename
-            if len(title) > 50: title = title[0:49] + '...'
-            artist = track.artist
-            if artist and len(artist) > 50: artist = artist[0:49] + '...'
-            length = track.filesize
-            age_in_days = 0
-            date = "" #FIXME: self.__mtp_to_date(track.date)
-
-            t = [str(track.item_id), title, artist, track.album, track.genre, length, date]
-            tracks.append(t)
+            m = Metadata.get_from_MTPTrack(track)
+            tracks.append(m)
         return tracks
 
     def get_diskusage(self):

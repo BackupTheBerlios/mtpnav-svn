@@ -72,13 +72,12 @@ class MTPnavigator:
         (model, paths) = self.__treeview_track.get_selection().get_selected_rows()
         to_del = [] #store the files id to delete before stating deleted, else, path may change if more line are selecetd
         for path in paths:
-            id =  model.get(model.get_iter(path), 0)[0] #FIXME: is there a better way?
-            desc =  model.get(model.get_iter(path), 1)[0]
-            to_del.append((id, desc))
+            metadata =  model.get_row(path)
+            to_del.append(metadata)
 
-        for (id, desc) in to_del:
-            if DEBUG: debug_trace("deleting file with ID %s (%s)" % (id, desc), sender=self)
-            self.__transferManager.del_file(id, desc)
+        for metadata in to_del:
+            if DEBUG: debug_trace("deleting file with ID %s (%s)" % (metadata.id, metadata.filename), sender=self)
+            self.__transferManager.del_file(metadata)
 
     def on_connect_activate(self, emiter):
         self.connect_or_disconnect_device()
@@ -167,7 +166,6 @@ class MTPnavigator:
         prog_bar.set_fraction(fraction)
         prog_bar.set_text("%i%%" % (fraction * 100))
 
-        #
         infos = self.__device_engine.get_device().get_information()
         text=""
         for info in infos:
