@@ -1,25 +1,26 @@
-FIXME:
-* connect on demand instead of connect once
-* fix metadata and filenames encoding (accent and special charaters)
-* refresh free space progress bar on each operation
-* check if job already present before adding
 
 RELEASE 0.1.0:
 --------------
-    FEATURES 0.0.1a: released
-    * view device information
-    * view track listing
-    * add file to device
-    * add file to device per drag and drop
-    * delete files
-    * job queue 
+    FIXME:
+    * fix metadata and filenames encoding (accent and special charaters)
+    * refresh free space progress bar on each operation
+    * check if job already present before adding
+
+    FEATURES 0.0.1a: RELEASED
+    * view device information - done
+    * view track listing - done
+    * add file to device - done 
+    * add file to device per drag and drop - done
+    * delete files - done
+    * job queue - done
 
     FEATURE 0.0.2a:
+    * file view - IMPLEMENTED
+    * button to cancel in transfer window - IMPLEMENTED
     * size/resize columns
-    * file view
-    * add button to cancel / retry on error job in transfer window
     * add metadata from ogg tags.
-    * identify transfer errors (already on device/device full)
+    * identify transfers errors (already on device/device full)
+    * connect on demand instead of connect once
 
     FEATURE 0.0.3a:
     * trace debug and exceptions
@@ -29,6 +30,7 @@ RELEASE 0.1.0:
     * rigth click context menu
     * preferences
     * display tooltips on track view and job list (artist, title genre...)
+    * button to cancel job /retry on error at row level
 
     PRERELEASE:
     * logo
