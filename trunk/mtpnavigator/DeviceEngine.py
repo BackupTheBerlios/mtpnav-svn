@@ -144,5 +144,19 @@ class FileTreeModel(gtk.TreeStore):
         if DEBUG: debug_trace("Lock released", sender=self)
         return iter
 
+    def get_row(self, path):
+        return self.get(self.get_iter(path), self.METADATA)[0]
+
+    def remove_object(self, object_id):
+        if DEBUG: debug_trace("Requesting lock", sender=self)
+        self.__lock.acquire()
+        if DEBUG: debug_trace("Lock acquired", sender=self)
+        it = self.__get_iter(object_id)
+        if it:
+            self.remove(it)
+        else:
+            debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
+        self.__lock.release()
+        if DEBUG: debug_trace("Lock released", sender=self)
 
 

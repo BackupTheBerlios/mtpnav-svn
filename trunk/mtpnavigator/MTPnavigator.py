@@ -15,6 +15,7 @@ VERSION="0.0.1a"
 class MTPnavigator:
     def __init__(self):
         self.__treeview_track = None
+        self.__treeview_file = None
         self.__device_engine = None
         self.__transferManager = None
 
@@ -89,7 +90,7 @@ class MTPnavigator:
 
     #------ EVENTS ----------------------------------
     def on_delete_files_activate(self, emiter):
-        (model, paths) = self.__treeview_track.get_selection().get_selected_rows()
+        (model, paths) = emiter.get_selection().get_selected_rows()
         to_del = [] #store the files id to delete before stating deleted, else, path may change if more line are selecetd
         for path in paths:
             metadata =  model.get_row(path)
@@ -154,9 +155,11 @@ class MTPnavigator:
         notebook = self.__getWidget("notebook_device_info")
         self.__transferManager = TransferManager(self.__device_engine, tv, notebook)
 
-        # update model
+        # update models
         model = self.__device_engine.get_track_listing_model()
         self.__treeview_track.set_model(model)
+        model = self.__device_engine.get_file_tree_model()
+        self.__treeview_file.set_model(model)
 
         # change menu and toobar label and stock
         #TODO: use gtk.Action and gtk.ActionGroup for menu and toolbutton
@@ -196,6 +199,7 @@ class MTPnavigator:
         self.__device_engine.disconnect_device()
         self.__device_engine = None
         self.__treeview_track.set_model(None)
+        self.__treeview_file.set_model(None)
 
         # change menu and toobar label and stock
         text="Connect device"
