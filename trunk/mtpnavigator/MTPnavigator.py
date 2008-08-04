@@ -93,12 +93,20 @@ class MTPnavigator:
         (model, paths) = emiter.get_selection().get_selected_rows()
         to_del = [] #store the files id to delete before stating deleted, else, path may change if more line are selecetd
         for path in paths:
-            metadata =  model.get_row(path)
+            metadata =  model.get_metadata(path)
             to_del.append(metadata)
 
         for metadata in to_del:
             if DEBUG: debug_trace("deleting file with ID %s (%s)" % (metadata.id, metadata.filename), sender=self)
             self.__transferManager.del_file(metadata)
+
+    def on_cancel_job_activate(self, emiter):
+        (model, paths) = emiter.get_selection().get_selected_rows()
+        to_cancel = [] #store the files id to delete before stating deleted, else, path may change if more line are selecetd
+        for path in paths:
+            job =  model.get_job(path)
+            to_cancel.append(job)
+        for job in to_cancel:
 
     def on_connect_activate(self, emiter):
         self.connect_or_disconnect_device()
@@ -128,7 +136,7 @@ class MTPnavigator:
             for uri in data.data.split('\r\n')[:-1]:
                 self.send_file(uri)
         context.finish(True, False, time)
-
+        
     def exit(self):
         self.window.destroy()
         gtk.main_quit()

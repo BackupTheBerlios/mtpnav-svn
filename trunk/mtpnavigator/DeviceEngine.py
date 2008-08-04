@@ -81,7 +81,7 @@ class TrackListingModel(gtk.ListStore):
         if DEBUG: debug_trace("Lock released", sender=self)
         return iter
 
-    def get_row(self, path):
+    def get_metadata(self, path):
         return self.get(self.get_iter(path), self.METADATA)[0]
 
     def remove_object(self, object_id):
@@ -144,7 +144,7 @@ class FileTreeModel(gtk.TreeStore):
         if DEBUG: debug_trace("Lock released", sender=self)
         return iter
 
-    def get_row(self, path):
+    def get_metadata(self, path):
         return self.get(self.get_iter(path), self.METADATA)[0]
 
     def remove_object(self, object_id):

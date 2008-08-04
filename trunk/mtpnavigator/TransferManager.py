@@ -83,6 +83,10 @@ class TransferManager():
     def del_file(self, metadata):
         if DEBUG: debug_trace("request for deleting file with id %s (%s)" % (metadata.id, metadata.filename), sender=self)
         self.__queue_job(metadata.id, self.ACTION_DEL, metadata)
+        
+    def cancel_job(self, job_to_cancel):
+        job.canceled = True
+        self.__model.remove_job(job.id) # FIXME: not for current job
 
 class ProcessQueueThread(Thread):
     SIGNAL_QUEUE_CHANGED = 1
@@ -105,6 +109,7 @@ class ProcessQueueThread(Thread):
         self.__current_job.progress=percentage
         self.__model.modify(self.__current_job.object_id, TransfertQueueModel.COL_PROGRESS, percentage)
         self.__model.modify(self.__current_job.object_id, TransfertQueueModel.COL_STATUS, "%i%%" % percentage)
+        return not self.__current_job.canceled
 
     def add_observer(self, observer):
         if DEBUG and observer in self.observers:
@@ -116,6 +121,7 @@ class ProcessQueueThread(Thread):
         if DEBUG: debug_trace("Processing queue thread started ", sender=self)
         while(True):
             job = self.__queue.get() # will wait until an job is there
+            if job.canceled: break
             self.__current_job = job
             self.__model.modify(job.object_id, TransfertQueueModel.COL_STATUS, TransferManager.STATUS_PROCESSING)
             debug_trace("Processing job %s" % job.object_id, sender=self)
@@ -148,9 +154,10 @@ class TransfertQueueModel(gtk.ListStore):
     COL_DESCRIPTION=2
     COL_STATUS=3
     COL_PROGRESS=4
+    COL_JOB=5
 
     def __init__(self):
-        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_FLOAT)
+        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_FLOAT, gobject.TYPE_PYOBJECT)
         self.__cache = {}
         # lock to prevent more thread for uodating the model at the same time
         self.__lock = Lock()
@@ -170,6 +177,9 @@ class TransfertQueueModel(gtk.ListStore):
         self.__lock.release()
         if DEBUG: debug_trace("Lock released", sender=self)
         return iter
+        
+    def get_job(self, path):
+        return self.get(self.get_iter(path), self.COL_JOB)[0]        
 
     def remove_job(self, object_id):
         if DEBUG: debug_trace("Requesting lock", sender=self)
@@ -204,9 +214,10 @@ class Job():
         self.exception = None
         self.progress = 0
         self.metadata = metadata
+        self.canceled = False
 
     def get_list(self):
         """
             return a list of attributes. needed for model
         """
-        return [self.object_id, self.action, self.metadata.title, self.status, self.progress]
+        return [self.object_id, self.action, self.metadata.title, self.status, self.progress, self]

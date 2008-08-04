@@ -70,10 +70,6 @@ class MTPDevice():
         self.__model_name = None
         self.__MTPDevice = pymtp.MTP()
 
-    def __callback(self, sent, total):
-        percentage = round(float(sent)/float(total)*100)
-        text = ('%i%%' % percentage)
-
     def get_name(self):
         """
         this function try to find a nice name for the device.
@@ -129,7 +125,7 @@ class MTPDevice():
     def get_tracklisting(self):
         listing = []
         try:
-            listing = self.__MTPDevice.get_tracklisting(callback=self.__callback)
+            listing = self.__MTPDevice.get_tracklisting()
         except Exception, exc:
             pass
             #log('unable to get file listing %s (%s)', exc, sender=self)
@@ -157,7 +153,7 @@ class MTPDevice():
     def get_filelisting(self):
         listing = []
         try:
-            listing = self.__MTPDevice.get_filelisting(callback=self.__callback)
+            listing = self.__MTPDevice.get_filelisting()
         except Exception, exc:
             pass
             #log('unable to get file listing %s (%s)', exc, sender=self)
@@ -183,5 +179,3 @@ class MTPDevice():
         info.append(["Firmware version", self.__MTPDevice.get_deviceversion()])
         return info
 
-    def episode_on_device(self, episode):
-        return episode.title in [ t.title for t in self.tracks_list ]
