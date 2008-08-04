@@ -28,7 +28,7 @@ class Metadata:
         self.artist = None
         self.genre = None
         self.date = None
-        self.length = 0
+        self.filesize = 0
         self.tracknumber = 0
         self.duration = 0
         self.samplerate = 0
@@ -74,7 +74,7 @@ def get_from_MTPTrack(track):
     m.artist = track.artist
     m.album = track.album
     m.genre = track.genre
-    m.length = track.filesize
+    m.filesize = track.filesize
     m.date = "" #FIXME: self.__mtp_to_date(track.date)
     if DEBUG: debug_trace("Metadata gotten from MTPtrack. They are %s" % m.to_string())
     return m
@@ -86,8 +86,17 @@ def get_from_MTPFolder(folder):
     m.title = folder.name
     if DEBUG: debug_trace("Metadata gotten from MTPfolder. They are %s" % m.to_string())
     return m
+    
+def get_from_MTPFile(file):
+    m = Metadata()
+    m.id = str(file.item_id)
+    m.parent_id = str(file.parent_id)
+    m.title = file.filename
+    m.filesize = file.filesize
+    if DEBUG: debug_trace("Metadata gotten from MTPfile. They are %s" % m.to_string())
+    return m    
 
-def get_from_file(path):
+_file(path):
     m = Metadata()
     m.path = os.path.normpath(path)
     m.id = m.path
@@ -125,7 +134,7 @@ def __get_from_MP3tags(m):
                 if tag.getGenre(): m.genre = tag.getGenre().getName()
                 m.date = tag.getDate()
                 m.tracknumer = 0 #TODO: convert int tag.getTrackNum()
-                m.length = 0 # todo
+                m.filesize = 0 # todo
                 m.duration = 0 # todo
                 mp3 = eyeD3.tag.Mp3AudioFile(m.path)
                 msamplerate = mp3.getSampleFreq()

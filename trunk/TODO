@@ -7,6 +7,12 @@ FIXME:
 RELEASE 0.1.0:
 --------------
     FEATURES 0.0.1a: released
+    * view device information
+    * view track listing
+    * add file to device
+    * add file to device per drag and drop
+    * delete files
+    * job queue 
 
     FEATURE 0.0.2a:
     * size/resize columns
@@ -22,7 +28,7 @@ RELEASE 0.1.0:
     * parametrize metadata from directory/file scheme if no tag
     * rigth click context menu
     * preferences
-    * display tooltips on tarc view and job list (artist, title genre...)
+    * display tooltips on track view and job list (artist, title genre...)
 
     PRERELEASE:
     * logo
@@ -31,6 +37,7 @@ RELEASE 0.1.0:
     * setup
     * deb
     * web site
+    * gnome menu entry
 
 RELEASE 0.2.0:
 --------------
@@ -41,4 +48,5 @@ RELEASE 0.2.0:
 * multi device
 * support for fs based device
 * cover
+* backup/restore device
 

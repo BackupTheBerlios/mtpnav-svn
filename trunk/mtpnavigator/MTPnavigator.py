@@ -61,6 +61,26 @@ class MTPnavigator:
         self.__treeview_track.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY)
         self.__treeview_track.connect('drag_data_received', self.on_drag_data_received)
 
+        # create the file view
+        self.__treeview_file = self.gtkbuilder.get_object("treeview_file_list")
+        self.__treeview_file.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
+        f = FileTreeModel
+        if DEBUG:
+            col = gtk.TreeViewColumn("object ID", gtk.CellRendererText(), text=f.OBJECT_ID)
+            self.__treeview_file.append_column(col)
+            col = gtk.TreeViewColumn("parent ID", gtk.CellRendererText(), text=f.PARENT_ID)
+            self.__treeview_file.append_column(col)
+        col = gtk.TreeViewColumn("filename", gtk.CellRendererText(), text=f.FILENAME)
+        col.set_sort_column_id(f.FILENAME)
+        self.__treeview_file.append_column(col)
+        col = gtk.TreeViewColumn("length", gtk.CellRendererText(), text=f.LENGTH_STR)
+        col.set_sort_column_id(f.LENGTH_INT)
+        self.__treeview_file.append_column(col)
+        # add drag and drop support
+        # @TODO: deactivate if not connected
+        self.__treeview_file.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY)
+        self.__treeview_file.connect('drag_data_received', self.on_drag_data_received)
+
         self.connect_or_disconnect_device()
         self.window.show()
 

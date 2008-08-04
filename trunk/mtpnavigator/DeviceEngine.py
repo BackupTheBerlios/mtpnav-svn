@@ -98,23 +98,36 @@ class TrackListingModel(gtk.ListStore):
 
 class FileTreeModel(gtk.TreeStore):
     OBJECT_ID=0
-    PARENT_ID=0
-    FILENAME=1
-    LENGTH_STR=5
-    LENGTH_INT=6
-    DATE=7
-    METADATA=8
+    PARENT_ID=1
+    FILENAME=2
+    LENGTH_STR=3
+    LENGTH_INT=4
+    METADATA=5
 
     def __init__(self, _device):
-        gtk.TreeStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)
+        gtk.TreeStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_PYOBJECT)
         self.__cache = {}
         # lock to prevent more thread for updating the model at the same time
         self.__lock = Lock()
 
+        # add folder list
+        #FIXME: sort item so that parent is alway created before its childs
         folder_list = _device.get_folder_list()
         for dir in folder_list:
             assert type(dir) is type(Metadata.Metadata())
             self.append(dir)
+            
+        # add file list
+        file_list = _device.get_filelisting()
+        for file_metadata in file_list:
+            assert type(file_metadata) is type(Metadata.Metadata())
+            self.append(file_metadata)
+            
+    def __get_iter(self, object_id):
+        try:
+            return  self.get_iter(self.__cache[object_id].get_path())
+        except KeyError, exc:
+            return None            
 
     def append(self, metadata):
         assert type(metadata) is type(Metadata.Metadata())
@@ -122,8 +135,10 @@ class FileTreeModel(gtk.TreeStore):
         if DEBUG: debug_trace("Requesting lock", sender=self)
         self.__lock.acquire()
         if DEBUG: debug_trace("Lock acquired", sender=self)
-        parent = None # todo: retrieve parent iter
-        iter = gtk.TreeStore.append(self, parent, [m.id, m.parent_id, m.title, util.format_filesize(m.length), m.length, m.date, m])
+        parent=0
+        if m.parent <> 0:
+            parent = self.__get_iter(m.parent)
+        iter = gtk.TreeStore.append(self, parent, [m.id, m.parent_id, m.title, util.format_filesize(m.length), m.length, m])
         self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()
         if DEBUG: debug_trace("Lock released", sender=self)

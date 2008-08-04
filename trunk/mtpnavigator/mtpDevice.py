@@ -153,6 +153,20 @@ class MTPDevice():
             m = Metadata.get_from_MTPFolder(folder)
             folders.append(m)
         return folders
+        
+    def get_filelisting(self):
+        listing = []
+        try:
+            listing = self.__MTPDevice.get_filelisting(callback=self.__callback)
+        except Exception, exc:
+            pass
+            #log('unable to get file listing %s (%s)', exc, sender=self)
+
+        files = []
+        for file in listing:
+            m = Metadata.get_from_MTPFile(file)
+            files.append(m)
+        return tracks        
 
     def get_diskusage(self):
         return [self.__MTPDevice.get_usedspace(), self.__MTPDevice.get_totalspace()]
