@@ -7,6 +7,7 @@ from mtpDevice import MTPDevice
 from TransferManager import TransferManager
 from notifications import *
 from DeviceEngine import TrackListingModel
+from DeviceEngine import FileTreeModel
 import util
 
 
@@ -66,7 +67,7 @@ class MTPnavigator:
         self.__treeview_file = self.gtkbuilder.get_object("treeview_file_list")
         self.__treeview_file.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
         f = FileTreeModel
-        if DEBUG:
+        if False:
             col = gtk.TreeViewColumn("object ID", gtk.CellRendererText(), text=f.OBJECT_ID)
             self.__treeview_file.append_column(col)
             col = gtk.TreeViewColumn("parent ID", gtk.CellRendererText(), text=f.PARENT_ID)
@@ -107,6 +108,7 @@ class MTPnavigator:
             job =  model.get_job(path)
             to_cancel.append(job)
         for job in to_cancel:
+            elf.__transferManager.cancel_job(job)
 
     def on_connect_activate(self, emiter):
         self.connect_or_disconnect_device()
@@ -136,7 +138,7 @@ class MTPnavigator:
             for uri in data.data.split('\r\n')[:-1]:
                 self.send_file(uri)
         context.finish(True, False, time)
-        
+
     def exit(self):
         self.window.destroy()
         gtk.main_quit()

@@ -45,7 +45,7 @@ class Metadata:
         mtp_metadata.album = self.album
         mtp_metadata.genre = self.genre
         mtp_metadata.date = mtpDevice.date_to_mtp(self.date)
-        mtp_metadata.filesize = self.length
+        mtp_metadata.filesize = self.filesize
         mtp_metadata.tracknumber =self.tracknumber
         mtp_metadata.duration = self.duration
         mtp_metadata.samplerate = self.samplerate
@@ -86,7 +86,7 @@ def get_from_MTPFolder(folder):
     m.title = folder.name
     if DEBUG: debug_trace("Metadata gotten from MTPfolder. They are %s" % m.to_string())
     return m
-    
+
 def get_from_MTPFile(file):
     m = Metadata()
     m.id = str(file.item_id)
@@ -94,7 +94,7 @@ def get_from_MTPFile(file):
     m.title = file.filename
     m.filesize = file.filesize
     if DEBUG: debug_trace("Metadata gotten from MTPfile. They are %s" % m.to_string())
-    return m    
+    return m
 
 def get_from_file(path):
     m = Metadata()

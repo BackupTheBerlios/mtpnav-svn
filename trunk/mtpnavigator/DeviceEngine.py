@@ -75,7 +75,7 @@ class TrackListingModel(gtk.ListStore):
         if DEBUG: debug_trace("Requesting lock", sender=self)
         self.__lock.acquire()
         if DEBUG: debug_trace("Lock acquired", sender=self)
-        iter = gtk.ListStore.append(self, [m.id, m.title, m.artist, m.album, m.genre, util.format_filesize(m.length), m.length, m.date, m])
+        iter = gtk.ListStore.append(self, [m.id, m.title, m.artist, m.album, m.genre, util.format_filesize(m.filesize), m.filesize, m.date, m])
         self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()
         if DEBUG: debug_trace("Lock released", sender=self)
@@ -116,18 +116,18 @@ class FileTreeModel(gtk.TreeStore):
         for dir in folder_list:
             assert type(dir) is type(Metadata.Metadata())
             self.append(dir)
-            
+
         # add file list
         file_list = _device.get_filelisting()
         for file_metadata in file_list:
             assert type(file_metadata) is type(Metadata.Metadata())
             self.append(file_metadata)
-            
+
     def __get_iter(self, object_id):
         try:
             return  self.get_iter(self.__cache[object_id].get_path())
         except KeyError, exc:
-            return None            
+            return None
 
     def append(self, metadata):
         assert type(metadata) is type(Metadata.Metadata())
@@ -136,9 +136,9 @@ class FileTreeModel(gtk.TreeStore):
         self.__lock.acquire()
         if DEBUG: debug_trace("Lock acquired", sender=self)
         parent=0
-        if m.parent <> 0:
-            parent = self.__get_iter(m.parent)
-        iter = gtk.TreeStore.append(self, parent, [m.id, m.parent_id, m.title, util.format_filesize(m.length), m.length, m])
+        if m.parent_id <> 0:
+            parent = self.__get_iter(m.parent_id)
+        iter = gtk.TreeStore.append(self, parent, [m.id, m.parent_id, m.title, util.format_filesize(m.filesize), m.filesize, m])
         self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()
         if DEBUG: debug_trace("Lock released", sender=self)

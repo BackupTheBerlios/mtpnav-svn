@@ -1,4 +1,5 @@
 import time
+from notifications import *
 
 pymtp_available = True
 try:
@@ -29,6 +30,7 @@ def date_to_mtp(date):
         s.append(".0Z") # indicates that a gmt time is storded
         return ''.join(s)
     except Exception, exc:
+        if DEBUG: debug_trace("Error while processing date", exception=exc)
         return None
 
 def mtp_to_date(mtp_string_date):
@@ -60,7 +62,7 @@ def mtp_to_date(mtp_string_date):
                 print('WARNING: ignoring invalid time zone information for %s (%s)', mtp, exc)
         return _date
     except Exception, exc:
-        print('WARNING: the mtp date "%s" can not be parsed against mtp specification (%s)', mtp, exc)
+        if DEBUG: debug_trace("the mtp date %s can not be parsed against mtp specification" % mtp, sender=self)
         return None
 
 
@@ -100,7 +102,7 @@ class MTPDevice():
             self.__MTPDevice.connect()
             # build the initial tracks_list
         except Exception, exc:
-            print('unable to find an MTP device (%s)', exc)
+            debug_trace("unable to find an MTP device", sender=self, exception=exc)
             return False
 
         return True
@@ -109,7 +111,7 @@ class MTPDevice():
         try:
             self.__MTPDevice.disconnect()
         except Exception, exc:
-            log('unable to close %s (%s)', self.get_name(), exc, sender=self)
+            debug_trace("unable to close %s", self.get_name(), sender=self, exception=exc)
             return False
         return True
 
@@ -127,8 +129,7 @@ class MTPDevice():
         try:
             listing = self.__MTPDevice.get_tracklisting()
         except Exception, exc:
-            pass
-            #log('unable to get file listing %s (%s)', exc, sender=self)
+            debug_trace("unable to get track listing", sender=self, exception=exc)
 
         tracks = []
         for track in listing:
@@ -141,28 +142,26 @@ class MTPDevice():
         try:
             listing = self.__MTPDevice.get_folder_list().values()
         except Exception, exc:
-            pass
-            #log('unable to get track listing %s (%s)', exc, sender=self)
+            debug_trace("unable to get folder listing", sender=self, exception=exc)
 
         folders = []
         for folder in listing:
             m = Metadata.get_from_MTPFolder(folder)
             folders.append(m)
         return folders
-        
+
     def get_filelisting(self):
         listing = []
         try:
             listing = self.__MTPDevice.get_filelisting()
         except Exception, exc:
-            pass
-            #log('unable to get file listing %s (%s)', exc, sender=self)
+            debug_trace("unable to get file listing", sender=self, exception=exc)
 
         files = []
         for file in listing:
             m = Metadata.get_from_MTPFile(file)
             files.append(m)
-        return tracks        
+        return files
 
     def get_diskusage(self):
         return [self.__MTPDevice.get_usedspace(), self.__MTPDevice.get_totalspace()]

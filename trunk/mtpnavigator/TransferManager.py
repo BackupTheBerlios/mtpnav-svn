@@ -83,7 +83,7 @@ class TransferManager():
     def del_file(self, metadata):
         if DEBUG: debug_trace("request for deleting file with id %s (%s)" % (metadata.id, metadata.filename), sender=self)
         self.__queue_job(metadata.id, self.ACTION_DEL, metadata)
-        
+
     def cancel_job(self, job_to_cancel):
         job.canceled = True
         self.__model.remove_job(job.id) # FIXME: not for current job
@@ -177,9 +177,9 @@ class TransfertQueueModel(gtk.ListStore):
         self.__lock.release()
         if DEBUG: debug_trace("Lock released", sender=self)
         return iter
-        
+
     def get_job(self, path):
-        return self.get(self.get_iter(path), self.COL_JOB)[0]        
+        return self.get(self.get_iter(path), self.COL_JOB)[0]
 
     def remove_job(self, object_id):
         if DEBUG: debug_trace("Requesting lock", sender=self)
