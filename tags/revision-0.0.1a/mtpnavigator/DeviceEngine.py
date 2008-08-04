@@ -3,9 +3,10 @@ import gobject
 
 from urlparse import urlparse
 import mimetypes
-import filesMetadata
+import Metadata
 from notifications import *
 import util
+from threading import Lock
 
 class DeviceEngine:
 
@@ -31,9 +32,7 @@ class DeviceEngine:
     def get_file_tree_model(self):
         return self.__file_tree_model
 
-    def send_file(self, file_url, callback):
-        url = urlparse(file_url)
-        metadata = filesMetadata.get_metadata_for_type(url.path)
+    def send_file(self, metadata, callback):
         return self.__device.send_track(metadata, callback)
 
     def del_file(self, file_id):
@@ -51,18 +50,18 @@ class TrackListingModel(gtk.ListStore):
     LENGTH_STR=5
     LENGTH_INT=6
     DATE=7
+    METADATA=8
 
     def __init__(self, _device):
-        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING)
+        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)
         self.__cache = {}
-        tracks_list =  _device.get_tracklisting()
-        for track in tracks_list:
-            self.add_row(track[0], track[1], track[2], track[3], track[4], track[5], track[6])
+        # lock to prevent more thread for uodating the model at the same time
+        self.__lock = Lock()
 
-    def append(self, track):
-        iter = gtk.ListStore.append(self, track)
-        self.__cache[track[0]] = gtk.TreeRowReference(self, self.get_path(iter))
-        return iter
+        tracks_list = _device.get_tracklisting()
+        for track_metadata in tracks_list:
+            assert type(track_metadata) is type(Metadata.Metadata())
+            self.append(track_metadata)
 
     def __get_iter(self, object_id):
         try:
@@ -70,16 +69,30 @@ class TrackListingModel(gtk.ListStore):
         except KeyError, exc:
             return None
 
+    def append(self, metadata):
+        assert type(metadata) is type(Metadata.Metadata())
+        m=metadata
+        if DEBUG: debug_trace("Requesting lock", sender=self)
+        self.__lock.acquire()
+        if DEBUG: debug_trace("Lock acquired", sender=self)
+        iter = gtk.ListStore.append(self, [m.id, m.title, m.artist, m.album, m.genre, util.format_filesize(m.duration), m.duration, m.date, m])
+        self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
+        self.__lock.release()
+        if DEBUG: debug_trace("Lock released", sender=self)
+        return iter
+
+    def get_row(self, path):
+        return self.get(self.get_iter(path), self.METADATA)[0]
+
     def remove_object(self, object_id):
+        if DEBUG: debug_trace("Requesting lock", sender=self)
+        self.__lock.acquire()
+        if DEBUG: debug_trace("Lock acquired", sender=self)
         it = self.__get_iter(object_id)
         if it:
             self.remove(it)
         else:
             debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
-
-    def add_row(self, object_id, title, artist, album, genre, length, date):
-        self.append([object_id, title, artist, album, genre, util.format_filesize(length), length, date])
-
-
-
+        self.__lock.release()
+        if DEBUG: debug_trace("Lock released", sender=self)
 

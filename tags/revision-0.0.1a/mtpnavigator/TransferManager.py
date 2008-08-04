@@ -1,6 +1,7 @@
 import gtk
 import gobject
 from threading import Thread
+from threading import Lock
 from Queue import Queue
 from urlparse import urlparse
 from urllib import url2pathname
@@ -8,6 +9,7 @@ from DeviceEngine import DeviceEngine
 from notifications import *
 from time import sleep
 import os
+import Metadata
 
 class TransferManager():
     ACTION_SEND = "SEND"
@@ -52,13 +54,14 @@ class TransferManager():
             if DEBUG: debug_trace("notified SIGNAL_DEVICE_CONTENT_CHANGED", sender=self)
             job = args[0]
             if job.action==self.ACTION_SEND:
-                self.__device_engine.get_track_listing_model().add_row(job.object_id, "FIXME","","","",0, "") #FIXME: get metadata from file
+                self.__device_engine.get_track_listing_model().append(job.metadata)
             elif job.action==self.ACTION_DEL:
-                self.__device_engine.get_track_listing_model().remove_object(job.object_id)
+                self.__device_engine.get_track_listing_model().remove_object(job.metadata.id)
 
 
-    def __queue_job(self, object_id, job_type, description):
-        job = Job(object_id, job_type, self.STATUS_QUEUED, description)
+    def __queue_job(self, object_id, job_type, metadata):
+        assert type(metadata) is type(Metadata.Metadata())
+        job = Job(object_id, job_type, self.STATUS_QUEUED, metadata)
 
         self.__queue.put_nowait(job)
         self.__model.append(job.get_list())
@@ -71,13 +74,14 @@ class TransferManager():
         url = urlparse(file_url)
         if url.scheme == "file":
             path = url2pathname(url.path)
-            self.__queue_job(path, self.ACTION_SEND, os.path.split(path)[1])
+            metadata = Metadata.get_from_file(path)
+            self.__queue_job(path, self.ACTION_SEND, metadata)
         else:
             notify_warning("%s is not a file" % file_url)
 
-    def del_file(self, file_id, file_description):
-        if DEBUG: debug_trace("request for deleting file with id %s (%s)" % (file_id, file_description), sender=self)
-        self.__queue_job(file_id, self.ACTION_DEL, file_description)
+    def del_file(self, metadata):
+        if DEBUG: debug_trace("request for deleting file with id %s (%s)" % (metadata.id, metadata.filename), sender=self)
+        self.__queue_job(metadata.id, self.ACTION_DEL, metadata)
 
 class ProcessQueueThread(Thread):
     SIGNAL_QUEUE_CHANGED = 1
@@ -117,13 +121,14 @@ class ProcessQueueThread(Thread):
             try:
                 previous_id=job.object_id
                 if job.action == TransferManager.ACTION_SEND:
-                    id = self.__device_engine.send_file(job.object_id, self.__device_callback)
-                    trace("%s sent successfully. New id is %s" % (job.object_id, id), sender=self)
+                    metadata = self.__device_engine.send_file(job.metadata, self.__device_callback)
+                    trace("%s sent successfully. New id is %s" % (job.object_id, metadata.id), sender=self)
                     self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
-                    job.object_id = id
+                    job.object_id = metadata.id
+                    job.metadata = metadata
                 elif job.action == TransferManager.ACTION_DEL:
                     self.__device_engine.del_file(job.object_id)
-                    trace("file with id %s deleted succesfully" % job.object_id, sender=self)
+                    trace("file with id %s (%s) deleted succesfully" % (job.object_id, job.metadata.title), sender=self)
                 else:
                     assert False
                 self.__notify(self.SIGNAL_DEVICE_CONTENT_CHANGED, job)
@@ -146,11 +151,8 @@ class TransfertQueueModel(gtk.ListStore):
     def __init__(self):
         gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_FLOAT)
         self.__cache = {}
-
-    def append(self, track):
-        iter = gtk.ListStore.append(self, track)
-        self.__cache[track[0]] = gtk.TreeRowReference(self, self.get_path(iter))
-        return iter
+        # lock to prevent more thread for uodating the model at the same time
+        self.__lock = Lock()
 
     def __get_iter(self, object_id):
         try:
@@ -158,32 +160,52 @@ class TransfertQueueModel(gtk.ListStore):
         except KeyError, exc:
             return None
 
+    def append(self, track):
+        if DEBUG: debug_trace("Requesting lock", sender=self)
+        self.__lock.acquire()
+        if DEBUG: debug_trace("Lock acquired", sender=self)
+        iter = gtk.ListStore.append(self, track)
+        self.__cache[track[0]] = gtk.TreeRowReference(self, self.get_path(iter))
+        self.__lock.release()
+        if DEBUG: debug_trace("Lock released", sender=self)
+        return iter
+
     def remove_job(self, object_id):
+        if DEBUG: debug_trace("Requesting lock", sender=self)
+        self.__lock.acquire()
+        if DEBUG: debug_trace("Lock acquired", sender=self)
         it = self.__get_iter(object_id)
         if it:
             self.remove(it)
         else:
-            debug_trace("trying to remove non existing object %s from model" % job.object_id, sender=self)
+            debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
+        self.__lock.release()
+        if DEBUG: debug_trace("Lock released", sender=self)
 
     def modify(self, object_id, column, value):
+        if DEBUG: debug_trace("Requesting lock", sender=self)
+        self.__lock.acquire()
+        if DEBUG: debug_trace("Lock acquired", sender=self)
         it = self.__get_iter(object_id)
         if it:
             self.set_value(it, column, value)
         else:
             debug_trace("trying to update non existing object %s from model" % object_id, sender=self)
-
+        self.__lock.release()
+        if DEBUG: debug_trace("Lock released", sender=self)
 
 class Job():
-    def __init__(self, object_id, action, status, description):
+    def __init__(self, object_id, action, status, metadata):
+        assert type(metadata) is type(Metadata.Metadata())
         self.object_id = object_id
         self.action = action
         self.status = status
-        self.description = description
         self.exception = None
         self.progress = 0
+        self.metadata = metadata
 
     def get_list(self):
         """
             return a list of attributes. needed for model
         """
-        return [self.object_id, self.action, self.description, self.status, self.progress]
+        return [self.object_id, self.action, self.metadata.title, self.status, self.progress]
