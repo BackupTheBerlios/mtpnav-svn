@@ -55,10 +55,10 @@ class TransferManager():
             job = args[0]
             if job.action==self.ACTION_SEND:
                 self.__device_engine.get_track_listing_model().append(job.metadata)
-                self.__device_engine.__get_file_tree_model().append(job.metadata)
+                self.__device_engine.get_file_tree_model().append(job.metadata)
             elif job.action==self.ACTION_DEL:
                 self.__device_engine.get_track_listing_model().remove_object(job.metadata.id)
-                self.__device_engine.__get_file_tree_model().remove_object(job.metadata.id)
+                self.__device_engine.get_file_tree_model().remove_object(job.metadata.id)
 
     def __queue_job(self, object_id, job_type, metadata):
         assert type(metadata) is type(Metadata.Metadata())
@@ -109,7 +109,9 @@ class ProcessQueueThread(Thread):
         self.__current_job.progress=percentage
         self.__model.modify(self.__current_job.object_id, TransfertQueueModel.COL_PROGRESS, percentage)
         self.__model.modify(self.__current_job.object_id, TransfertQueueModel.COL_STATUS, "%i%%" % percentage)
-        return not self.__current_job.canceled
+        if self.__current_job.canceled: 
+            debug_trace("current job canceled", sender=self)
+            return 1
 
     def add_observer(self, observer):
         if DEBUG and observer in self.observers:
@@ -159,7 +161,7 @@ class TransfertQueueModel(gtk.ListStore):
     def __init__(self):
         gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_FLOAT, gobject.TYPE_PYOBJECT)
         self.__cache = {}
-        # lock to prevent more thread for uodating the model at the same time
+        # lock to prevent more thread for updating the model at the same time
         self.__lock = Lock()
 
     def __get_iter(self, object_id):
