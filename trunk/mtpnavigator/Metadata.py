@@ -96,7 +96,7 @@ def get_from_MTPFile(file):
     if DEBUG: debug_trace("Metadata gotten from MTPfile. They are %s" % m.to_string())
     return m    
 
-_file(path):
+def get_from_file(path):
     m = Metadata()
     m.path = os.path.normpath(path)
     m.id = m.path
