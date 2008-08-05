@@ -39,6 +39,9 @@ class MTPnavigator:
         if DEBUG:
             col = gtk.TreeViewColumn("object ID", gtk.CellRendererText(), text=t.OBJECT_ID)
             self.__treeview_track.append_column(col)
+        col = gtk.TreeViewColumn("", gtk.CellRendererPixbuf(), icon-name=t.ICON)
+        col.set_sort_column_id(t.TITLE)
+        self.__treeview_track.append_column(col)
         col = gtk.TreeViewColumn("title", gtk.CellRendererText(), text=t.TITLE)
         col.set_sort_column_id(t.TITLE)
         self.__treeview_track.append_column(col)
@@ -78,6 +81,7 @@ class MTPnavigator:
         col = gtk.TreeViewColumn("length", gtk.CellRendererText(), text=f.LENGTH_STR)
         col.set_sort_column_id(f.LENGTH_INT)
         self.__treeview_file.append_column(col)
+        self.__treeview_file.expand_all() 
         # add drag and drop support
         # @TODO: deactivate if not connected
         self.__treeview_file.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY)

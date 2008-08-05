@@ -102,10 +102,11 @@ class FileTreeModel(gtk.TreeStore):
     FILENAME=2
     LENGTH_STR=3
     LENGTH_INT=4
-    METADATA=5
+    ICON=5
+    METADATA=6
 
     def __init__(self, _device):
-        gtk.TreeStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_PYOBJECT)
+        gtk.TreeStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)
         self.__cache = {}
         # lock to prevent more thread for updating the model at the same time
         self.__lock = Lock()
@@ -140,9 +141,12 @@ class FileTreeModel(gtk.TreeStore):
             parent = self.__get_iter(m.parent_id)
         
         if m.type == Metadata.TYPE_FOLDER:
-            row = [m.id, m.parent_id, m.title, "", 0, m]
+            row = [m.id, m.parent_id, m.title, "", 0, "folder", m]
         else:
-            row = [m.id, m.parent_id, m.title, util.format_filesize(m.filesize), m.filesize, m]
+            icon = "gtk-file"
+            if Metadata.TYPE_TRACK:
+                icon = "audio-x-generic"
+            row = [m.id, m.parent_id, m.title, util.format_filesize(m.filesize), m.filesize, icon, m]
             
         iter = gtk.TreeStore.append(self, parent, )
         self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
