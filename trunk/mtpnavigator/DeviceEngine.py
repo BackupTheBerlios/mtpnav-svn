@@ -72,29 +72,29 @@ class TrackListingModel(gtk.ListStore):
     def append(self, metadata):
         assert type(metadata) is type(Metadata.Metadata())
         m=metadata
-        if DEBUG: debug_trace("Requesting lock", sender=self)
+        if DEBUG_LOCK: debug_trace("Requesting lock", sender=self)
         self.__lock.acquire()
-        if DEBUG: debug_trace("Lock acquired", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock acquired", sender=self)
         iter = gtk.ListStore.append(self, [m.id, m.title, m.artist, m.album, m.genre, util.format_filesize(m.filesize), m.filesize, m.date, m])
         self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()
-        if DEBUG: debug_trace("Lock released", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock released", sender=self)
         return iter
 
     def get_metadata(self, path):
         return self.get(self.get_iter(path), self.METADATA)[0]
 
     def remove_object(self, object_id):
-        if DEBUG: debug_trace("Requesting lock", sender=self)
+        if DEBUG_LOCK: debug_trace("Requesting lock", sender=self)
         self.__lock.acquire()
-        if DEBUG: debug_trace("Lock acquired", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock acquired", sender=self)
         it = self.__get_iter(object_id)
         if it:
             self.remove(it)
         else:
             debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
         self.__lock.release()
-        if DEBUG: debug_trace("Lock released", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock released", sender=self)
 
 class FileTreeModel(gtk.TreeStore):
     OBJECT_ID=0
@@ -132,31 +132,31 @@ class FileTreeModel(gtk.TreeStore):
     def append(self, metadata):
         assert type(metadata) is type(Metadata.Metadata())
         m=metadata
-        if DEBUG: debug_trace("Requesting lock", sender=self)
+        if DEBUG_LOCK: debug_trace("Requesting lock", sender=self)
         self.__lock.acquire()
-        if DEBUG: debug_trace("Lock acquired", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock acquired", sender=self)
         parent=0
         if m.parent_id <> 0:
             parent = self.__get_iter(m.parent_id)
         iter = gtk.TreeStore.append(self, parent, [m.id, m.parent_id, m.title, util.format_filesize(m.filesize), m.filesize, m])
         self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()
-        if DEBUG: debug_trace("Lock released", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock released", sender=self)
         return iter
 
     def get_metadata(self, path):
         return self.get(self.get_iter(path), self.METADATA)[0]
 
     def remove_object(self, object_id):
-        if DEBUG: debug_trace("Requesting lock", sender=self)
+        if DEBUG_LOCK: debug_trace("Requesting lock", sender=self)
         self.__lock.acquire()
-        if DEBUG: debug_trace("Lock acquired", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock acquired", sender=self)
         it = self.__get_iter(object_id)
         if it:
             self.remove(it)
         else:
             debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
         self.__lock.release()
-        if DEBUG: debug_trace("Lock released", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock released", sender=self)
 
 

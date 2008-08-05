@@ -101,16 +101,14 @@ class MTPnavigator:
             if DEBUG: debug_trace("deleting file with ID %s (%s)" % (metadata.id, metadata.filename), sender=self)
             self.__transferManager.del_file(metadata)
 
-    def on_button_cancel_job_activate(self, emiter):
-        (model, paths) = emiter.get_selection().get_selected_rows()
+    def on_button_cancel_job_clicked(self, emiter):
+        (model, paths) = self.__transferManager.get_selection().get_selected_rows()
         to_cancel = [] #store the files id to delete before stating deleted, else, path may change if more line are selecetd
-        print "ICI"
         for path in paths:
-            print "ICI"
             job =  model.get_job(path)
             to_cancel.append(job)
         for job in to_cancel:
-            elf.__transferManager.cancel_job(job)
+            self.__transferManager.cancel_job(job)
 
     def on_connect_activate(self, emiter):
         self.connect_or_disconnect_device()

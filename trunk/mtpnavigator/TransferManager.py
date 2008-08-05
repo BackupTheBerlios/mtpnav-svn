@@ -70,6 +70,9 @@ class TransferManager():
         trace("queued file %s for %s" % (job.object_id, job.action), sender=self)
         self.__notebook.set_current_page(1)
 
+    def get_selection(self):
+        return self.__transfer_treeview.get_selection()
+
     def send_file(self, file_url):
         if DEBUG: debug_trace("request for sending %s" % file_url, sender=self)
         url = urlparse(file_url)
@@ -171,41 +174,41 @@ class TransfertQueueModel(gtk.ListStore):
             return None
 
     def append(self, track):
-        if DEBUG: debug_trace("Requesting lock", sender=self)
+        if DEBUG_LOCK: debug_trace("Requesting lock", sender=self)
         self.__lock.acquire()
-        if DEBUG: debug_trace("Lock acquired", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock acquired", sender=self)
         iter = gtk.ListStore.append(self, track)
         self.__cache[track[0]] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()
-        if DEBUG: debug_trace("Lock released", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock released", sender=self)
         return iter
 
     def get_job(self, path):
         return self.get(self.get_iter(path), self.COL_JOB)[0]
 
     def remove_job(self, object_id):
-        if DEBUG: debug_trace("Requesting lock", sender=self)
+        if DEBUG_LOCK: debug_trace("Requesting lock", sender=self)
         self.__lock.acquire()
-        if DEBUG: debug_trace("Lock acquired", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock acquired", sender=self)
         it = self.__get_iter(object_id)
         if it:
             self.remove(it)
         else:
             debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
         self.__lock.release()
-        if DEBUG: debug_trace("Lock released", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock released", sender=self)
 
     def modify(self, object_id, column, value):
-        if DEBUG: debug_trace("Requesting lock", sender=self)
+        if DEBUG_LOCK: debug_trace("Requesting lock", sender=self)
         self.__lock.acquire()
-        if DEBUG: debug_trace("Lock acquired", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock acquired", sender=self)
         it = self.__get_iter(object_id)
         if it:
             self.set_value(it, column, value)
         else:
             debug_trace("trying to update non existing object %s from model" % object_id, sender=self)
         self.__lock.release()
-        if DEBUG: debug_trace("Lock released", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock released", sender=self)
 
 class Job():
     def __init__(self, object_id, action, status, metadata):

@@ -1,6 +1,7 @@
 import traceback
 
 DEBUG=True
+DEBUG_LOCK=False
 
 def debug_trace(text, sender=None, exception=None):
     print "%s: %s" % (sender.__class__.__name__, text)
