@@ -10,7 +10,7 @@ from DeviceEngine import TrackListingModel
 import util
 
 
-VERSION="0.0.1a"
+VERSION="0.1.a1"
 
 class MTPnavigator:
     def __init__(self):
