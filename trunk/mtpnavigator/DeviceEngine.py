@@ -138,7 +138,13 @@ class FileTreeModel(gtk.TreeStore):
         parent=0
         if m.parent_id <> 0:
             parent = self.__get_iter(m.parent_id)
-        iter = gtk.TreeStore.append(self, parent, [m.id, m.parent_id, m.title, util.format_filesize(m.filesize), m.filesize, m])
+        
+        if m.type == Metadata.TYPE_FOLDER:
+            row = [m.id, m.parent_id, m.title, "", 0, m]
+        else:
+            row = [m.id, m.parent_id, m.title, util.format_filesize(m.filesize), m.filesize, m]
+            
+        iter = gtk.TreeStore.append(self, parent, )
         self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()
         if DEBUG_LOCK: debug_trace("Lock released", sender=self)

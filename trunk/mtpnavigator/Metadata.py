@@ -16,6 +16,14 @@ try:
 except:
     has_pymtp = False
 
+TYPE_UNKNOW=0
+TYPE_FOLDER=1
+TYPE_PLAYLIST=2
+TYPE_FOLDER=3
+TYPE_FILE=4
+TYPE_TRACK
+
+
 class Metadata:
     def __init__(self):
         self.id = None
@@ -23,6 +31,7 @@ class Metadata:
         self.path = None # path + filename + extension
         self.filename = None # filename + extension
         self.extension = None
+        self.type = TYPE_UNKNOW
         self.title =  None
         self.album = None
         self.artist = None
@@ -69,6 +78,7 @@ class Metadata:
 def get_from_MTPTrack(track):
     m = Metadata()
     m.id = str(track.item_id)
+    m.type = TYPE_TRACK    
     m.title = track.title
     if not m.title or m.title=="": m.title=track.filename
     m.artist = track.artist
@@ -83,12 +93,14 @@ def get_from_MTPFolder(folder):
     m = Metadata()
     m.id = str(folder.folder_id)
     m.parent_id = str(folder.parent_id)
+    m.type = TYPE_FOLDER 
     m.title = folder.name
     if DEBUG: debug_trace("Metadata gotten from MTPfolder. They are %s" % m.to_string())
     return m
 
 def get_from_MTPFile(file):
     m = Metadata()
+    m.type = TYPE_FILE
     m.id = str(file.item_id)
     m.parent_id = str(file.parent_id)
     m.title = file.filename
@@ -105,6 +117,12 @@ def get_from_file(path):
     #FIXME: use mimetype? extension, others?
     #mimetypes.init()
     #mimetypes.guess_type(filename) =  'audio/mpeg'"""
+    is_audio_file = (m.extension in (".mp3", ".ogg", ".wav")
+    if is_audio_file:
+        m.type = TYPE_TRACK
+    else:
+        m.type = TYPE_FILE
+    
     if m.extension == ".mp3" and has_eyed3:
         return __get_from_MP3tags(m)
     elif m.extension == ".ogg":
