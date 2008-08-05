@@ -117,7 +117,8 @@ class MTPDevice():
 
     def send_track(self, metadata=None, callback=None):
         new_id =self.__MTPDevice.send_track_from_file( metadata.path, metadata.filename, metadata.to_MTPTrack(), callback=callback)
-        metadata.id = str(new_id)
+        # read metadata again, because they can be changed by the device (i.e. parent_id or paraneter not handled)
+        metadata = self.__MTPDevice.get_track_metadata(new_id)
         return metadata
 
     def remove_track(self, track_id):
