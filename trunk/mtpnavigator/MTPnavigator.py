@@ -11,7 +11,7 @@ from DeviceEngine import FileTreeModel
 import util
 
 
-VERSION="0.0.1a"
+VERSION="0.1.a2"
 
 class MTPnavigator:
     def __init__(self):

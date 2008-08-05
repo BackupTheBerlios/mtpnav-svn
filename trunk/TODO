@@ -6,29 +6,29 @@ RELEASE 0.1.0:
     * refresh free space progress bar on each operation
     * check if job already present before adding
 
-    FEATURES 0.0.1a: RELEASED
-    * view device information - done
-    * view track listing - done
-    * add file to device - done 
-    * add file to device per drag and drop - done
-    * delete files - done
-    * job queue - done
+    PRERELEASE 0.1.a1: RELEASED
+    * DONE: view device information - done
+    * DONE: view track listing - done
+    * DONE: add file to device - done 
+    * DONE: add file to device per drag and drop - done
+    * DONE: delete files - done
+    * DONE: job queue - done
 
-    FEATURE 0.0.2a:
-    * file view - IMPLEMENTED
-    * button to cancel in transfer window - IMPLEMENTED
-    * size/resize columns
-    * add metadata from ogg tags.
+    PRERELEASE 0.1.a1:
+    * DONE: file view
+    * TESTING: button to cancel in transfer window 
     * identify transfers errors (already on device/device full)
     * connect on demand instead of connect once
-
-    FEATURE 0.0.3a:
+    * add metadata from ogg tags.
+    * size/resize columns
     * trace debug and exceptions
+
+    PRERELEASE 0.1.a3:
     * add and manage playlist
     * get file from device
+    * preferences
     * parametrize metadata from directory/file scheme if no tag
     * rigth click context menu
-    * preferences
     * display tooltips on track view and job list (artist, title genre...)
     * button to cancel job /retry on error at row level
 
@@ -51,4 +51,5 @@ RELEASE 0.2.0:
 * support for fs based device
 * cover
 * backup/restore device
+* choose columns to display
 
