@@ -20,7 +20,7 @@ RELEASE 0.1.0:
     PRERELEASE 0.1.a2: IN DEVELOPPMENT
     * DONE: file view
     *       create directory in file view
-    *       remove directory in file view
+    * TEST: remove directory in file view
     * TEST: add file to directory in file view
     *       move files/directories
     * TEST: button to cancel in transfer window 
@@ -41,7 +41,7 @@ RELEASE 0.1.0:
     * display tooltips on track view and job list (artist, title genre...)
     * button to cancel job /retry on error at row level
 
-    RELEASE 0.1.beta0 PLANNED
+    RELEASE 0.1.0beta0 PLANNED
     * test and fixe
 
     RELEASE 0.1.0 PLANNED
@@ -50,15 +50,15 @@ RELEASE 0.1.0:
     RELEASE 0.1.x PLANNED
     * bug fixes
 
-
     PRERELEASE:
-    * logo
-    * about dialog
-    * translation
-    * setup
-    * deb
-    * web site
-    * gnome menu entry
+    * TEST: setup
+    *       central version number + svn revision + changelog
+    *       logo
+    *       about dialog
+    *       translation
+    *       deb
+    *       web site
+    *       gnome menu entry
 
 RELEASE >= 0.2.0:
 --------------
