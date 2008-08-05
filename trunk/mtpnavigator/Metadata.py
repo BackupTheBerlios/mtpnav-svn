@@ -21,7 +21,7 @@ TYPE_FOLDER=1
 TYPE_PLAYLIST=2
 TYPE_FOLDER=3
 TYPE_FILE=4
-TYPE_TRACK
+TYPE_TRACK=5
 
 
 class Metadata:
@@ -117,7 +117,7 @@ def get_from_file(path):
     #FIXME: use mimetype? extension, others?
     #mimetypes.init()
     #mimetypes.guess_type(filename) =  'audio/mpeg'"""
-    is_audio_file = (m.extension in (".mp3", ".ogg", ".wav")
+    is_audio_file = (m.extension in (".mp3", ".ogg", ".wav"))
     if is_audio_file:
         m.type = TYPE_TRACK
     else:

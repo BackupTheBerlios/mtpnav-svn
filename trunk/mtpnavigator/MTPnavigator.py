@@ -39,9 +39,6 @@ class MTPnavigator:
         if DEBUG:
             col = gtk.TreeViewColumn("object ID", gtk.CellRendererText(), text=t.OBJECT_ID)
             self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("", gtk.CellRendererPixbuf(), icon-name=t.ICON)
-        col.set_sort_column_id(t.TITLE)
-        self.__treeview_track.append_column(col)
         col = gtk.TreeViewColumn("title", gtk.CellRendererText(), text=t.TITLE)
         col.set_sort_column_id(t.TITLE)
         self.__treeview_track.append_column(col)
@@ -75,7 +72,10 @@ class MTPnavigator:
             self.__treeview_file.append_column(col)
             col = gtk.TreeViewColumn("parent ID", gtk.CellRendererText(), text=f.PARENT_ID)
             self.__treeview_file.append_column(col)
-        col = gtk.TreeViewColumn("filename", gtk.CellRendererText(), text=f.FILENAME)
+        col = gtk.TreeViewColumn("filename", gtk.CellRendererPixbuf(), icon_name=f.ICON)
+        cell = gtk.CellRendererText()
+        col.pack_start(cell, True)
+        col.set_attributes(cell, text=f.FILENAME)    
         col.set_sort_column_id(f.FILENAME)
         self.__treeview_file.append_column(col)
         col = gtk.TreeViewColumn("length", gtk.CellRendererText(), text=f.LENGTH_STR)
@@ -154,7 +154,7 @@ class MTPnavigator:
                 
             # process the list containing dropped objects
             for uri in data.data.split('\r\n')[:-1]:
-                self.send_file(uri, selrow_metadata):
+                self.send_file(uri, selrow_metadata)
         context.finish(True, False, time)
         #FIXME: reject if not a file? 
 
@@ -191,7 +191,8 @@ class MTPnavigator:
             (model, path) = tv.get_selection().get_selected_rows()
             selrow_metadata = model.get_metadata(path)
         return selrow_metadata
-            def connect_or_disconnect_device(self):
+            
+    def connect_or_disconnect_device(self):
         widgets = ["menuitem_send_files", "menuitem_delete_files", "button_add_file", "button_del_file", "hbox_device_information"]
         if self.__device_engine:
             self.__disconnect_device()

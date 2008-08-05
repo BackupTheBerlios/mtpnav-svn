@@ -148,7 +148,7 @@ class FileTreeModel(gtk.TreeStore):
                 icon = "audio-x-generic"
             row = [m.id, m.parent_id, m.title, util.format_filesize(m.filesize), m.filesize, icon, m]
             
-        iter = gtk.TreeStore.append(self, parent, )
+        iter = gtk.TreeStore.append(self, parent, row)
         self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()
         if DEBUG_LOCK: debug_trace("Lock released", sender=self)
