@@ -92,7 +92,7 @@ class TransferManager():
 
     def cancel_job(self, job_to_cancel):
         job_to_cancel.canceled = True
-        self.__model.remove_job(job_to_cancel.id) # FIXME: not for current job
+        self.__model.remove_job(job_to_cancel.object_id) # FIXME: not for current job
 
 class ProcessQueueThread(Thread):
     SIGNAL_QUEUE_CHANGED = 1

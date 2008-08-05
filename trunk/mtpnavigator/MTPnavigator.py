@@ -9,7 +9,7 @@ from notifications import *
 from DeviceEngine import TrackListingModel
 from DeviceEngine import FileTreeModel
 import util
-
+import Metadata
 
 VERSION="0.1.a2"
 
@@ -36,7 +36,7 @@ class MTPnavigator:
         self.__treeview_track = self.gtkbuilder.get_object("treeview_track_list")
         self.__treeview_track.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
         t = TrackListingModel
-        if DEBUG:
+        if False:
             col = gtk.TreeViewColumn("object ID", gtk.CellRendererText(), text=t.OBJECT_ID)
             self.__treeview_track.append_column(col)
         col = gtk.TreeViewColumn("title", gtk.CellRendererText(), text=t.TITLE)
@@ -67,7 +67,7 @@ class MTPnavigator:
         self.__treeview_file = self.gtkbuilder.get_object("treeview_file_list")
         self.__treeview_file.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
         f = FileTreeModel
-        if False:
+        if True:
             col = gtk.TreeViewColumn("object ID", gtk.CellRendererText(), text=f.OBJECT_ID)
             self.__treeview_file.append_column(col)
             col = gtk.TreeViewColumn("parent ID", gtk.CellRendererText(), text=f.PARENT_ID)
@@ -162,15 +162,15 @@ class MTPnavigator:
         """
             selected_row: the metadata of the selected row
         """
-        assert type(selected_row_metadata) is type(Metadata.Metadata())
+        assert type(selrow_metadata) is type(Metadata.Metadata())
 
         parent_id=0
         if selrow_metadata:
             parent_id = selrow_metadata.id
             debug_trace("files where dropped on %s" % parent_id, sender=self)
             # if the row is not a folder, take the parent which should be one
-            if parent_metadata.type <> Metadata.TYPE_FOLDER:
-                parent_id  = parent_metadata.parent_id
+            if selrow_metadata.type <> Metadata.TYPE_FOLDER:
+                parent_id  = selrow_metadata.parent_id
                 debug_trace("It was not a folder. Its parent %s is taken instead." % parent_id, sender=self)
 
         return self.__transferManager.send_file(uri, parent_id)
@@ -180,16 +180,19 @@ class MTPnavigator:
         gtk.main_quit()
 
     def __get_currently_selected_rows(self):
-        #FIXME: this assert the notbook pages directly contains a treeview. This might change in future
         tv = None
         selrow_metadata = None
         #get the current treeview
-        nb = self.__getWidget("notebook_main")
-        tv = nb.get_nth_page(nb.get_current_page())
+        if self.__treeview_file.is_focus():
+            tv = self.__treeview_file
+        if self.__treeview_track.is_focus():
+            tv = self.__treeview_track
         # find which (last) row was selected on which treeview
+        selrow_metadata = []
+        (model, paths) = tv.get_selection().get_selected_rows()
         if tv:
-            (model, path) = tv.get_selection().get_selected_rows()
-            selrow_metadata = model.get_metadata(path)
+            for path in paths:
+                selrow_metadata.append(model.get_metadata(path)) 
         return selrow_metadata
             
     def connect_or_disconnect_device(self):
