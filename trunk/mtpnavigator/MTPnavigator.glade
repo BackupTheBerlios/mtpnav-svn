@@ -159,7 +159,7 @@
             <property name="can_focus">True</property>
             <property name="position_set">True</property>
             <child>
-              <widget class="GtkNotebook" id="notebook1">
+              <widget class="GtkNotebook" id="notebook_main">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="tab_pos">GTK_POS_LEFT</property>

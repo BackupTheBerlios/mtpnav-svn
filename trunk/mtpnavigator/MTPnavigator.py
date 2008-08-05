@@ -95,15 +95,19 @@ class MTPnavigator:
 
     #------ EVENTS ----------------------------------
     def on_delete_files_activate(self, emiter):
-        (model, paths) = self.__treeview_track.get_selection().get_selected_rows()
+        for row_metadata in self.__get_currently_selected_rows():
+            if DEBUG: debug_trace("deleting file with ID %s (%s)" % (row_metadata.id, row_metadata.filename), sender=self)
+            self.__transferManager.del_file(row_metadata)       
+        
+        """ FIXME: NEEDED INSTEAD?
         to_del = [] #store the files id to delete before stating deleted, else, path may change if more line are selecetd
-        for path in paths:
-            metadata =  model.get_metadata(path)
-            to_del.append(metadata)
+        for row in self.__get_currently_selected_rows():
+            to_del.append(row)
 
         for metadata in to_del:
             if DEBUG: debug_trace("deleting file with ID %s (%s)" % (metadata.id, metadata.filename), sender=self)
             self.__transferManager.del_file(metadata)
+        """
 
     def on_button_cancel_job_clicked(self, emiter):
         (model, paths) = self.__transferManager.get_selection().get_selected_rows()
@@ -124,9 +128,12 @@ class MTPnavigator:
         self.exit()
 
     def on_send_files_activate(self, widget):
+        # find the last selected row ? FIXME: what to do there if more rows are selected?
+        selrow_metadata = self.__get_currently_selected_rows()[-1]
+            
+        # create and open the file chooser
         title = "Select files to transfer to the device"
         buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK)
-
         fs = gtk.FileChooserDialog(title, self.window, gtk.FILE_CHOOSER_ACTION_OPEN, buttons)
         fs.set_select_multiple(True)
         fs.set_default_response(gtk.RESPONSE_OK)
@@ -134,20 +141,57 @@ class MTPnavigator:
         response = fs.run()
         if response == gtk.RESPONSE_OK:
             for uri in fs.get_uris():
-                self.send_file(uri)
+                self.send_file(uri, selrow_metadata)
         fs.destroy()
 
-    def on_drag_data_received(self, w, context, x, y, data, info, time):
+    def on_drag_data_received(self, treeview, context, x, y, data, info, time):
         if data and data.format == 8:
+            # find the row where data was dropped
+            selrow_metadata = None
+            drop_info = treeview.get_dest_row_at_pos(x, y)
+            if drop_info:
+                selrow_metadata = treeview.get_model().get_metadata(drop_info[0])
+                
+            # process the list containing dropped objects
             for uri in data.data.split('\r\n')[:-1]:
-                self.send_file(uri)
+                self.send_file(uri, selrow_metadata):
         context.finish(True, False, time)
+        #FIXME: reject if not a file? 
 
+    def send_file(self, uri, selrow_metadata):
+        """
+            selected_row: the metadata of the selected row
+        """
+        assert type(selected_row_metadata) is type(Metadata.Metadata())
+
+        parent_id=0
+        if selrow_metadata:
+            parent_id = selrow_metadata.id
+            debug_trace("files where dropped on %s" % parent_id, sender=self)
+            # if the row is not a folder, take the parent which should be one
+            if parent_metadata.type <> Metadata.TYPE_FOLDER:
+                parent_id  = parent_metadata.parent_id
+                debug_trace("It was not a folder. Its parent %s is taken instead." % parent_id, sender=self)
+
+        return self.__transferManager.send_file(uri, parent_id)
+        
     def exit(self):
         self.window.destroy()
         gtk.main_quit()
 
-    def connect_or_disconnect_device(self):
+    def __get_currently_selected_rows(self):
+        #FIXME: this assert the notbook pages directly contains a treeview. This might change in future
+        tv = None
+        selrow_metadata = None
+        #get the current treeview
+        nb = self.__getWidget("notebook_main")
+        tv = nb.get_nth_page(nb.get_current_page())
+        # find which (last) row was selected on which treeview
+        if tv:
+            (model, path) = tv.get_selection().get_selected_rows()
+            selrow_metadata = model.get_metadata(path)
+        return selrow_metadata
+            def connect_or_disconnect_device(self):
         widgets = ["menuitem_send_files", "menuitem_delete_files", "button_add_file", "button_del_file", "hbox_device_information"]
         if self.__device_engine:
             self.__disconnect_device()
@@ -233,9 +277,6 @@ class MTPnavigator:
         prog_bar.set_text("")
         self.__getWidget("label_information").set_text("No device connected")
 
-    def send_file(self, uri):
-        #TODO copy whole directory
-        self.__transferManager.send_file(uri)
 
 if __name__ == "__main__":
     mtpnav = MTPnavigator()

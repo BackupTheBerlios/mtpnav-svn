@@ -73,15 +73,18 @@ class TransferManager():
     def get_selection(self):
         return self.__transfer_treeview.get_selection()
 
-    def send_file(self, file_url):
+    def send_file(self, file_url, parent_id):
         if DEBUG: debug_trace("request for sending %s" % file_url, sender=self)
         url = urlparse(file_url)
         if url.scheme == "file":
             path = url2pathname(url.path)
             metadata = Metadata.get_from_file(path)
+            metadata.parent_id = parent_id
             self.__queue_job(path, self.ACTION_SEND, metadata)
+            return True
         else:
             notify_warning("%s is not a file" % file_url)
+            return False
 
     def del_file(self, metadata):
         if DEBUG: debug_trace("request for deleting file with id %s (%s)" % (metadata.id, metadata.filename), sender=self)

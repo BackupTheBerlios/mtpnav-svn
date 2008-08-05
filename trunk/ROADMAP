@@ -2,7 +2,7 @@
 RELEASE 0.1.0:
 --------------
     FIXME:
-    * del action only on selected element from active treeview
+    * TEST: del action only on selected element from active treeview
     * fix metadata and filenames encoding (accent and special charaters)
     * refresh free space progress bar on each operation
     * check if job already present before adding
@@ -19,8 +19,9 @@ RELEASE 0.1.0:
 
     PRERELEASE 0.1.a2: IN DEVELOPPMENT
     * DONE: file view
-    *       create and remove directory in file view
-    *       add file to directory in file view
+    *       create directory in file view
+    *       remove directory in file view
+    * TEST: add file to directory in file view
     *       move files/directories
     * TEST: button to cancel in transfer window 
     *       identify transfers errors (already on device/device full)
