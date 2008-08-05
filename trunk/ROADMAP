@@ -2,35 +2,53 @@
 RELEASE 0.1.0:
 --------------
     FIXME:
+    * del action only on selected element from active treeview
     * fix metadata and filenames encoding (accent and special charaters)
     * refresh free space progress bar on each operation
     * check if job already present before adding
+    * refuse adding others than tracks in track view
+    * identify from device what is a track and what is a file
 
     PRERELEASE 0.1.a1: RELEASED
-    * DONE: view device information - done
-    * DONE: view track listing - done
-    * DONE: add file to device - done 
-    * DONE: add file to device per drag and drop - done
-    * DONE: delete files - done
-    * DONE: job queue - done
+    * DONE: view device information
+    * DONE: view track listing
+    * DONE: add file to device
+    * DONE: add file to device per drag and drop
+    * DONE: delete files
+    * DONE: job queue
 
-    PRERELEASE 0.1.a1:
+    PRERELEASE 0.1.a2: IN DEVELOPPMENT
     * DONE: file view
-    * TESTING: button to cancel in transfer window 
-    * identify transfers errors (already on device/device full)
-    * connect on demand instead of connect once
-    * add metadata from ogg tags.
-    * size/resize columns
-    * trace debug and exceptions
+    *       create and remove directory in file view
+    *       add file to directory in file view
+    *       move files/directories
+    * TEST: button to cancel in transfer window 
+    *       identify transfers errors (already on device/device full)
+    *       connect on demand instead of connect once
+    *       add metadata from ogg tags
+    *       Colums resisable
+    *       trace debug and exceptions
 
-    PRERELEASE 0.1.a3:
-    * add and manage playlist
+    PRERELEASE 0.1.a3: PLANNED
+    * add a complete directory (drag and drop + menu item). Only track added in track view
+    * add and remove playlist
+    * add tracks to playlist
     * get file from device
     * preferences
     * parametrize metadata from directory/file scheme if no tag
-    * rigth click context menu
+    * rigth click context menus
     * display tooltips on track view and job list (artist, title genre...)
     * button to cancel job /retry on error at row level
+
+    RELEASE 0.1.beta0 PLANNED
+    * test and fixe
+
+    RELEASE 0.1.0 PLANNED
+    * no know bugs
+    
+    RELEASE 0.1.x PLANNED
+    * bug fixes
+
 
     PRERELEASE:
     * logo
@@ -41,7 +59,7 @@ RELEASE 0.1.0:
     * web site
     * gnome menu entry
 
-RELEASE 0.2.0:
+RELEASE >= 0.2.0:
 --------------
 * accept samba files
 * edit metadata
@@ -52,4 +70,4 @@ RELEASE 0.2.0:
 * cover
 * backup/restore device
 * choose columns to display
-
+* play tracks
