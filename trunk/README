@@ -28,7 +28,7 @@
  ============
 
    * python (>= 2.4)
-   * python-gtk2 (minimum 2.6)
+   * python-gtk2 (minimum 2.12)
    * python-glade3
    * pymtp (0.0.4 Pythonic binding to LibMTP to interact with MTP devices: http://nick125.com/projects/pymtp)
  

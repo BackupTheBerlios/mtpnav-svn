@@ -36,7 +36,7 @@ class MTPnavigator:
         self.__treeview_track = self.gtkbuilder.get_object("treeview_track_list")
         self.__treeview_track.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
         t = TrackListingModel
-        if False:
+        if DEBUG_ID:
             col = gtk.TreeViewColumn("object ID", gtk.CellRendererText(), text=t.OBJECT_ID)
             self.__treeview_track.append_column(col)
         col = gtk.TreeViewColumn("title", gtk.CellRendererText(), text=t.TITLE)
@@ -67,7 +67,7 @@ class MTPnavigator:
         self.__treeview_file = self.gtkbuilder.get_object("treeview_file_list")
         self.__treeview_file.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
         f = FileTreeModel
-        if True:
+        if DEBUG_ID:
             col = gtk.TreeViewColumn("object ID", gtk.CellRendererText(), text=f.OBJECT_ID)
             self.__treeview_file.append_column(col)
             col = gtk.TreeViewColumn("parent ID", gtk.CellRendererText(), text=f.PARENT_ID)

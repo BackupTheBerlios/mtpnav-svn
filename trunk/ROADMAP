@@ -20,18 +20,18 @@ RELEASE 0.1.0:
     PRERELEASE 0.1.a2: IN DEVELOPPMENT
     * DONE: file view
     *       create directory in file view
-    * TEST: remove directory in file view
+    * TEST: remove a whole directory in file view
     * TEST: add file to directory in file view
     *       move files/directories
     * TEST: button to cancel in transfer window 
     *       identify transfers errors (already on device/device full)
     *       connect on demand instead of connect once
     *       add metadata from ogg tags
-    *       Colums resisable
+    *       Columns resisable
     *       trace debug and exceptions
 
     PRERELEASE 0.1.a3: PLANNED
-    * add a complete directory (drag and drop + menu item). Only track added in track view
+    * add a whole directory (drag and drop + menu item). Only track added in track view
     * add and remove playlist
     * add tracks to playlist
     * get file from device

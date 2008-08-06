@@ -1,7 +1,12 @@
 import traceback
+import sys
 
-DEBUG=True
+DEBUG=False
 DEBUG_LOCK=False
+DEBUG_ID=False
+if "-d" in sys.argv: DEBUG=True
+if "--debug-lock" in sys.argv: DEBUG_LOCK=True
+if "--debug-id" in sys.argv: DEBUG_ID=True
 
 def debug_trace(text, sender=None, exception=None):
     print "%s: %s" % (sender.__class__.__name__, text)
