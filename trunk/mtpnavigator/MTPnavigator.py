@@ -85,6 +85,7 @@ class MTPnavigator:
         # add drag and drop support
         # @TODO: deactivate if not connected
         self.__treeview_file.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY)
+        self.__treeview_file.connect('drag_motion', self.on_drag_motion)
         self.__treeview_file.connect('drag_data_received', self.on_drag_data_received)
 
         self.connect_or_disconnect_device()
@@ -95,13 +96,6 @@ class MTPnavigator:
 
     #------ EVENTS ----------------------------------
     def on_delete_files_activate(self, emiter):
-        selected = self.__get_currently_selected_rows()
-        if selected:
-            for row_metadata in selected:
-                if DEBUG: debug_trace("deleting file with ID %s (%s)" % (row_metadata.id, row_metadata.filename), sender=self)
-                self.__transferManager.del_file(row_metadata)       
-        
-        """ FIXME: NEEDED INSTEAD?
         to_del = [] #store the files id to delete before stating deleted, else, path may change if more line are selecetd
         for row in self.__get_currently_selected_rows():
             to_del.append(row)
@@ -109,7 +103,6 @@ class MTPnavigator:
         for metadata in to_del:
             if DEBUG: debug_trace("deleting file with ID %s (%s)" % (metadata.id, metadata.filename), sender=self)
             self.__transferManager.del_file(metadata)
-        """
 
     def on_button_cancel_job_clicked(self, emiter):
         (model, paths) = self.__transferManager.get_selection().get_selected_rows()
@@ -145,7 +138,13 @@ class MTPnavigator:
             for uri in fs.get_uris():
                 self.send_file(uri, selrow_metadata)
         fs.destroy()
+        
+    def on_drag_motion(self, treeview, drag_context, x, y, time):
+        treeview.get_selection().set_mode( gtk.SELECTION_BROWSE)
 
+    def drag_drop_cb(self, treeview, drag_context, x, y, time, data):
+        treeview.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
+        
     def on_drag_data_received(self, treeview, context, x, y, data, info, time):
         if data and data.format == 8:
             # find the row where data was dropped

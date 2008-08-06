@@ -48,6 +48,7 @@ class TransferManager():
         col = gtk.TreeViewColumn("progress", gtk.CellRendererProgress(), value=t.COL_PROGRESS, text=t.COL_STATUS)
         transfer_treeview.append_column(col)
         transfer_treeview.set_model(self.__model)
+        transfer_treeview.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
 
     def __observe_queue_thread(self, signal, *args):
         if signal == ProcessQueueThread.SIGNAL_DEVICE_CONTENT_CHANGED:
@@ -111,13 +112,14 @@ class ProcessQueueThread(Thread):
             observer(signal, *args)
 
     def __device_callback(self, sent, total):
+        if self.__current_job.canceled: 
+            debug_trace("current job canceled", sender=self)
+            return 1
         percentage = round(float(sent)/float(total)*100)
         self.__current_job.progress=percentage
         self.__model.modify(self.__current_job.object_id, TransfertQueueModel.COL_PROGRESS, percentage)
         self.__model.modify(self.__current_job.object_id, TransfertQueueModel.COL_STATUS, "%i%%" % percentage)
-        if self.__current_job.canceled: 
-            debug_trace("current job canceled", sender=self)
-            return 1
+        return 0
 
     def add_observer(self, observer):
         if DEBUG and observer in self.observers:
@@ -129,7 +131,7 @@ class ProcessQueueThread(Thread):
         if DEBUG: debug_trace("Processing queue thread started ", sender=self)
         while(True):
             job = self.__queue.get() # will wait until an job is there
-            if job.canceled: break
+            if job.canceled: continue
             self.__current_job = job
             self.__model.modify(job.object_id, TransfertQueueModel.COL_STATUS, TransferManager.STATUS_PROCESSING)
             debug_trace("Processing job %s" % job.object_id, sender=self)
@@ -172,7 +174,9 @@ class TransfertQueueModel(gtk.ListStore):
 
     def __get_iter(self, object_id):
         try:
-            return  self.get_iter(self.__cache[object_id].get_path())
+            if self.__cache[object_id].get_path():
+                return  self.get_iter(self.__cache[object_id].get_path())
+            return None
         except KeyError, exc:
             return None
 

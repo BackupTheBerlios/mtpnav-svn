@@ -2,6 +2,10 @@
 RELEASE 0.1.0:
 --------------
     FIXME:
+    * del key for delteing file
+    * cancelling current job block other jobs
+    * seg fault when deleting many files
+    * select the row under mouse when drag and dropping
     * fix metadata and filenames encoding (accent and special charaters)
     * refresh free space progress bar on each operation
     * check if job already present before adding
@@ -22,7 +26,7 @@ RELEASE 0.1.0:
     * DONE: remove a whole directory in file view
     * DONE: add file to directory in file view
     *       move files/directories
-    * TEST: button to cancel in transfer window 
+    * DONE: button to cancel in transfer window 
     *       identify transfers errors (already on device/device full)
     *       connect on demand instead of connect once
     *       add metadata from ogg tags

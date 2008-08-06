@@ -49,7 +49,9 @@ class Metadata:
 
     def to_MTPTrack(self):
         mtp_metadata = pymtp.LIBMTP_Track()
-        mtp_metadata.parent_id = int(self.parent_id)
+        mtp_metadata.parent_id=0
+        if self.parent_id:
+            mtp_metadata.parent_id = int(self.parent_id)
         mtp_metadata.title = self.title
         mtp_metadata.artist = self.artist
         mtp_metadata.album = self.album
