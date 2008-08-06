@@ -95,9 +95,11 @@ class MTPnavigator:
 
     #------ EVENTS ----------------------------------
     def on_delete_files_activate(self, emiter):
-        for row_metadata in self.__get_currently_selected_rows():
-            if DEBUG: debug_trace("deleting file with ID %s (%s)" % (row_metadata.id, row_metadata.filename), sender=self)
-            self.__transferManager.del_file(row_metadata)       
+        selected = self.__get_currently_selected_rows()
+        if selected:
+            for row_metadata in selected:
+                if DEBUG: debug_trace("deleting file with ID %s (%s)" % (row_metadata.id, row_metadata.filename), sender=self)
+                self.__transferManager.del_file(row_metadata)       
         
         """ FIXME: NEEDED INSTEAD?
         to_del = [] #store the files id to delete before stating deleted, else, path may change if more line are selecetd
@@ -185,8 +187,10 @@ class MTPnavigator:
         #get the current treeview
         if self.__treeview_file.is_focus():
             tv = self.__treeview_file
-        if self.__treeview_track.is_focus():
+        elif self.__treeview_track.is_focus():
             tv = self.__treeview_track
+        else:
+             return None
         # find which (last) row was selected on which treeview
         selrow_metadata = []
         (model, paths) = tv.get_selection().get_selected_rows()
