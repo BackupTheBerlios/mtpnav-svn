@@ -96,10 +96,24 @@ class MTPnavigator:
 
     #------ EVENTS ----------------------------------
     def on_delete_files_activate(self, emiter):
-        to_del = [] #store the files id to delete before stating deleted, else, path may change if more line are selecetd
-        for row in self.__get_currently_selected_rows():
+        #store the files id to delete before stating deleted, else, path may change if more line are selecetd
+        to_del = [] 
+        folder_count = 0
+        for row in self.__get_currently_selected_rows_metadata():
             to_del.append(row)
+            if row.type == Metadata.TYPE_FOLDER:
+                folder_count+=1
 
+        # show confirmation                
+        msg = "You are about to delete %i files" % (len(to_del) - folder_count)
+        if folder_count > 0:
+            msg += "and %i folders\nAll the files contained within the folders will be destroyed as well" % folder_count
+        confirm_dlg.set_title("Confirm delete")
+        confirm_dlg = gtk.MessageDialog(self, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, msg)
+        if confirm_dlg.run <> gtk.RESPONSE_OK: 
+            return
+
+        # send order to transfer manager
         for metadata in to_del:
             if DEBUG: debug_trace("deleting file with ID %s (%s)" % (metadata.id, metadata.filename), sender=self)
             self.__transferManager.del_file(metadata)
@@ -124,7 +138,7 @@ class MTPnavigator:
 
     def on_send_files_activate(self, widget):
         # find the last selected row ? FIXME: what to do there if more rows are selected?
-        selrow_metadata = self.__get_currently_selected_rows()[-1]
+        selrow_metadata = self.__get_currently_selected_rows_metadata()[-1]
             
         # create and open the file chooser
         title = "Select files to transfer to the device"
@@ -180,7 +194,7 @@ class MTPnavigator:
         self.window.destroy()
         gtk.main_quit()
 
-    def __get_currently_selected_rows(self):
+    def __get_currently_selected_rows_metadata(self):
         tv = None
         selrow_metadata = None
         #get the current treeview
