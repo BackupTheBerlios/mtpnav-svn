@@ -182,6 +182,7 @@ class MTPnavigator:
         fs.destroy()
         
     def on_drag_motion(self, treeview, drag_context, x, y, time):
+        self.window.present()    
         treeview.get_selection().set_mode( gtk.SELECTION_SINGLE)
         treeview.set_hover_selection(True)
         treeview.set_hover_expand(True)
