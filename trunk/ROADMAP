@@ -3,6 +3,7 @@ RELEASE 0.1.0:
 --------------
     FIXME:
     * TEST: cancelling current job block other jobs
+    *       when adding file, file is not put into order when refreshing model
     *       seg fault when deleting many files
     *       prevent deleting system folders and files (waiting response from libmtp list)
     * TEST: select the row under mouse when drag and dropping
@@ -24,6 +25,7 @@ RELEASE 0.1.0:
     PRERELEASE 0.1.a2: IN DEVELOPPMENT
     * DONE: view files and folders listing
     * TEST: add a directory
+
     * DONE: remove a whole directory (directory and contained files)
     * DONE: add file to directory
     *       move files/directories
