@@ -126,6 +126,8 @@ class MTPnavigator:
             to_del.append(row)
             if row.type == Metadata.TYPE_FOLDER:
                 folder_count+=1
+                
+        if len(to_del)==0: return
 
         # show confirmation                
         msg = "You are about to delete %i files" % (len(to_del) - folder_count)
