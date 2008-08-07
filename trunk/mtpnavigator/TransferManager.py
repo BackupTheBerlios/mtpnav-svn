@@ -15,10 +15,9 @@ class TransferManager():
     ACTION_SEND = "SEND"
     ACTION_DEL = "DELETE"
     ACTION_GET = "GET"
-    ACTION_CREATE_DIR = "creating directory"
-    ACTION_DEL_DIR = "deleleting directory"
-    ACTION_CREATE_PLAYLIST = "creating playlist"
-    ACTION_DEL_PLAYLIST = "deleting playlist"
+    ACTION_CREATE_FOLDER = "CREATE FOLDER"
+    ACTION_CREATE_PLAYLIST = "CREATE PLAYLIST"
+    ACTION_DEL_PLAYLIST = "REMOVE PLAYLIST"
 
     STATUS_QUEUED = "queued"
     STATUS_PROCESSING = "processing"
@@ -60,10 +59,12 @@ class TransferManager():
             elif job.action==self.ACTION_DEL:
                 self.__device_engine.get_track_listing_model().remove_object(job.metadata.id)
                 self.__device_engine.get_file_tree_model().remove_object(job.metadata.id)
+            elif job.action==self.ACTION_CREATE_FOLDER:
+                self.__device_engine.get_file_tree_model().append(job.metadata)
 
-    def __queue_job(self, object_id, job_type, metadata):
+    def __queue_job(self, job_type, metadata):
         assert type(metadata) is type(Metadata.Metadata())
-        job = Job(object_id, job_type, self.STATUS_QUEUED, metadata)
+        job = Job(metadata.id, job_type, self.STATUS_QUEUED, metadata)
 
         self.__queue.put_nowait(job)
         self.__model.append(job.get_list())
@@ -73,6 +74,14 @@ class TransferManager():
 
     def get_selection(self):
         return self.__transfer_treeview.get_selection()
+        
+    def create_folder(self, folder_name):
+        metadata = Metadata()
+        metadata.id = folder_name
+        metadata.title = folder_name
+        metadata.filename = folder_name
+        metadata.parent_id = parent_id 
+        self.__queue_job(self.ACTION_CREATE_FOLDER, metadata)       
 
     def send_file(self, file_url, parent_id):
         if DEBUG: debug_trace("request for sending %s" % file_url, sender=self)
@@ -81,7 +90,7 @@ class TransferManager():
             path = url2pathname(url.path)
             metadata = Metadata.get_from_file(path)
             metadata.parent_id = parent_id
-            self.__queue_job(path, self.ACTION_SEND, metadata)
+            self.__queue_job(self.ACTION_SEND, metadata)
             return True
         else:
             notify_warning("%s is not a file" % file_url)
@@ -89,7 +98,7 @@ class TransferManager():
 
     def del_file(self, metadata):
         if DEBUG: debug_trace("request for deleting file with id %s (%s)" % (metadata.id, metadata.filename), sender=self)
-        self.__queue_job(metadata.id, self.ACTION_DEL, metadata)
+        self.__queue_job(self.ACTION_DEL, metadata)
 
     def cancel_job(self, job_to_cancel):
         job_to_cancel.canceled = True
@@ -143,9 +152,18 @@ class ProcessQueueThread(Thread):
                     self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
                     job.object_id = metadata.id
                     job.metadata = metadata
+                    
                 elif job.action == TransferManager.ACTION_DEL:
                     self.__device_engine.del_file(job.object_id)
+                    
                     trace("file with id %s (%s) deleted succesfully" % (job.object_id, job.metadata.title), sender=self)
+                elif job.action == TransferManager.ACTION_CREATE_FOLDER:
+                    metadata = self.__device_engine.create_folder(job.metadata)
+                    trace("New folder %s created succesfully. New id is %s" % (job.object_id, metadata.id), sender=self)
+                    self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
+                    job.object_id = metadata.id
+                    job.metadata = metadata
+                    
                 else:
                     assert False
                 self.__notify(self.SIGNAL_DEVICE_CONTENT_CHANGED, job)

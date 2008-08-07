@@ -34,6 +34,9 @@ class DeviceEngine:
 
     def send_file(self, metadata, callback):
         return self.__device.send_track(metadata, callback)
+        
+    def create_folder(self, metadata):
+        return self.__device.create_folder(metadata)
 
     def del_file(self, file_id):
         return self.__device.remove_track(file_id)

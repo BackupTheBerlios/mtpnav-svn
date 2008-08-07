@@ -2,7 +2,6 @@
 RELEASE 0.1.0:
 --------------
     FIXME:
-    *       del key for delteting file
     * TEST: cancelling current job block other jobs
     *       seg fault when deleting many files
     *       prevent deleting system folders and files (waiting response from libmtp list)
@@ -15,31 +14,35 @@ RELEASE 0.1.0:
 
     PRERELEASE 0.1.a1: RELEASED
     * DONE: view device information
-    * DONE: view track listing
+    * DONE: view tracks listing
     * DONE: add file to device
     * DONE: add file to device per drag and drop
     * DONE: delete files
     * DONE: job queue
+    * DONE: get metadata from mp3 files tags
 
     PRERELEASE 0.1.a2: IN DEVELOPPMENT
-    * TEST: confirm before deleting
-    * DONE: file view
-    *       create directory in file view
-    * DONE: remove a whole directory in file view
-    * DONE: add file to directory in file view
+    * DONE: view files and folders listing
+    * TEST: add a directory
+    * DONE: remove a whole directory (directory and contained files)
+    * DONE: add file to directory
     *       move files/directories
-    * DONE: button to cancel in transfer window 
+    * DONE: button to cancel job in transfer window 
     *       identify transfers errors (already on device/device full)
     *       connect on demand instead of connect once
-    *       add metadata from ogg tags
-    *       Columns resisable
-    * TEST: date into metadata
+    *       get metadata from ogg files tags
+    *       columns resizable
+    * TEST: ask confirmation before deleting folder or track
+    * TEST: current date or tag date is written into track metadata
     *       trace debug and exceptions
+    *       use action and uimanager to create menu and toobox
 
     PRERELEASE 0.1.a3: PLANNED
+    * separate folders from files in the folder view ? Folder would be single select (better for adding folder or sending file to folder)
     * add a whole directory (drag and drop + menu item). Only track added in track view
     * add and remove playlist
     * add tracks to playlist
+    * remove tracks from playlist
     * get file from device
     * preferences
     * parametrize metadata from directory/file scheme if no tag
@@ -48,10 +51,10 @@ RELEASE 0.1.0:
     * button to cancel job /retry on error at row level
 
     RELEASE 0.1.0beta0 PLANNED
-    * test and fixe
+    * test and fixes
 
     RELEASE 0.1.0 PLANNED
-    * no know bugs
+    * no known bugs
     
     RELEASE 0.1.x PLANNED
     * bug fixes

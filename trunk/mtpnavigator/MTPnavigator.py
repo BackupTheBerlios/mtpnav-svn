@@ -96,6 +96,23 @@ class MTPnavigator:
         return self.gtkbuilder.get_object(widget_id)
 
     #------ EVENTS ----------------------------------
+    def on_create_folder_activate(self, emiter):
+        dlg = GetTextDialog(self, "Enter the new folder name:")
+        new_folder_name = dlg.get_text()
+        if new_folder_name and new_folder_name<>"":
+            # find the last selected row ? FIXME: what to do there if more rows are selected?
+            selrow_metadata = self.__get_currently_selected_rows_metadata()[-1]
+            parent_id=0
+            if selrow_metadata:
+                parent_id = selrow_metadata.id
+                debug_trace("create folder on item %s" % parent_id, sender=self)
+                # if the row is not a folder, take the parent which should be one
+                if selrow_metadata.type <> Metadata.TYPE_FOLDER:
+                    parent_id  = selrow_metadata.parent_id
+                    debug_trace("It was not a folder. Its parent %s is taken instead." % parent_id, sender=self)
+
+            self.__transferManager.create_folder(new_folder_name, parent_id)
+        
     def on_delete_files_activate(self, emiter):
         #store the files id to delete before stating deleted, else, path may change if more line are selecetd
         to_del = [] 
@@ -303,6 +320,25 @@ class MTPnavigator:
         prog_bar.set_text("")
         self.__getWidget("label_information").set_text("No device connected")
 
+
+class GetTextDialog(gtk.MessageDialog):
+    def __init__(self, parent, message):
+        gtk.MessageDialog.__init__(parent,  gtk.DIALOG_MODAL | 
+            gtk.DIALOG_DESTROY_WITH_PARENT,  
+            gtk.MESSAGE_QUESTION,  
+            gtk.gtk.BUTTONS_OK_CANCEL,  
+            None)  
+        self.set_markup(message)  
+        self.entry = gtk.Entry()  
+        self.vbox.pack_end(entry, True, True, 0)  
+        
+    def get_text():  
+        self.show_all()  
+        text = None
+        if self.run() == gtkRESPONSE_OK:
+            text = self.entry.get_text()  
+        self.destroy()  
+        return text  
 
 if __name__ == "__main__":
     mtpnav = MTPnavigator()
