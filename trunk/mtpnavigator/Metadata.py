@@ -1,4 +1,5 @@
 import os.path
+import time
 from notifications import *
 
 # for mp3 files
@@ -36,7 +37,7 @@ class Metadata:
         self.album = None
         self.artist = None
         self.genre = None
-        self.date = None
+        self.date = time.time()
         self.filesize = 0
         self.tracknumber = 0
         self.duration = 0
@@ -88,7 +89,7 @@ def get_from_MTPTrack(track):
     m.album = track.album
     m.genre = track.genre
     m.filesize = track.filesize
-    m.date = "" #FIXME: self.__mtp_to_date(track.date)
+    m.date = self.__mtp_to_date(track.date)
     if DEBUG: debug_trace("Metadata gotten from MTPtrack. They are %s" % m.to_string())
     return m
 
@@ -153,7 +154,8 @@ def __get_from_MP3tags(m):
                 m.album = tag.getAlbum()
                 m.artist = tag.getArtist()
                 if tag.getGenre(): m.genre = tag.getGenre().getName()
-                m.date = tag.getDate()
+                date = tag.getDate()
+                if date: m.date = date
                 m.tracknumer = 0 #TODO: convert int tag.getTrackNum()
                 m.filesize = 0 # todo
                 m.duration = 0 # todo

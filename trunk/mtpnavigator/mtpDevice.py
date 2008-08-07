@@ -23,7 +23,7 @@ def date_to_mtp(date):
         s.append(time.strftime("%Y",d))
         s.append(time.strftime("%m",d))
         s.append(time.strftime("%d",d))
-        s.append("-") # free separator
+        s.append("T") # separator
         s.append(time.strftime("%H",d))
         s.append(time.strftime("%M",d))
         s.append(time.strftime("%S",d))
@@ -59,7 +59,7 @@ def mtp_to_date(mtp_string_date):
                 else:
                     raise ValueError("Expected + or -")
             except Exception, exc:
-                print('WARNING: ignoring invalid time zone information for %s (%s)', mtp, exc)
+                if DEBUG: debug_trace('WARNING: ignoring invalid time zone information for %s (%s)', mtp, exc)
         return _date
     except Exception, exc:
         if DEBUG: debug_trace("the mtp date %s can not be parsed against mtp specification" % mtp, sender=self)

@@ -33,6 +33,7 @@ RELEASE 0.1.0:
     *       connect on demand instead of connect once
     *       add metadata from ogg tags
     *       Columns resisable
+    * TEST: date into metadata
     *       trace debug and exceptions
 
     PRERELEASE 0.1.a3: PLANNED
