@@ -2,16 +2,16 @@
 RELEASE 0.1.0:
 --------------
     FIXME:
-    * del key for delteing file
-    * cancelling current job block other jobs
-    * seg fault when deleting many files
-    * prevent deleting system folders and files (waiting response from libmtp list)
-    * select the row under mouse when drag and dropping
-    * fix metadata and filenames encoding (accent and special charaters)
-    * refresh free space progress bar on each operation
-    * check if job already present before adding
-    * refuse adding others than tracks in track view
-    * identify from device what is a track and what is a file
+    *       del key for delteting file
+    * TEST: cancelling current job block other jobs
+    *       seg fault when deleting many files
+    *       prevent deleting system folders and files (waiting response from libmtp list)
+    * TEST: select the row under mouse when drag and dropping
+    *       fix metadata and filenames encoding (accent and special charaters)
+    *       refresh free space progress bar on each operation
+    *       check if job already present before adding
+    *       refuse adding others than tracks in track view ? 
+    *       identify from device what is a track and what is a file
 
     PRERELEASE 0.1.a1: RELEASED
     * DONE: view device information

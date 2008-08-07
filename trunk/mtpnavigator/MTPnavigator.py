@@ -86,6 +86,7 @@ class MTPnavigator:
         # @TODO: deactivate if not connected
         self.__treeview_file.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY)
         self.__treeview_file.connect('drag_motion', self.on_drag_motion)
+        self.__treeview_file.connect('drag_drop', self.on_drag_drop)
         self.__treeview_file.connect('drag_data_received', self.on_drag_data_received)
 
         self.connect_or_disconnect_device()
@@ -154,10 +155,14 @@ class MTPnavigator:
         fs.destroy()
         
     def on_drag_motion(self, treeview, drag_context, x, y, time):
-        treeview.get_selection().set_mode( gtk.SELECTION_BROWSE)
+        treeview.get_selection().set_mode( gtk.SELECTION_SINGLE)
+        treeview.get_selection().set_hover_selection(True)
+        treeview.get_selection().set_hover_expand(True)
 
-    def drag_drop_cb(self, treeview, drag_context, x, y, time, data):
+    def on_drag_drop(self, treeview, drag_context, x, y, time, data):
         treeview.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
+        treeview.get_selection().set_hover_selection(False)
+        treeview.get_selection().set_hover_expand(False)
         
     def on_drag_data_received(self, treeview, context, x, y, data, info, time):
         if data and data.format == 8:
