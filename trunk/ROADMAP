@@ -1,12 +1,12 @@
 
-RELEASE 0.1.0:
+RELEASE 0.1.0: 
 --------------
     FIXME:
     * TEST: cancelling current job block other jobs
     *       when adding file, file is not put into order when refreshing model
     *       seg fault when deleting many files
     *       prevent deleting system folders and files (waiting response from libmtp list)
-    * TEST: select the row under mouse when drag and dropping
+    * TEST: select the row under mouse when drag and dropping to file view
     *       fix metadata and filenames encoding (accent and special charaters)
     *       refresh free space progress bar on each operation
     *       check if job already present before adding
@@ -25,7 +25,6 @@ RELEASE 0.1.0:
     PRERELEASE 0.1.a2: IN DEVELOPPMENT
     * DONE: view files and folders listing
     * TEST: add a directory
-
     * DONE: remove a whole directory (directory and contained files)
     * DONE: add file to directory
     *       move files/directories
@@ -36,21 +35,21 @@ RELEASE 0.1.0:
     *       columns resizable
     * TEST: ask confirmation before deleting folder or track
     * TEST: current date or tag date is written into track metadata
-    *       trace debug and exceptions
-    *       use action and uimanager to create menu and toobox
 
     PRERELEASE 0.1.a3: PLANNED
+    * trace debug and exceptions
+    * use action and uimanager to create menu and toolbox
+    * rigth click context menus
     * separate folders from files in the folder view ? Folder would be single select (better for adding folder or sending file to folder)
     * add a whole directory (drag and drop + menu item). Only track added in track view
     * add and remove playlist
     * add tracks to playlist
     * remove tracks from playlist
+    * button to cancel job /retry on error at row level
     * get file from device
     * preferences
     * parametrize metadata from directory/file scheme if no tag
-    * rigth click context menus
     * display tooltips on track view and job list (artist, title genre...)
-    * button to cancel job /retry on error at row level
 
     RELEASE 0.1.0beta0 PLANNED
     * test and fixes
