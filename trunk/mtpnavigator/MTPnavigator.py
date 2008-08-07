@@ -39,6 +39,8 @@ class MTPnavigator:
         if DEBUG_ID:
             col = gtk.TreeViewColumn("object ID", gtk.CellRendererText(), text=t.OBJECT_ID)
             self.__treeview_track.append_column(col)
+            col = gtk.TreeViewColumn("parent ID", gtk.CellRendererText(), text=t.PARENT_ID)
+            self.__treeview_track.append_column(col)
         col = gtk.TreeViewColumn("title", gtk.CellRendererText(), text=t.TITLE)
         col.set_sort_column_id(t.TITLE)
         self.__treeview_track.append_column(col)
@@ -96,12 +98,15 @@ class MTPnavigator:
         return self.gtkbuilder.get_object(widget_id)
 
     #------ EVENTS ----------------------------------
-    def on_create_folder_activate(self, emiter):
-        dlg = GetTextDialog(self, "Enter the new folder name:")
+    def on_button_create_folder_clicked(self, emiter):
+        dlg = GetTextDialog(self.window, "Enter the new folder name:")
         new_folder_name = dlg.get_text()
         if new_folder_name and new_folder_name<>"":
             # find the last selected row ? FIXME: what to do there if more rows are selected?
-            selrow_metadata = self.__get_currently_selected_rows_metadata()[-1]
+            selrow_metadata = None
+            selected = self.__get_currently_selected_rows_metadata()
+            if selected: 
+                selrow_metadata = selected[-1]
             parent_id=0
             if selrow_metadata:
                 parent_id = selrow_metadata.id
@@ -125,10 +130,12 @@ class MTPnavigator:
         # show confirmation                
         msg = "You are about to delete %i files" % (len(to_del) - folder_count)
         if folder_count > 0:
-            msg += "and %i folders\nAll the files contained within the folders will be destroyed as well" % folder_count
+            msg += " and %i folders\nAll the files contained within the folders will be destroyed as well" % folder_count
+        confirm_dlg = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, msg)
         confirm_dlg.set_title("Confirm delete")
-        confirm_dlg = gtk.MessageDialog(self, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, msg)
-        if confirm_dlg.run <> gtk.RESPONSE_OK: 
+        response=confirm_dlg.run()
+        confirm_dlg.destroy() 
+        if response <> gtk.RESPONSE_OK:
             return
 
         # send order to transfer manager
@@ -156,7 +163,10 @@ class MTPnavigator:
 
     def on_send_files_activate(self, widget):
         # find the last selected row ? FIXME: what to do there if more rows are selected?
-        selrow_metadata = self.__get_currently_selected_rows_metadata()[-1]
+        selrow_metadata = None
+        selected = self.__get_currently_selected_rows_metadata()
+        if selected:
+            selrow_metadata = selected[-1]
             
         # create and open the file chooser
         title = "Select files to transfer to the device"
@@ -173,13 +183,13 @@ class MTPnavigator:
         
     def on_drag_motion(self, treeview, drag_context, x, y, time):
         treeview.get_selection().set_mode( gtk.SELECTION_SINGLE)
-        treeview.get_selection().set_hover_selection(True)
-        treeview.get_selection().set_hover_expand(True)
+        treeview.set_hover_selection(True)
+        treeview.set_hover_expand(True)
 
     def on_drag_drop(self, treeview, drag_context, x, y, time, data):
         treeview.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
-        treeview.get_selection().set_hover_selection(False)
-        treeview.get_selection().set_hover_expand(False)
+        treeview.set_hover_selection(False)
+        treeview.set_hover_expand(False)
         
     def on_drag_data_received(self, treeview, context, x, y, data, info, time):
         if data and data.format == 8:
@@ -199,7 +209,7 @@ class MTPnavigator:
         """
             selected_row: the metadata of the selected row
         """
-        assert type(selrow_metadata) is type(Metadata.Metadata())
+        assert not selrow_metadata or type(selrow_metadata) is type(Metadata.Metadata())
 
         parent_id=0
         if selrow_metadata:
@@ -323,19 +333,19 @@ class MTPnavigator:
 
 class GetTextDialog(gtk.MessageDialog):
     def __init__(self, parent, message):
-        gtk.MessageDialog.__init__(parent,  gtk.DIALOG_MODAL | 
+        gtk.MessageDialog.__init__(self, parent,  gtk.DIALOG_MODAL | 
             gtk.DIALOG_DESTROY_WITH_PARENT,  
             gtk.MESSAGE_QUESTION,  
-            gtk.gtk.BUTTONS_OK_CANCEL,  
+            gtk.BUTTONS_OK_CANCEL,  
             None)  
         self.set_markup(message)  
         self.entry = gtk.Entry()  
-        self.vbox.pack_end(entry, True, True, 0)  
+        self.vbox.pack_end(self.entry, True, True, 0)  
         
-    def get_text():  
+    def get_text(self):  
         self.show_all()  
         text = None
-        if self.run() == gtkRESPONSE_OK:
+        if self.run() == gtk.RESPONSE_OK:
             text = self.entry.get_text()  
         self.destroy()  
         return text  

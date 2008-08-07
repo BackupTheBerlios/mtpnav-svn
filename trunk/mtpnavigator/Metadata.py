@@ -83,13 +83,14 @@ def get_from_MTPTrack(track):
     m = Metadata()
     m.id = str(track.item_id)
     m.type = TYPE_TRACK    
+    m.parent_id = str(track.parent_id)
     m.title = track.title
     if not m.title or m.title=="": m.title=track.filename
     m.artist = track.artist
     m.album = track.album
     m.genre = track.genre
     m.filesize = track.filesize
-    m.date = self.__mtp_to_date(track.date)
+    m.date = mtpDevice.mtp_to_date(track.date)
     if DEBUG: debug_trace("Metadata gotten from MTPtrack. They are %s" % m.to_string())
     return m
 

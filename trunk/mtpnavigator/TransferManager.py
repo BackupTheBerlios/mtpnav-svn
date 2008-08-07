@@ -75,8 +75,8 @@ class TransferManager():
     def get_selection(self):
         return self.__transfer_treeview.get_selection()
         
-    def create_folder(self, folder_name):
-        metadata = Metadata()
+    def create_folder(self, folder_name, parent_id):
+        metadata = Metadata.Metadata()
         metadata.id = folder_name
         metadata.title = folder_name
         metadata.filename = folder_name

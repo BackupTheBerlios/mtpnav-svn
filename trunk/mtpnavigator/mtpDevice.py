@@ -7,6 +7,8 @@ try:
 except:
     pymtp_available = False
 import Metadata
+import time
+import calendar
 
 def date_to_mtp(date):
     """
@@ -62,7 +64,7 @@ def mtp_to_date(mtp_string_date):
                 if DEBUG: debug_trace('WARNING: ignoring invalid time zone information for %s (%s)', mtp, exc)
         return _date
     except Exception, exc:
-        if DEBUG: debug_trace("the mtp date %s can not be parsed against mtp specification" % mtp, sender=self)
+        if DEBUG: debug_trace("the mtp date %s can not be parsed against mtp specification" % mtp, exc)
         return None
 
 
@@ -116,7 +118,7 @@ class MTPDevice():
         return True
 
     def send_track(self, metadata=None, callback=None):
-        parent = metadata.parent_id
+        parent = int(metadata.parent_id) 
         new_id =self.__MTPDevice.send_track_from_file( metadata.path, metadata.filename, metadata.to_MTPTrack(), parent, callback=callback)
         # read metadata again, because they can be changed by the device (i.e. parent_id or paraneter not handled)
         metadata = Metadata.get_from_MTPTrack(self.__MTPDevice.get_track_metadata(new_id))
@@ -125,7 +127,7 @@ class MTPDevice():
     def create_folder(self, metadata=None):
         parent = metadata.parent_id
         new_id =self.__MTPDevice.create_folder( metadata.filename, parent)
-        metada.id = new_id
+        metadata.id = new_id
         return metadata    
 
     def remove_track(self, track_id):

@@ -46,17 +46,18 @@ class DeviceEngine:
 
 class TrackListingModel(gtk.ListStore):
     OBJECT_ID=0
-    TITLE=1
-    ARTIST=2
-    ALBUM=3
-    GENRE=4
-    LENGTH_STR=5
-    LENGTH_INT=6
-    DATE=7
-    METADATA=8
+    PARENT_ID=1
+    TITLE=2
+    ARTIST=3
+    ALBUM=4
+    GENRE=5
+    LENGTH_STR=6
+    LENGTH_INT=7
+    DATE=8
+    METADATA=9
 
     def __init__(self, _device):
-        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)
+        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)
         self.__cache = {}
         # lock to prevent more thread for uodating the model at the same time
         self.__lock = Lock()
@@ -78,7 +79,7 @@ class TrackListingModel(gtk.ListStore):
         if DEBUG_LOCK: debug_trace("Requesting lock", sender=self)
         self.__lock.acquire()
         if DEBUG_LOCK: debug_trace("Lock acquired", sender=self)
-        iter = gtk.ListStore.append(self, [m.id, m.title, m.artist, m.album, m.genre, util.format_filesize(m.filesize), m.filesize, m.date, m])
+        iter = gtk.ListStore.append(self, [m.id, m.parent_id, m.title, m.artist, m.album, m.genre, util.format_filesize(m.filesize), m.filesize, m.date, m])
         self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()
         if DEBUG_LOCK: debug_trace("Lock released", sender=self)

@@ -2,11 +2,9 @@
 RELEASE 0.1.0: 
 --------------
     FIXME:
-    * TEST: cancelling current job block other jobs
-    *       when adding file, file is not put into order when refreshing model
     *       seg fault when deleting many files
     *       prevent deleting system folders and files (waiting response from libmtp list)
-    * TEST: select the row under mouse when drag and dropping to file view
+    * FAIL: select the row under mouse when drag and dropping to file view
     *       fix metadata and filenames encoding (accent and special charaters)
     *       refresh free space progress bar on each operation
     *       check if job already present before adding
@@ -33,8 +31,7 @@ RELEASE 0.1.0:
     *       connect on demand instead of connect once
     *       get metadata from ogg files tags
     *       columns resizable
-    * TEST: ask confirmation before deleting folder or track
-    * TEST: current date or tag date is written into track metadata
+    * 	    add a DATE_STR column with formated date
 
     PRERELEASE 0.1.a3: PLANNED
     * trace debug and exceptions
