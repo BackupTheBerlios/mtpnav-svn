@@ -99,23 +99,30 @@ class MTPnavigator:
 
     #------ EVENTS ----------------------------------
     def on_button_create_folder_clicked(self, emiter):
+        # find the last selected row ? FIXME: what to do there if more rows are selected?
+        selrow_metadata = None
+        selected = self.__get_currently_selected_rows_metadata()
+        if selected: 
+            selrow_metadata = selected[-1]
+        parent_id=0
+        if selrow_metadata:
+            parent_id = selrow_metadata.id
+            debug_trace("create folder on item %s" % parent_id, sender=self)
+            # if the row is not a folder, take the parent which should be one
+            if selrow_metadata.type <> Metadata.TYPE_FOLDER:
+                parent_id  = selrow_metadata.parent_id
+                debug_trace("It was not a folder. Its parent %s is taken instead." % parent_id, sender=self)
+
+        if parent_id==0:
+            # not allow to create folder on root
+            msg = "You can't add a folder to the root.\nSelect which folder to create a new one into"
+            dlg = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, msg)
+            dlg.run()
+            dlg.destroy()
+
         dlg = GetTextDialog(self.window, "Enter the new folder name:")
         new_folder_name = dlg.get_text()
         if new_folder_name and new_folder_name<>"":
-            # find the last selected row ? FIXME: what to do there if more rows are selected?
-            selrow_metadata = None
-            selected = self.__get_currently_selected_rows_metadata()
-            if selected: 
-                selrow_metadata = selected[-1]
-            parent_id=0
-            if selrow_metadata:
-                parent_id = selrow_metadata.id
-                debug_trace("create folder on item %s" % parent_id, sender=self)
-                # if the row is not a folder, take the parent which should be one
-                if selrow_metadata.type <> Metadata.TYPE_FOLDER:
-                    parent_id  = selrow_metadata.parent_id
-                    debug_trace("It was not a folder. Its parent %s is taken instead." % parent_id, sender=self)
-
             self.__transferManager.create_folder(new_folder_name, parent_id)
         
     def on_delete_files_activate(self, emiter):
