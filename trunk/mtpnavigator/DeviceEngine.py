@@ -9,6 +9,26 @@ import util
 from threading import Lock
 import datetime
 
+class DeviceFull(Exception): 
+    """
+        raised when there is not enought free space for sending an object
+    """
+    pass
+
+class AlreadyOnDevice(Exception): 
+    """
+        raised when an object is already on the device
+    """
+    pass
+	
+
+class UnknowError(Exception): 
+    """
+        raised when the device return an unidentified exception
+    """
+    pass
+
+
 class DeviceEngine:
 
     def __init__(self, _device):

@@ -119,9 +119,21 @@ class MTPDevice():
 
     def send_track(self, metadata=None, callback=None):
         parent = int(metadata.parent_id) 
-        new_id =self.__MTPDevice.send_track_from_file( metadata.path, metadata.filename, metadata.to_MTPTrack(), parent, callback=callback)
-        # read metadata again, because they can be changed by the device (i.e. parent_id or paraneter not handled)
-        metadata = Metadata.get_from_MTPTrack(self.__MTPDevice.get_track_metadata(new_id))
+        try:
+            new_id =self.__MTPDevice.send_track_from_file( metadata.path, metadata.filename, metadata.to_MTPTrack(), parent, callback=callback)
+            # read metadata again, because they can be changed by the device (i.e. parent_id or paraneter not handled)
+            metadata = Metadata.get_from_MTPTrack(self.__MTPDevice.get_track_metadata(new_id))
+        except IOError():
+            raise IOError("Failed to process the file from the filesystem") #TRANSLATE
+        except CommandFailed():
+            if not self.__check_free_space(metadata.filesize): 
+                raise DeviceEngine.DeviceFull("Not enought free space on device") #TRANSLATE
+            if self.__file_exist(metadata.filename):
+                raise DeviceEngine.AlreadyOnDevice("It already exists on the device") #TRANSLATE
+            else:
+                raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
+        except Exception, exc:
+            raise DeviceEngine.UnknowError(exc)
         return metadata
         
     def create_folder(self, metadata=None):
@@ -188,3 +200,11 @@ class MTPDevice():
         info.append(["Firmware version", self.__MTPDevice.get_deviceversion()])
         return info
 
+    def __check_free_space(self, objectsize):
+        return objectsize <= self.__MTPDevice.get_freespace()
+        
+    def __file_exist(self, filename):
+        file_names = []
+        for file in self.get_filelisting():
+             file_names.append(file.filename)
+        return filename in file_names

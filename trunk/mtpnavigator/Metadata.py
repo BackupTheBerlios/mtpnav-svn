@@ -117,6 +117,7 @@ def get_from_file(path):
     m = Metadata()
     m.path = os.path.normpath(path)
     m.id = m.path
+    m.filesize = os.path.getsize(path)
     m.filename = os.path.split(path)[1]
     m.extension = os.path.splitext(m.filename)[1]
     #FIXME: use mimetype? extension, others?
@@ -158,7 +159,6 @@ def __get_from_MP3tags(m):
                 date = tag.getDate()
                 if date: m.date = date
                 m.tracknumer = 0 #TODO: convert int tag.getTrackNum()
-                m.filesize = 0 # todo
                 m.duration = 0 # todo
                 mp3 = eyeD3.tag.Mp3AudioFile(m.path)
                 msamplerate = mp3.getSampleFreq()
