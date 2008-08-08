@@ -32,7 +32,7 @@ RELEASE 0.1.0:
     *       connect on demand instead of connect once
     *       get metadata from ogg files tags
     *       columns resizable
-    * 	    add a DATE_STR column with formated date
+    * TEST: add a DATE_STR column with formated date
 
     PRERELEASE 0.1.a3: PLANNED
     * trace debug and exceptions

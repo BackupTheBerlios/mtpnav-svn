@@ -56,7 +56,7 @@ class MTPnavigator:
         col = gtk.TreeViewColumn("length", gtk.CellRendererText(), text=t.LENGTH_STR)
         col.set_sort_column_id(t.LENGTH_INT)
         self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("date", gtk.CellRendererText(), text=t.DATE)
+        col = gtk.TreeViewColumn("date", gtk.CellRendererText(), text=t.DATE_STR)
         col.set_sort_column_id(t.DATE)
         self.__treeview_track.append_column(col)
 

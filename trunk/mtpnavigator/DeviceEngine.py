@@ -7,6 +7,7 @@ import Metadata
 from notifications import *
 import util
 from threading import Lock
+import datetime
 
 class DeviceEngine:
 
@@ -53,8 +54,9 @@ class TrackListingModel(gtk.ListStore):
     GENRE=5
     LENGTH_STR=6
     LENGTH_INT=7
-    DATE=8
-    METADATA=9
+    DATE_STR=8
+    DATE=9
+    METADATA=10
 
     def __init__(self, _device):
         gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)
@@ -76,10 +78,11 @@ class TrackListingModel(gtk.ListStore):
     def append(self, metadata):
         assert type(metadata) is type(Metadata.Metadata())
         m=metadata
+        date_str = datetime.datetime.fromtimestamp(metadata.date).strftime('%a %d %b %Y')
         if DEBUG_LOCK: debug_trace("Requesting lock", sender=self)
         self.__lock.acquire()
         if DEBUG_LOCK: debug_trace("Lock acquired", sender=self)
-        iter = gtk.ListStore.append(self, [m.id, m.parent_id, m.title, m.artist, m.album, m.genre, util.format_filesize(m.filesize), m.filesize, m.date, m])
+        iter = gtk.ListStore.append(self, [m.id, m.parent_id, m.title, m.artist, m.album, m.genre, util.format_filesize(m.filesize), m.filesize, date_str, m.date, m])
         self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()
         if DEBUG_LOCK: debug_trace("Lock released", sender=self)
