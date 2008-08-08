@@ -140,7 +140,7 @@ class MTPDevice():
         
     def create_folder(self, metadata=None):
         parent = metadata.parent_id
-        new_id =self.__MTPDevice.create_folder( metadata.filename, parent)
+        new_id =self.__MTPDevice.create_folder( metadata.filename, int(parent))
         metadata.id = new_id
         return metadata    
 

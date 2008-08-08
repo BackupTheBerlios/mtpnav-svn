@@ -56,11 +56,13 @@ class TransferManager():
             if job.action==self.ACTION_SEND:
                 self.__device_engine.get_track_listing_model().append(job.metadata)
                 self.__device_engine.get_file_tree_model().append(job.metadata)
+                # TODO: expand parent
             elif job.action==self.ACTION_DEL:
                 self.__device_engine.get_track_listing_model().remove_object(job.metadata.id)
                 self.__device_engine.get_file_tree_model().remove_object(job.metadata.id)
             elif job.action==self.ACTION_CREATE_FOLDER:
                 self.__device_engine.get_file_tree_model().append(job.metadata)
+                # TODO: expand parent
 
     def __queue_job(self, job_type, metadata):
         assert type(metadata) is type(Metadata.Metadata())
@@ -80,7 +82,8 @@ class TransferManager():
         metadata.id = folder_name
         metadata.title = folder_name
         metadata.filename = folder_name
-        metadata.parent_id = parent_id 
+        metadata.parent_id = parent_id
+        metadata.type = Metadata.TYPE_FOLDER 
         self.__queue_job(self.ACTION_CREATE_FOLDER, metadata)       
 
     def send_file(self, file_url, parent_id):

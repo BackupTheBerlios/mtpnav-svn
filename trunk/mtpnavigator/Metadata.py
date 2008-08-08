@@ -83,6 +83,7 @@ def get_from_MTPTrack(track):
     m = Metadata()
     m.id = str(track.item_id)
     m.type = TYPE_TRACK    
+    print "ici %i", track.parent_id 
     m.parent_id = str(track.parent_id)
     m.title = track.title
     if not m.title or m.title=="": m.title=track.filename
