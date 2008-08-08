@@ -119,6 +119,7 @@ class MTPnavigator:
             dlg = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, msg)
             dlg.run()
             dlg.destroy()
+            return
 
         dlg = GetTextDialog(self.window, "Enter the new folder name:")
         new_folder_name = dlg.get_text()

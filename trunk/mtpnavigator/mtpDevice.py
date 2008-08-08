@@ -4,9 +4,11 @@ from notifications import *
 pymtp_available = True
 try:
     import pymtp
+    from pymtp import CommandFailed
 except:
     pymtp_available = False
 import Metadata
+import DeviceEngine
 import time
 import calendar
 
@@ -123,9 +125,9 @@ class MTPDevice():
             new_id =self.__MTPDevice.send_track_from_file( metadata.path, metadata.filename, metadata.to_MTPTrack(), parent, callback=callback)
             # read metadata again, because they can be changed by the device (i.e. parent_id or paraneter not handled)
             metadata = Metadata.get_from_MTPTrack(self.__MTPDevice.get_track_metadata(new_id))
-        except IOError():
+        except IOError:
             raise IOError("Failed to process the file from the filesystem") #TRANSLATE
-        except CommandFailed():
+        except CommandFailed:
             if not self.__check_free_space(metadata.filesize): 
                 raise DeviceEngine.DeviceFullError("Not enought free space on device") #TRANSLATE
             if self.__file_exist(metadata.filename):
@@ -206,5 +208,5 @@ class MTPDevice():
     def __file_exist(self, filename):
         file_names = []
         for file in self.get_filelisting():
-             file_names.append(file.filename)
+             file_names.append(file.title)
         return filename in file_names
