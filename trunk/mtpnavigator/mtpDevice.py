@@ -127,9 +127,9 @@ class MTPDevice():
             raise IOError("Failed to process the file from the filesystem") #TRANSLATE
         except CommandFailed():
             if not self.__check_free_space(metadata.filesize): 
-                raise DeviceEngine.DeviceFull("Not enought free space on device") #TRANSLATE
+                raise DeviceEngine.DeviceFullError("Not enought free space on device") #TRANSLATE
             if self.__file_exist(metadata.filename):
-                raise DeviceEngine.AlreadyOnDevice("It already exists on the device") #TRANSLATE
+                raise DeviceEngine.AlreadyOnDeviceError("It already exists on the device") #TRANSLATE
             else:
                 raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
         except Exception, exc:
