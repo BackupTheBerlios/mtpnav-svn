@@ -2,6 +2,7 @@
 RELEASE 0.1.0: 
 --------------
     FIXME:
+    *       prevent deleting folders on first level
     *       seg fault when deleting many files
     *       prevent deleting system folders and files (waiting response from libmtp list)
     * FAIL: select the row under mouse when drag and dropping to file view
@@ -22,7 +23,7 @@ RELEASE 0.1.0:
 
     PRERELEASE 0.1.a2: IN DEVELOPPMENT
     * DONE: view files and folders listing
-    * TEST: add a directory
+    * TEST: add a directory. Prevent adding directory from track view. Prevent adding directory to parent 0
     * DONE: remove a whole directory (directory and contained files)
     * DONE: add file to directory
     *       move files/directories

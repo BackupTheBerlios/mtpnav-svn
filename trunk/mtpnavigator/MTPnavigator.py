@@ -62,7 +62,7 @@ class MTPnavigator:
 
         # add drag and drop support
         # @TODO: deactivate if not connected
-        self.__treeview_track.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY)
+        self.__treeview_track.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_MOVE)
         self.__treeview_track.connect('drag_data_received', self.on_drag_data_received)
 
         # create the file view
@@ -86,7 +86,7 @@ class MTPnavigator:
         self.__treeview_file.expand_all() 
         # add drag and drop support
         # @TODO: deactivate if not connected
-        self.__treeview_file.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY)
+        self.__treeview_file.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_MOVE)
         self.__treeview_file.connect('drag_motion', self.on_drag_motion)
         self.__treeview_file.connect('drag_drop', self.on_drag_drop)
         self.__treeview_file.connect('drag_data_received', self.on_drag_data_received)
@@ -184,12 +184,13 @@ class MTPnavigator:
         fs.destroy()
         
     def on_drag_motion(self, treeview, drag_context, x, y, time):
-        self.window.present()    
+        return #FIXME
         treeview.get_selection().set_mode( gtk.SELECTION_SINGLE)
         treeview.set_hover_selection(True)
         treeview.set_hover_expand(True)
 
     def on_drag_drop(self, treeview, drag_context, x, y, time, data):
+        return #FIXME
         treeview.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
         treeview.set_hover_selection(False)
         treeview.set_hover_expand(False)
