@@ -10,7 +10,7 @@ from threading import Lock
 import datetime
 
 class DeviceError(Exception):
-        """
+    """
         raised when an object is already on the device
     """
     pass

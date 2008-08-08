@@ -89,7 +89,7 @@ class MTPnavigator:
     def __getWidget(self, widget_id):
         return self.gtkbuilder.get_object(widget_id)
         
-    def __setup_drag_and_drop(self)
+    def __setup_drag_and_drop(self):
         # @TODO: deactivate if not connected
         
         # drop from nautilus into trackview and file view
@@ -238,7 +238,7 @@ class MTPnavigator:
         if info == DND_TARGET_INTERN_FILE: # FIXME
             print "INTERNE :)" #DO SOMETHING
             #self.__transferManager.move_object()
-        else
+        else:
             if data and data.format == 8:
                 # find the row where data was dropped
                 selrow_metadata = None
