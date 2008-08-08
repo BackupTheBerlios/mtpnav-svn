@@ -85,7 +85,7 @@ class TrackListingModel(gtk.ListStore):
     METADATA=10
 
     def __init__(self, _device):
-        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)
+        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)
         self.__cache = {}
         # lock to prevent more thread for uodating the model at the same time
         self.__lock = Lock()
@@ -104,7 +104,9 @@ class TrackListingModel(gtk.ListStore):
     def append(self, metadata):
         assert type(metadata) is type(Metadata.Metadata())
         m=metadata
-        date_str = datetime.datetime.fromtimestamp(metadata.date).strftime('%a %d %b %Y')
+        date_str=""
+        if metadata.date:
+            date_str = datetime.datetime.fromtimestamp(metadata.date).strftime('%a %d %b %Y')
         if DEBUG_LOCK: debug_trace("Requesting lock", sender=self)
         self.__lock.acquire()
         if DEBUG_LOCK: debug_trace("Lock acquired", sender=self)
