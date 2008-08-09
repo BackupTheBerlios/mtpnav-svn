@@ -10,6 +10,7 @@ from notifications import *
 from time import sleep
 import os
 import Metadata
+import util
 
 class TransferManager():
     ACTION_SEND = "SEND"
@@ -23,7 +24,7 @@ class TransferManager():
     STATUS_PROCESSING = "processing"
     STATUS_ERROR = "error"
 
-    def __init__(self, device_engine, transfer_treeview, notebook):
+    def __init__(self, device_engine, transfer_treeview, notebook, disk_usage_progress_bar):
         self.__queue = Queue()
         self.__device_engine = device_engine
 
@@ -35,6 +36,7 @@ class TransferManager():
         process_queue_thread.start()
         self.__transfer_treeview = transfer_treeview
         self.__notebook = notebook
+        self.__disk_usage_progress_bar = disk_usage_progress_bar
 
         t=TransfertQueueModel
         if False:
@@ -51,6 +53,8 @@ class TransferManager():
 
     def __observe_queue_thread(self, signal, *args):
         if signal == ProcessQueueThread.SIGNAL_DEVICE_CONTENT_CHANGED:
+            self.__disk_usage_progress_bar.set_fraction(float(args[1])/float(args[2]))
+            self.__disk_usage_progress_bar.set_text("%s of %s" % (util.format_filesize(args[1]), util.format_filesize(args[2])))
             if DEBUG: debug_trace("notified SIGNAL_DEVICE_CONTENT_CHANGED", sender=self)
             job = args[0]
             if job.action==self.ACTION_SEND:
@@ -166,10 +170,10 @@ class ProcessQueueThread(Thread):
                     self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
                     job.object_id = metadata.id
                     job.metadata = metadata
-                    
                 else:
                     assert False
-                self.__notify(self.SIGNAL_DEVICE_CONTENT_CHANGED, job)
+                disque_usage = self.__device_engine.get_device().get_diskusage()
+                self.__notify(self.SIGNAL_DEVICE_CONTENT_CHANGED, job, disque_usage[0], disque_usage[1])
                 self.__model.remove_job(previous_id)
             except Exception, exc:
                 if DEBUG: debug_trace("Failed to process %s" % job.object_id , sender=self, exception=exc)

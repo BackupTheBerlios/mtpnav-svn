@@ -276,7 +276,7 @@ class MTPnavigator:
         sensible = (self.__device_engine is not None)
         for w in widgets:
             self.__getWidget(w).set_sensitive(sensible)
-
+            
     def __connect_device(self):
         dev = MTPDevice()
         self.__device_engine = DeviceEngine(dev)
@@ -286,8 +286,10 @@ class MTPnavigator:
             return
         tv = self.__getWidget("treeview_transfer_manager")
         notebook = self.__getWidget("notebook_device_info")
-        self.__transferManager = TransferManager(self.__device_engine, tv, notebook)
-
+        prog_bar = self.__getWidget("progressbar_disk_usage")
+        self.__transferManager = TransferManager(self.__device_engine, tv, notebook,prog_bar)
+        self.__transferManager
+        
         # update models
         model = self.__device_engine.get_track_listing_model()
         self.__treeview_track.set_model(model)
@@ -310,7 +312,6 @@ class MTPnavigator:
         # disk usage
         used = self.__device_engine.get_device().get_diskusage()[0]
         total = self.__device_engine.get_device().get_diskusage()[1]
-        prog_bar = self.__getWidget("progressbar_disk_usage")
         prog_bar.set_fraction(float(used)/float(total))
         prog_bar.set_text("%s of %s" % (util.format_filesize(used), util.format_filesize(total)))
 

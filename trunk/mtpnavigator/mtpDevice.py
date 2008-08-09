@@ -190,6 +190,9 @@ class MTPDevice():
     def get_diskusage(self):
         return [self.__MTPDevice.get_usedspace(), self.__MTPDevice.get_totalspace()]
 
+    def get_usedspace(self):
+        return self.__MTPDevice.get_usedspace()
+
     def get_batterylevel(self):
         return self.__MTPDevice.get_batterylevel()
 
