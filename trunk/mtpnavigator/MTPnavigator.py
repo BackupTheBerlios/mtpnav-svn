@@ -13,6 +13,8 @@ import Metadata
 
 VERSION="0.1.a2"
 
+COL_DEFAULT_WIDTH = 200
+
 class MTPnavigator:
     def __init__(self):
         self.__treeview_track = None
@@ -36,29 +38,24 @@ class MTPnavigator:
         self.__treeview_track = self.gtkbuilder.get_object("treeview_track_list")
         self.__treeview_track.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
         t = TrackListingModel
-        if DEBUG_ID:
-            col = gtk.TreeViewColumn("object ID", gtk.CellRendererText(), text=t.OBJECT_ID)
+        # columns to create: (visible, title, model_col, sort_col, sizing, width, resizable)
+        cols = [(DEBUG_ID, "object ID", t.OBJECT_ID, t.OBJECT_ID, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, False)
+        ,(DEBUG_ID, "parent ID", t.PARENT_ID, t.OBJECT_ID, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, False)
+        ,(True, "title", t.TITLE, t.TITLE, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
+        ,(True, "artist", t.ARTIST, t.ARTIST, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
+        ,(True, "album", t.ALBUM, t.ALBUM, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
+        ,(True, "genre", t.GENRE, t.GENRE, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
+        ,(True, "length", t.LENGTH_STR, t.LENGTH_INT, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, True)
+        ,(True, "date", t.DATE_STR, t.DATE, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, True)]
+        
+        for c in cols:
+            if not c[0]: continue
+            col = gtk.TreeViewColumn(c[1], gtk.CellRendererText(), text=c[2])
+            col.set_sort_column_id(c[3])
+            col.set_sizing(c[4])
+            if c[5]>0: col.set_fixed_width(c[5])
+            col.set_resizable(c[6])
             self.__treeview_track.append_column(col)
-            col = gtk.TreeViewColumn("parent ID", gtk.CellRendererText(), text=t.PARENT_ID)
-            self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("title", gtk.CellRendererText(), text=t.TITLE)
-        col.set_sort_column_id(t.TITLE)
-        self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("artist", gtk.CellRendererText(), text=t.ARTIST)
-        col.set_sort_column_id(t.ARTIST)
-        self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("album", gtk.CellRendererText(), text=t.ALBUM)
-        col.set_sort_column_id(t.ALBUM)
-        self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("genre", gtk.CellRendererText(), text=t.GENRE)
-        col.set_sort_column_id(t.GENRE)
-        self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("length", gtk.CellRendererText(), text=t.LENGTH_STR)
-        col.set_sort_column_id(t.LENGTH_INT)
-        self.__treeview_track.append_column(col)
-        col = gtk.TreeViewColumn("date", gtk.CellRendererText(), text=t.DATE_STR)
-        col.set_sort_column_id(t.DATE)
-        self.__treeview_track.append_column(col)
 
         # add drag and drop support
         # @TODO: deactivate if not connected
@@ -74,14 +71,21 @@ class MTPnavigator:
             self.__treeview_file.append_column(col)
             col = gtk.TreeViewColumn("parent ID", gtk.CellRendererText(), text=f.PARENT_ID)
             self.__treeview_file.append_column(col)
-        col = gtk.TreeViewColumn("filename", gtk.CellRendererPixbuf(), icon_name=f.ICON)
+        col = gtk.TreeViewColumn("filename")
+        cell = gtk.CellRendererPixbuf()
+        col.pack_start(cell, False)
+        col.set_attributes(cell, icon_name=f.ICON)    
         cell = gtk.CellRendererText()
         col.pack_start(cell, True)
         col.set_attributes(cell, text=f.FILENAME)    
         col.set_sort_column_id(f.FILENAME)
+        col.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+        col.set_fixed_width(400)
+        col.set_resizable(True)
         self.__treeview_file.append_column(col)
         col = gtk.TreeViewColumn("length", gtk.CellRendererText(), text=f.LENGTH_STR)
         col.set_sort_column_id(f.LENGTH_INT)
+        col.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         self.__treeview_file.append_column(col)
         self.__treeview_file.expand_all() 
         # add drag and drop support
