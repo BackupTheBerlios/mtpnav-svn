@@ -10,6 +10,8 @@ from DeviceEngine import TrackListingModel
 from DeviceEngine import FileTreeModel
 import util
 import Metadata
+import pango
+
 
 VERSION="0.1.a2"
 
@@ -50,7 +52,11 @@ class MTPnavigator:
         
         for c in cols:
             if not c[0]: continue
-            col = gtk.TreeViewColumn(c[1], gtk.CellRendererText(), text=c[2])
+            col = gtk.TreeViewColumn(c[1])
+            cell = gtk.CellRendererText()
+            cell.set_property('ellipsize', pango.ELLIPSIZE_END)
+            col.pack_start(cell, True)
+            col.set_attributes(cell, text=c[2]) 
             col.set_sort_column_id(c[3])
             col.set_sizing(c[4])
             if c[5]>0: col.set_fixed_width(c[5])
