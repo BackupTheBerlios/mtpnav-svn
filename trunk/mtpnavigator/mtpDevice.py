@@ -135,7 +135,7 @@ class MTPDevice():
             else:
                 raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
         except Exception, exc:
-            raise DeviceEngine.UnknowError(exc)
+            raise exc
         return metadata
         
     def create_folder(self, metadata=None):

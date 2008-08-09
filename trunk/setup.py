@@ -6,12 +6,12 @@
 from distutils.core import setup
 
 setup(name = "MTPnavigator",
-      version = "0.0.4",
+      version = "0.0.2a",
       description = "Manage your portable media player",
-      author = "Jérôme Chabod",
+      author = "Jerome Chabod",
       author_email = "jerome.chabod@ifrance.com",
       url = "http://mtpnav.berlios.de",
-      packages = ["mtpnavigator"]
-      package_data={"mtpnavigator": ["MTPnavigator.xml"]}
+      packages = ["mtpnavigator"],
+      data_files=[("", ["mtpnavigator/MTPnavigator.xml"])]
       )
 
