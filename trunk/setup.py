@@ -10,7 +10,7 @@ from distutils.core import setup
 
 
 setup(name = "MTPnavigator",
-    version = "0.0.2a",
+    version = "0.1.a2",
     description = "Manage your portable media player",
     author = "Jérôme Chabod",
     author_email = "jerome.chabod@ifrance.com",
@@ -19,7 +19,7 @@ setup(name = "MTPnavigator",
     scripts = ["bin/mtpnavigator"],
     package_dir={'mtpnavigator': 'mtpnavigator'},
     data_files=[('share/mtpnavigator', ['data/MTPnavigator.xml']),
-                ('share/applications', ['data/MTPnavigator.desktop'])],
+                ('share/applications', ['data/mtpnavigator.desktop'])],
     requires=["PyMTP(>=0.0.4)"]
 )
 
