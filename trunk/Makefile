@@ -45,15 +45,15 @@ release: glade2xml
 install: 
 	python setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
 
-clean:
+clean: glade2xml
 	python setup.py clean
 	
-glade2xml:
-    gtk-builder-convert data/MTPnavigator.glade data/MTPnavigator.xml
+glade2xml: data/MTPnavigator.glade
+    gtk-builder-convert data/MTPnavigator.glade data/MTPnavigator.xml   
  
 ##########################################################################
 
-.PHONY: all cl ci test release releasetest install update-icons generators gen_manpage gen_graphics clean distclean messages help
+.PHONY: all test release install clean glade2xml help
 
 ##########################################################################
 

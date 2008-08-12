@@ -58,7 +58,7 @@ RELEASE 0.1.0:
     * bug fixes
 
     PRERELEASE:
-    * TEST: setup
+    * TEST: setup and makefile
     *       central version number + svn revision + changelog
     *       logo
     *       about dialog
