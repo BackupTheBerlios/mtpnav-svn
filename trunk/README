@@ -36,3 +36,20 @@
  
    * python-eyed3 (for getting MP3 tags)
    * vorbis-tools (for getting OGG tags)
+
+ ======================================
+ Install from a release tarbar
+ ======================================
+ tar xzvf MTPnavigator-x.x.x.tar.gz
+ cd MTPnavigator-x.x.x
+ make install
+ 
+ launch with gpodder
+ 
+ ==================================                     
+ Install from subversion repository
+ ==================================
+ svn checkout svn://svn.berlios.de/mtpnav/trunk mtpnavigator
+ cd mtpnavigators
+ 
+ launch with: make test

@@ -2,9 +2,9 @@ import traceback
 import sys
 
 DEBUG=False
-if "-d" in sys.argv: DEBUG=True
+if "-d" in sys.argv or "--debug" in sys.argv: DEBUG=True
 DEBUG_LOCK=False
-if "--debug-lock" in sys.argv: DEBUG_LOCK=True
+if "--debug-lock" in sys.argv: DEBUG_LOCK=True 
 DEBUG_ID=False
 if "--debug-id" in sys.argv: DEBUG_ID=True
 
