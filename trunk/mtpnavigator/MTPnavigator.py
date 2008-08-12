@@ -11,11 +11,17 @@ from DeviceEngine import FileTreeModel
 import util
 import Metadata
 import pango
+import os
 
 
 VERSION="0.1.a2"
 
+DATA_PATH = os.path.join("\\usr", "share", "mtpnavigator")
+if "--local" in sys.argv or "-l" in sys.argv: DATA_PATH = ".\\data"
+XML_GUI_FILE = os.path.join(DATA_PATH, "MTPnavigator.xml")
+
 COL_DEFAULT_WIDTH = 200
+
 
 class MTPnavigator:
     def __init__(self):
@@ -26,7 +32,7 @@ class MTPnavigator:
 
         # bind to glade
         self.gtkbuilder = gtk.Builder()
-        self.gtkbuilder.add_from_file("./data/MTPnavigator.xml") # FIXME
+        self.gtkbuilder.add_from_file(XML_GUI_FILE) 
         self.gtkbuilder.connect_signals(self)
         self.window = self.__getWidget("window_mtpnav")
         wwidth=800  #TODO save size
@@ -377,5 +383,3 @@ if __name__ == "__main__":
     mtpnav = MTPnavigator()
     gtk.gdk.threads_init()
     gtk.main()
-
-

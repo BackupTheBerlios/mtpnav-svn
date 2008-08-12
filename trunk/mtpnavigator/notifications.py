@@ -2,10 +2,10 @@ import traceback
 import sys
 
 DEBUG=False
-DEBUG_LOCK=False
-DEBUG_ID=False
 if "-d" in sys.argv: DEBUG=True
+DEBUG_LOCK=False
 if "--debug-lock" in sys.argv: DEBUG_LOCK=True
+DEBUG_ID=False
 if "--debug-id" in sys.argv: DEBUG_ID=True
 
 def debug_trace(text, sender=None, exception=None):
