@@ -2,15 +2,15 @@
 RELEASE 0.1.0: 
 --------------
     FIXME:
+    *       fix metadata and filenames encoding (accent and special charaters)
+    *       warn when disconnecting during transfer (disconnect before exit)
     *       seg fault when deleting many files
     *       prevent deleting folders on first level
     *       prevent deleting system folders and files (waiting response from libmtp list)
     * FAIL: select the row under mouse when drag and dropping to file view
-    *       fix metadata and filenames encoding (accent and special charaters)
     *       check if job already present before adding
     *       refuse adding others than tracks in track view ? 
     *       identify from device what is a track and what is a file
-    *       warn when exiting during transfer
     *       expand parent when add file or folder
 
     PRERELEASE 0.1.a1: RELEASED
@@ -31,12 +31,13 @@ RELEASE 0.1.0:
     * PART: identify transfers errors for all operation (already on device/device full)
     *       get metadata from ogg files tags
     * DONE: columns resizable
+    *       use action and uimanager to create menu and toolbox (hide create dir for track view)
+    *       rigth click context menus
 
     PRERELEASE 0.1.a3: PLANNED
     * EXPERIMENT:  move files/directories(see expermental branch): seems not to be possible with actual pymtp
     * trace debug and exceptions
-    * use action and uimanager to create menu and toolbox (hide create dir for track view)
-    * rigth click context menus
+    * translation
     * separate folders from files in the folder view ? Folder would be single select (better for adding folder or sending file to folder)
     * add a whole directory (drag and drop + menu item). Only track added in track view
     * add and remove playlist
@@ -47,25 +48,20 @@ RELEASE 0.1.0:
     * preferences
     * parametrize metadata from directory/file scheme if no tag
     * display tooltips on track view and job list (artist, title genre...)
+    * about dialog
 
     RELEASE 0.1.0beta0 PLANNED
-    * test and fixes
+    * 		test and fixes + prerelease done
+    *       deb
+    *       central version number + svn revision + changelog
+    *       logo
+    *       web site
 
     RELEASE 0.1.0 PLANNED
     * no known bugs
     
     RELEASE 0.1.x PLANNED
     * bug fixes
-
-    PRERELEASE:
-    * DONE: setup and makefile
-    *       central version number + svn revision + changelog
-    *       logo
-    *       about dialog
-    *       translation
-    *       deb
-    *       web site
-    *       gnome menu entry
 
 RELEASE >= 0.2.0:
 --------------
