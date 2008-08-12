@@ -18,7 +18,8 @@ setup(name = "MTPnavigator",
     packages = ["mtpnavigator"],
     scripts = ["bin/mtpnavigator"],
     package_dir={'mtpnavigator': 'mtpnavigator'},
-    data_files=[('share/mtpnavigator', ['data/MTPnavigator.xml'])],
+    data_files=[('share/mtpnavigator', ['data/MTPnavigator.xml']),
+                ('share/applications', ['data/MTPnavigator.desktop'])],
     requires=["PyMTP(>=0.0.4)"]
 )
 
