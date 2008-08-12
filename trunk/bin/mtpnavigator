@@ -22,8 +22,8 @@
 import pygtk
 pygtk.require("2.0")
 import gtk
+import sys
 if "--local" in sys.argv or "-l" in sys.argv:
-    import sys
     sys.path=["."] + sys.path
 import mtpnavigator
 
