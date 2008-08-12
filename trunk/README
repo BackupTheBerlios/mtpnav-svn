@@ -42,9 +42,9 @@
  =============================
   tar xzvf MTPnavigator-x.x.x.tar.gz
   cd MTPnavigator-x.x.x
-  python setup.py install
+  python setup.py install (as root)
  
- launch with command "gpodder"
+ launch with command "mtpnavigator"
  
   =================================================
   Additional dependencies for building from sources

@@ -42,10 +42,10 @@ test: glade2xml
 release: glade2xml
 	python setup.py sdist
 
-install: 
+install: glade2xml
 	python setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
 
-clean: glade2xml
+clean: 
 	python setup.py clean
 	
 glade2xml: data/MTPnavigator.glade
