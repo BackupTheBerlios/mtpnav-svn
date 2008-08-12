@@ -23,9 +23,9 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
- ============
- Dependencies
- ============
+ ======================================
+ Dependencies for running MTP navigator
+ ======================================
 
    * python (>= 2.4)
    * python-gtk2 (>= 2.12)
@@ -36,20 +36,27 @@
  
    * python-eyed3 (for getting MP3 tags)
    * vorbis-tools (for getting OGG tags)
-
- ======================================
+   
+ =============================
  Install from a release tarbar
- ======================================
- tar xzvf MTPnavigator-x.x.x.tar.gz
- cd MTPnavigator-x.x.x
- make install
+ =============================
+  tar xzvf MTPnavigator-x.x.x.tar.gz
+  cd MTPnavigator-x.x.x
+  python setup.py install
  
- launch with gpodder
+ launch with command "gpodder"
  
- ==================================                     
- Install from subversion repository
- ==================================
- svn checkout svn://svn.berlios.de/mtpnav/trunk mtpnavigator
- cd mtpnavigators
+  =================================================
+  Additional dependencies for building from sources
+  =================================================
+     
+     * libgtk2.0-dev
+     * make
  
- launch with: make test
+  ==================================                     
+  Install from subversion repository
+  ==================================
+  svn checkout svn://svn.berlios.de/mtpnav/trunk mtpnavigator
+  cd mtpnavigator
+ 
+  launch with command "make test"

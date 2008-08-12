@@ -29,10 +29,10 @@ all: help
 
 help:
 	@echo 'make test:       run gpodder in local directory'
-	@echo 'make release:    create source tarball in "dist/"'
-	@echo 'make install:    install into "$(PREFIX)"'
-	@echo 'make clean:      remove generated+temp+*.py{c,o} files'
-	@echo 'make glade2xml:  convert glade file to an xml file interpretabel by gtk.Builder
+	@echo 'make release:    create source tarball in dist/'
+	@echo 'make install:    install into $(PREFIX)'
+	@echo 'make clean:      clean installation'
+	@echo 'make glade2xml:  convert glade file to an xml file interpretabel by gtk.Builder'
 
 ##########################################################################
 
@@ -49,7 +49,7 @@ clean: glade2xml
 	python setup.py clean
 	
 glade2xml: data/MTPnavigator.glade
-    gtk-builder-convert data/MTPnavigator.glade data/MTPnavigator.xml   
+	gtk-builder-convert data/MTPnavigator.glade data/MTPnavigator.xml   
  
 ##########################################################################
 

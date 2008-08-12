@@ -16,8 +16,8 @@ import os
 
 VERSION="0.1.a2"
 
-DATA_PATH = os.path.join("\\usr", "share", "mtpnavigator")
-if "--local" in sys.argv or "-l" in sys.argv: DATA_PATH = ".\\data"
+DATA_PATH = os.path.join("/usr", "share", "mtpnavigator")
+if "--local" in sys.argv or "-l" in sys.argv: DATA_PATH = "./data"
 XML_GUI_FILE = os.path.join(DATA_PATH, "MTPnavigator.xml")
 
 COL_DEFAULT_WIDTH = 200
