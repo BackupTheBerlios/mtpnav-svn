@@ -21,14 +21,14 @@ class DeviceFullError(DeviceError):
     """
     pass
 
-class AlreadyOnDeviceError(DeviceError): 
+class AlreadyOnDeviceError(DeviceError):
     """
         raised when an object is already on the device
     """
     pass
-	
 
-class UnknowError(DeviceError): 
+
+class UnknowError(DeviceError):
     """
         raised when the device return an unidentified exception
     """
@@ -59,7 +59,7 @@ class DeviceEngine:
 
     def send_file(self, metadata, callback):
         return self.__device.send_track(metadata, callback)
-        
+
     def create_folder(self, metadata):
         return self.__device.create_folder(metadata)
 
@@ -95,6 +95,7 @@ class TrackListingModel(gtk.ListStore):
 
     def __get_iter(self, object_id):
         try:
+            debug_trace("Get iter (%s)" % object_id)
             return  self.get_iter(self.__cache[object_id].get_path())
         except KeyError, exc:
             return None
@@ -118,16 +119,17 @@ class TrackListingModel(gtk.ListStore):
         return self.get(self.get_iter(path), self.METADATA)[0]
 
     def remove_object(self, object_id):
-        if DEBUG_LOCK: debug_trace("Requesting lock", sender=self)
+        if DEBUG_LOCK: debug_trace("Requesting lock (%s)" % object_id, sender=self)
         self.__lock.acquire()
-        if DEBUG_LOCK: debug_trace("Lock acquired", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock acquired (%s)" % object_id, sender=self)
         it = self.__get_iter(object_id)
         if it:
+            debug_trace("Remove (%s)" % object_id)
             self.remove(it)
         else:
             debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
         self.__lock.release()
-        if DEBUG_LOCK: debug_trace("Lock released", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock released (%s)" % object_id, sender=self)
 
 class FileTreeModel(gtk.TreeStore):
     OBJECT_ID=0
@@ -159,6 +161,7 @@ class FileTreeModel(gtk.TreeStore):
 
     def __get_iter(self, object_id):
         try:
+            debug_trace("Get iter (%s)" % object_id)
             return  self.get_iter(self.__cache[object_id].get_path())
         except KeyError, exc:
             return None
@@ -172,7 +175,7 @@ class FileTreeModel(gtk.TreeStore):
         parent=0
         if m.parent_id <> 0:
             parent = self.__get_iter(m.parent_id)
-        
+
         if m.type == Metadata.TYPE_FOLDER:
             row = [m.id, m.parent_id, m.title, "", 0, "folder", m]
         else:
@@ -180,7 +183,7 @@ class FileTreeModel(gtk.TreeStore):
             if Metadata.TYPE_TRACK:
                 icon = "audio-x-generic"
             row = [m.id, m.parent_id, m.title, util.format_filesize(m.filesize), m.filesize, icon, m]
-            
+
         iter = gtk.TreeStore.append(self, parent, row)
         self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()
@@ -191,15 +194,16 @@ class FileTreeModel(gtk.TreeStore):
         return self.get(self.get_iter(path), self.METADATA)[0]
 
     def remove_object(self, object_id):
-        if DEBUG_LOCK: debug_trace("Requesting lock", sender=self)
+        if DEBUG_LOCK: debug_trace("Requesting lock (%s)" % object_id, sender=self)
         self.__lock.acquire()
-        if DEBUG_LOCK: debug_trace("Lock acquired", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock acquired (%s)" % object_id, sender=self)
         it = self.__get_iter(object_id)
         if it:
+            debug_trace("Remove (%s)" % object_id)
             self.remove(it)
         else:
             debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
         self.__lock.release()
-        if DEBUG_LOCK: debug_trace("Lock released", sender=self)
+        if DEBUG_LOCK: debug_trace("Lock released (%s)" % object_id, sender=self)
 
 

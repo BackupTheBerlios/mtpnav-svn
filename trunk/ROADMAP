@@ -33,6 +33,7 @@ RELEASE 0.1.0:
     * DONE: columns resizable
     * DONE: use action and uimanager to create menu and toolbox (hide create dir for track view)
     *       rigth click context menus
+	*       icons instead of SEND, CREATE, DEL... on transfer list
 
     PRERELEASE 0.1.a3: PLANNED
     * EXPERIMENT:  move files/directories(see expermental branch): seems not to be possible with actual pymtp
