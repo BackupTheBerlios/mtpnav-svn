@@ -149,7 +149,7 @@ class MTPnavigator:
                                  ])
         actiongroup_connected = gtk.ActionGroup('ActionConnected')
         actiongroup_connected.add_actions([('CreateFolder', None, '_Create folder...', None, 'Create a folder into the selected folder', self.on_create_folder),
-                                 ('SendFiles', gtk.STOCK_OPEN, '_Send files to device...', None, 'Pickup files to transfer into the device', self.on_send_files),
+                                 ('SendFiles', gtk.STOCK_OPEN, '_Send files to device...', '<Control>S', 'Pickup files to transfer into the device', self.on_send_files),
                                  ('Delete', gtk.STOCK_DELETE, '_Delete', 'Delete', 'Delete the selected objects from device', self.on_delete_files)
                                  ])
         actiongroup_connected.get_action('SendFiles').set_property('short-label', '_Send...')
