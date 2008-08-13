@@ -30,7 +30,7 @@ RELEASE 0.1.0:
     * DONE: remove a whole directory (directory and contained files)
     * DONE: add file to directory
     * DONE: button to cancel job in transfer window 
-    * PART: identify transfers errors for all operation (already on device/device full)
+    * TEST: identify transfers errors for all operation (already on device/device full)
     *       get metadata from ogg files tags
     * DONE: columns resizable
     *       use action and uimanager to create menu and toolbox (hide create dir for track view)

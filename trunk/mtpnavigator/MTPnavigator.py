@@ -296,9 +296,11 @@ class MTPnavigator:
         
         dev = MTPDevice()
         self.__device_engine = DeviceEngine(dev)
-        if not self.__device_engine.connect_device():
+        try:
+            self.__device_engine.connect_device()
+        except Execption, exc:
             msg = "No device was found. Please verify it was correctly pluged"
-            notify_error(msg, title="No device found", sender=self.window)
+            notify_error(msg, title="No device found", Exception=exc, sender=self.window)
             self.__device_engine = None
             return
         tv = self.__getWidget("treeview_transfer_manager")

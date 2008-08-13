@@ -11,7 +11,7 @@ import datetime
 
 class DeviceError(Exception):
     """
-        raised when an object is already on the device
+        genereal device error
     """
     pass
 
@@ -41,12 +41,10 @@ class DeviceEngine:
         self.__device = _device
 
     def connect_device(self):
-        if not self.__device.connect():
-            return False
+        self.__device.connect()
         if DEBUG: debug_trace("Device connected successfully", sender=self)
         self.__track_listing_model = TrackListingModel(self.__device)
         self.__file_tree_model = FileTreeModel(self.__device)
-        return True
 
     def disconnect_device(self):
         self.__track_listing_model = None

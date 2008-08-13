@@ -101,19 +101,14 @@ class MTPDevice():
         try:
             self.__MTPDevice.connect()
             # build the initial tracks_list
-        except Exception, exc:
-            debug_trace("unable to find an MTP device", sender=self, exception=exc)
-            return False
-
-        return True
+        except NoDeviceConnected, exc:
+            raise DeviceEngine.DeviceError("Can't connect device")
 
     def close(self):
         try:
             self.__MTPDevice.disconnect()
-        except Exception, exc:
-            debug_trace("unable to close %s", self.get_name(), sender=self, exception=exc)
-            return False
-        return True
+        except NoDeviceConnected, exc:
+            raise DeviceEngine.DeviceError("Can't disconnect device")
 
     def send_track(self, metadata=None, callback=None):
         parent = int(metadata.parent_id) 
@@ -136,52 +131,74 @@ class MTPDevice():
         
     def create_folder(self, metadata=None):
         parent = metadata.parent_id
-        new_id =self.__MTPDevice.create_folder( metadata.filename, int(parent))
-        metadata.id = new_id
+        try:
+            new_id =self.__MTPDevice.create_folder( metadata.filename, int(parent))
+            metadata.id = new_id
+        except CommandFailed:
+            if not self.__check_free_space(metadata.filesize): 
+                raise DeviceEngine.DeviceFullError("Not enought free space on device") #TRANSLATE
+            if self.__file_exist(metadata.filename):
+                raise DeviceEngine.AlreadyOnDeviceError("It already exists on the device") #TRANSLATE
+            else:
+                raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
+        except Exception, exc:
+            raise exc
         return metadata    
 
     def remove_track(self, track_id):
         t = int(track_id)
-        return str(self.__MTPDevice.delete_object(t))
+        try:
+            return str(self.__MTPDevice.delete_object(t))
+        except CommandFailed:
+            raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
+        except Exception, exc:
+            raise exc
+        return None            
 
     def get_tracklisting(self):
         listing = []
         try:
             listing = self.__MTPDevice.get_tracklisting()
+            tracks = []
+            for track in listing:
+                m = Metadata.get_from_MTPTrack(track)
+                tracks.append(m)
+            return tracks
+        except CommandFailed:
+            raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
         except Exception, exc:
-            debug_trace("unable to get track listing", sender=self, exception=exc)
-
-        tracks = []
-        for track in listing:
-            m = Metadata.get_from_MTPTrack(track)
-            tracks.append(m)
-        return tracks
+            raise exc
+        return None
 
     def get_folder_list(self):
         listing = []
         try:
             listing = self.__MTPDevice.get_folder_list().values()
+            folders = []
+            for folder in listing:
+                m = Metadata.get_from_MTPFolder(folder)
+                folders.append(m)
+            return folders
+        except CommandFailed:
+            raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
         except Exception, exc:
-            debug_trace("unable to get folder listing", sender=self, exception=exc)
-
-        folders = []
-        for folder in listing:
-            m = Metadata.get_from_MTPFolder(folder)
-            folders.append(m)
-        return folders
-
+            raise exc
+        return None
+            
     def get_filelisting(self):
         listing = []
         try:
             listing = self.__MTPDevice.get_filelisting()
+            files = []
+            for file in listing:
+                m = Metadata.get_from_MTPFile(file)
+                files.append(m)
+            return files
+        except CommandFailed:
+            raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
         except Exception, exc:
-            debug_trace("unable to get file listing", sender=self, exception=exc)
-
-        files = []
-        for file in listing:
-            m = Metadata.get_from_MTPFile(file)
-            files.append(m)
-        return files
+            raise exc
+        return None
 
     def get_diskusage(self):
         return [self.__MTPDevice.get_usedspace(), self.__MTPDevice.get_totalspace()]
