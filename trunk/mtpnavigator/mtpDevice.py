@@ -1,12 +1,8 @@
 import time
 from notifications import *
 
-pymtp_available = True
-try:
-    import pymtp
-    from pymtp import CommandFailed
-except:
-    pymtp_available = False
+import pymtp
+from pymtp import CommandFailed
 import Metadata
 import DeviceEngine
 import time

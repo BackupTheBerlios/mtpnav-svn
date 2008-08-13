@@ -3,7 +3,6 @@ import pygtk
 pygtk.require("2.0")
 import gtk
 from DeviceEngine import DeviceEngine
-from mtpDevice import MTPDevice
 from TransferManager import TransferManager
 from notifications import *
 from DeviceEngine import TrackListingModel
@@ -12,6 +11,13 @@ import util
 import Metadata
 import pango
 import os
+
+try:
+    import pymtp
+    from mtpDevice import MTPDevice
+    pymtp_available = True
+except:
+    pymtp_available = False
 
 
 VERSION="0.1.a2"
@@ -132,9 +138,7 @@ class MTPnavigator:
         if parent_id==0:
             # not allow to create folder on root
             msg = "You can't add a folder to the root.\nSelect which folder to create a new one into"
-            dlg = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, msg)
-            dlg.run()
-            dlg.destroy()
+            notify_error(msg, title="Add folder", exception=None, sender=self.window)
             return
 
         dlg = GetTextDialog(self.window, "Enter the new folder name:")
@@ -284,10 +288,17 @@ class MTPnavigator:
             self.__getWidget(w).set_sensitive(sensible)
             
     def __connect_device(self):
+        self.__device_engine = None
+        if not pymtp_available:
+            msg = "pymtp is not or incorrectly installed on your system.\nThis is needed to access you device.\nGoto http://nick125.com/projects/pymtp to grab it and get installation instruction "
+            notify_error(msg, title="pymtp not available", sender=self.window)
+            return 
+        
         dev = MTPDevice()
         self.__device_engine = DeviceEngine(dev)
         if not self.__device_engine.connect_device():
-            # TODO: notify connection failed
+            msg = "No device was found. Please verify it was correctly pluged"
+            notify_error(msg, title="No device found", sender=self.window)
             self.__device_engine = None
             return
         tv = self.__getWidget("treeview_transfer_manager")

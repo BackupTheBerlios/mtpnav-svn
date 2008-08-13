@@ -174,7 +174,7 @@ def __get_from_MP3tags(m):
                 debug_trace("No tag found for mp3 file %s" % m.filename)
                 return __get_from_filepath(m)
         except Exception, exc:
-            notify_error("Error while getting mp3 tags for file %s" % m.filename, exc)
+            notify_warning("Error while getting mp3 tags for file %s" % m.filename, exc)
             return __get_from_filepath(m)
 
 def __get_from_oggtags(m):

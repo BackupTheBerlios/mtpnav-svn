@@ -2,6 +2,8 @@
 RELEASE 0.1.0: 
 --------------
     FIXME:
+    * TEST: warn when no device connected
+    * TEST: display error when creating folder to root
     *       fix metadata and filenames encoding (accent and special charaters)
     *       warn when disconnecting during transfer (disconnect before exit)
     *       seg fault when deleting many files
