@@ -1,167 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Thu Aug  7 21:39:33 2008 -->
+<!--Generated with glade3 3.4.3 on Wed Aug 13 16:20:12 2008 -->
 <glade-interface>
   <widget class="GtkWindow" id="window_mtpnav">
     <property name="title" translatable="yes">MTPnavigator</property>
     <property name="window_position">GTK_WIN_POS_CENTER</property>
     <signal name="destroy" handler="on_window_mtpnav_destroy"/>
     <child>
-      <widget class="GtkVBox" id="vbox1">
+      <widget class="GtkVBox" id="vbox_main">
         <property name="visible">True</property>
         <child>
-          <widget class="GtkMenuBar" id="menubar_main">
-            <property name="visible">True</property>
-            <child>
-              <widget class="GtkMenuItem" id="menuitem1">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">_Fichier</property>
-                <property name="use_underline">True</property>
-                <child>
-                  <widget class="GtkMenu" id="menu1">
-                    <property name="visible">True</property>
-                    <child>
-                      <widget class="GtkImageMenuItem" id="menuitem_connect">
-                        <property name="visible">True</property>
-                        <property name="tooltip" translatable="yes">Connect a device</property>
-                        <property name="label" translatable="yes">Connect a device</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_menuitem_connect_activate"/>
-                        <child internal-child="image">
-                          <widget class="GtkImage" id="menu-item-image3">
-                            <property name="visible">True</property>
-                            <property name="stock">gtk-connect</property>
-                          </widget>
-                        </child>
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkSeparatorMenuItem" id="separatormenuitem2">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">menuitem2</property>
-                        <property name="use_underline">True</property>
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkMenuItem" id="menuitem_send_files">
-                        <property name="visible">True</property>
-                        <property name="sensitive">False</property>
-                        <property name="label" translatable="yes">Send files to device...</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_send_files_activate"/>
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkImageMenuItem" id="menuitem_delete_files">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">Remove files from device</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_delete_files_activate"/>
-                        <child internal-child="image">
-                          <widget class="GtkImage" id="menu-item-image2">
-                            <property name="stock">gtk-delete</property>
-                          </widget>
-                        </child>
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkSeparatorMenuItem" id="separatormenuitem1">
-                        <property name="visible">True</property>
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkImageMenuItem" id="menuitem_quit">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">Quit</property>
-                        <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_quit_activate"/>
-                        <child internal-child="image">
-                          <widget class="GtkImage" id="menu-item-image4">
-                            <property name="visible">True</property>
-                            <property name="stock">gtk-quit</property>
-                          </widget>
-                        </child>
-                      </widget>
-                    </child>
-                  </widget>
-                </child>
-              </widget>
-            </child>
-            <child>
-              <widget class="GtkMenuItem" id="menuitem3">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">_Affichage</property>
-                <property name="use_underline">True</property>
-              </widget>
-            </child>
-          </widget>
-          <packing>
-            <property name="expand">False</property>
-          </packing>
+          <placeholder/>
         </child>
         <child>
-          <widget class="GtkToolbar" id="toolbar_main">
-            <property name="visible">True</property>
-            <child>
-              <widget class="GtkToolButton" id="button_connect">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Connect device</property>
-                <property name="stock_id">gtk-connect</property>
-                <signal name="clicked" handler="on_connect_activate"/>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkSeparatorToolItem" id="toolbutton3">
-                <property name="visible">True</property>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkToolButton" id="button_add_file">
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="label" translatable="yes">Send files...</property>
-                <property name="stock_id">gtk-open</property>
-                <signal name="clicked" handler="on_send_files_activate"/>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkToolButton" id="button_del_file">
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="label" translatable="yes">Remove files</property>
-                <property name="stock_id">gtk-delete</property>
-                <signal name="clicked" handler="on_delete_files_activate"/>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkToolButton" id="button_create_folder">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">add folder</property>
-                <signal name="clicked" handler="on_button_create_folder_clicked"/>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-              </packing>
-            </child>
-          </widget>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">1</property>
-          </packing>
+          <placeholder/>
         </child>
         <child>
           <widget class="GtkVPaned" id="vpaned_main">
@@ -302,34 +154,27 @@
                             <property name="n_rows">2</property>
                             <property name="n_columns">2</property>
                             <child>
-                              <widget class="GtkVBox" id="vbox6">
+                              <widget class="GtkProgressBar" id="progressbar_batterie_level">
                                 <property name="visible">True</property>
-                                <child>
-                                  <widget class="GtkImage" id="image1">
-                                    <property name="visible">True</property>
-                                    <property name="icon_name">battery</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label7">
-                                    <property name="visible">True</property>
-                                    <property name="label" translatable="yes">batterie level</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
+                                <property name="text" translatable="yes"></property>
                               </widget>
                               <packing>
-                                <property name="x_options"></property>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
                                 <property name="y_options"></property>
-                                <property name="x_padding">5</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkProgressBar" id="progressbar_disk_usage">
+                                <property name="visible">True</property>
+                                <property name="text" translatable="yes"></property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="y_options"></property>
                               </packing>
                             </child>
                             <child>
@@ -366,27 +211,34 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkProgressBar" id="progressbar_disk_usage">
+                              <widget class="GtkVBox" id="vbox6">
                                 <property name="visible">True</property>
-                                <property name="text" translatable="yes"></property>
+                                <child>
+                                  <widget class="GtkImage" id="image1">
+                                    <property name="visible">True</property>
+                                    <property name="icon_name">battery</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label7">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">batterie level</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
                               </widget>
                               <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
+                                <property name="x_options"></property>
                                 <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkProgressBar" id="progressbar_batterie_level">
-                                <property name="visible">True</property>
-                                <property name="text" translatable="yes"></property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                                <property name="y_options"></property>
+                                <property name="x_padding">5</property>
                               </packing>
                             </child>
                           </widget>

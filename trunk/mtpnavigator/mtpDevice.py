@@ -122,7 +122,7 @@ class MTPDevice():
             if not self.__check_free_space(metadata.filesize): 
                 raise DeviceEngine.DeviceFullError("Not enought free space on device") #TRANSLATE
             if self.__file_exist(metadata.filename):
-                raise DeviceEngine.AlreadyOnDeviceError("It already exists on the device") #TRANSLATE
+                raise DeviceEngine.AlreadyOnDeviceError("Already exists on the device") #TRANSLATE
             else:
                 raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
         except Exception, exc:
@@ -138,7 +138,7 @@ class MTPDevice():
             if not self.__check_free_space(metadata.filesize): 
                 raise DeviceEngine.DeviceFullError("Not enought free space on device") #TRANSLATE
             if self.__file_exist(metadata.filename):
-                raise DeviceEngine.AlreadyOnDeviceError("It already exists on the device") #TRANSLATE
+                raise DeviceEngine.AlreadyOnDeviceError("Already exists on the device") #TRANSLATE
             else:
                 raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
         except Exception, exc:

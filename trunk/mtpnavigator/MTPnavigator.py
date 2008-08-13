@@ -41,6 +41,8 @@ class MTPnavigator:
         self.gtkbuilder.add_from_file(XML_GUI_FILE) 
         self.gtkbuilder.connect_signals(self)
         self.window = self.__getWidget("window_mtpnav")
+        uimanager = self.__create_uimanager()
+
         wwidth=800  #TODO save size
         wheight=600
         self.window.set_default_size(wwidth, wheight)
@@ -115,12 +117,55 @@ class MTPnavigator:
 
         self.connect_or_disconnect_device()
         self.window.show()
+        
+    def __create_uimanager(self):
+        ui = '''
+            <menubar name="MenuBar">
+                <menu action="File">
+                    <menuitem action="Connect"/>
+                    <separator/>
+                    <menuitem action="Quit"/>
+                </menu>
+                <menu action="Device">
+                    <menuitem action="CreateFolder"/>
+                    <menuitem action="SendFiles"/>
+                    <menuitem action="Delete"/>
+                </menu>
+            </menubar>
+            <toolbar name="Toolbar">
+                <toolitem action="Disconnect"/>
+                <separator/>
+                <toolitem action="SendFiles"/>
+                <toolitem action="Delete"/>
+            </toolbar>
+        '''
+        
+        actiongroup = gtk.ActionGroup('MainActions')
+        #TRANSLATE: see http://www.moeraki.com/pygtktutorial/pygtk2reference/class-gtkactiongroup.html#method-gtkactiongroup--set-translation-domain
+        actiongroup.add_actions([('Connect', gtk.STOCK_CONNECT, '_Connect', None, 'Connect the device', self.connect_or_disconnect_device),
+                                 ('Quit', gtk.STOCK_QUIT, '_Quit', None, 'Quit the Program', self.on_quit),
+                                 ])
+        actiongroup_connected = gtk.ActionGroup('ActionConnected')
+        actiongroup_connected.add_actions([('CreateFolder', None, '_Create folder', None, 'Create a folder into the selected folder', self.on_create_folder),
+                                 ('SendFiles', gtk.STOCK_OPEN, '_Send files to device...', None, 'Pickup files to transfer into the device', self.on_send_files),
+                                 ('Delete', gtk.STOCK_DELETE, '_Delete', None, 'Delete the selected objects from device', self.on_delete_files)
+                                 ])
+        actiongroup_connected.get_action('SendFiles').set_property('short-label', '_Send...')
+                                 
+        uimanager = gtk.UIManager()
+        uimanager.insert_action_group(actiongroup, 0)
+        uimanager.insert_action_group(actiongroup_connected, 0)
+        uimanager.add_ui_from_string(ui)
+        
+        self.window.add_accel_group(uimanager.get_accel_group())
+        self.__getWidget("vbox_main").pack_start(uimanager.get_widget('/MenuBar'), expand=False)
+        self.__getWidget("vbox_main").pack_start(uimanager.get_widget('/Toolbar'), expand=False)
 
     def __getWidget(self, widget_id):
         return self.gtkbuilder.get_object(widget_id)
 
     #------ EVENTS ----------------------------------
-    def on_button_create_folder_clicked(self, emiter):
+    def on_create_folder(self, emiter):
         # find the last selected row ? FIXME: what to do there if more rows are selected?
         selrow_metadata = None
         selected = self.__get_currently_selected_rows_metadata()
@@ -146,7 +191,7 @@ class MTPnavigator:
         if new_folder_name and new_folder_name<>"":
             self.__transferManager.create_folder(new_folder_name, parent_id)
         
-    def on_delete_files_activate(self, emiter):
+    def on_delete_files(self, emiter):
         #store the files id to delete before stating deleted, else, path may change if more line are selecetd
         to_del = [] 
         folder_count = 0
@@ -182,16 +227,13 @@ class MTPnavigator:
         for job in to_cancel:
             self.__transferManager.cancel_job(job)
 
-    def on_connect_activate(self, emiter):
-        self.connect_or_disconnect_device()
-
-    def on_quit_activate(self, emiter):
+    def on_quit(self, emiter):
         self.exit()
 
     def on_window_mtpnav_destroy(self, widget):
         self.exit()
 
-    def on_send_files_activate(self, widget):
+    def on_send_files(self, widget):
         # find the last selected row ? FIXME: what to do there if more rows are selected?
         selrow_metadata = None
         selected = self.__get_currently_selected_rows_metadata()
@@ -277,15 +319,10 @@ class MTPnavigator:
         return selrow_metadata
             
     def connect_or_disconnect_device(self):
-        widgets = ["menuitem_send_files", "menuitem_delete_files", "button_add_file", "button_del_file", "hbox_device_information"]
         if self.__device_engine:
             self.__disconnect_device()
         else:
             self.__connect_device()
-
-        sensible = (self.__device_engine is not None)
-        for w in widgets:
-            self.__getWidget(w).set_sensitive(sensible)
             
     def __connect_device(self):
         self.__device_engine = None
@@ -315,16 +352,6 @@ class MTPnavigator:
         model = self.__device_engine.get_file_tree_model()
         self.__treeview_file.set_model(model)
 
-        # change menu and toobar label and stock
-        #TODO: use gtk.Action and gtk.ActionGroup for menu and toolbutton
-        # ou uimanager http://python.developpez.com/cours/pygtktutorial/php/pygtkfr/sec-UIManager.php
-        text="Disconnect device"
-        stock=gtk.STOCK_DISCONNECT
-        #TODO self.__getWidget("button_connect").set_label(text)
-        self.__getWidget("button_connect").set_stock_id(stock)
-        #TODO self.__getWidget("menuitem_connect").set_label(text)
-        img = gtk.image_new_from_stock(stock, gtk.ICON_SIZE_LARGE_TOOLBAR)
-        #TODO self.__getWidget("menuitem_connect").set_image(img)
         self.__getWidget("label_device_name").set_markup("<b>" + self.__device_engine.get_device().get_name() + "</b>")
         self.__getWidget("label_device_name2").set_markup("<b>" + self.__device_engine.get_device().get_name() + "</b>")
 
@@ -354,14 +381,6 @@ class MTPnavigator:
         self.__treeview_track.set_model(None)
         self.__treeview_file.set_model(None)
 
-        # change menu and toobar label and stock
-        text="Connect device"
-        stock=gtk.STOCK_CONNECT
-        self.__getWidget("button_connect").set_label(text)
-        self.__getWidget("button_connect").set_stock_id(stock)
-        self.__getWidget("menuitem_connect").set_label(text)
-        img = gtk.image_new_from_stock(stock, gtk.ICON_SIZE_LARGE_TOOLBAR)
-        self.__getWidget("menuitem_connect").set_image(img)
         self.__getWidget("label_device_name").set_markup("<b>No device connected</b>")
         self.__getWidget("label_device_name2").set_markup("<b>No device connected</b>")
 
