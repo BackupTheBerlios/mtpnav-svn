@@ -38,7 +38,7 @@ class MTPnavigator:
 
         # bind to glade
         self.gtkbuilder = gtk.Builder()
-        self.gtkbuilder.add_from_file(XML_GUI_FILE) 
+        self.gtkbuilder.add_from_file(XML_GUI_FILE)
         self.gtkbuilder.connect_signals(self)
         self.window = self.__getWidget("window_mtpnav")
         uimanager = self.__create_uimanager()
@@ -63,14 +63,14 @@ class MTPnavigator:
         ,(True, "genre", t.GENRE, t.GENRE, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
         ,(True, "length", t.LENGTH_STR, t.LENGTH_INT, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, True)
         ,(True, "date", t.DATE_STR, t.DATE, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, True)]
-        
+
         for c in cols:
             if not c[0]: continue
             col = gtk.TreeViewColumn(c[1])
             cell = gtk.CellRendererText()
             cell.set_property('ellipsize', pango.ELLIPSIZE_END)
             col.pack_start(cell, True)
-            col.set_attributes(cell, text=c[2]) 
+            col.set_attributes(cell, text=c[2])
             col.set_sort_column_id(c[3])
             col.set_sizing(c[4])
             if c[5]>0: col.set_fixed_width(c[5])
@@ -94,10 +94,10 @@ class MTPnavigator:
         col = gtk.TreeViewColumn("filename")
         cell = gtk.CellRendererPixbuf()
         col.pack_start(cell, False)
-        col.set_attributes(cell, icon_name=f.ICON)    
+        col.set_attributes(cell, icon_name=f.ICON)
         cell = gtk.CellRendererText()
         col.pack_start(cell, True)
-        col.set_attributes(cell, text=f.FILENAME)    
+        col.set_attributes(cell, text=f.FILENAME)
         col.set_sort_column_id(f.FILENAME)
         col.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
         col.set_fixed_width(400)
@@ -107,7 +107,7 @@ class MTPnavigator:
         col.set_sort_column_id(f.LENGTH_INT)
         col.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         self.__treeview_file.append_column(col)
-        self.__treeview_file.expand_all() 
+        self.__treeview_file.expand_all()
         # add drag and drop support
         # @TODO: deactivate if not connected
         self.__treeview_file.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_MOVE)
@@ -116,13 +116,14 @@ class MTPnavigator:
         self.__treeview_file.connect('drag_data_received', self.on_drag_data_received)
 
         self.window.show()
-        self.connect_or_disconnect_device()
-        
+        self.on_connect_device()
+
     def __create_uimanager(self):
         ui = '''
             <menubar name="MenuBar">
                 <menu action="File">
                     <menuitem action="Connect"/>
+                    <menuitem action="Disconnect"/>
                     <separator/>
                     <menuitem action="Quit"/>
                 </menu>
@@ -134,31 +135,35 @@ class MTPnavigator:
             </menubar>
             <toolbar action="Toolbar">
                 <toolitem action="Connect"/>
+                <toolitem action="Disconnect"/>
                 <separator/>
                 <toolitem action="SendFiles"/>
                 <toolitem action="Delete"/>
             </toolbar>
         '''
-        
-        actiongroup = gtk.ActionGroup('MainActions')
+
+        self.__actiongroup = gtk.ActionGroup('MainActions')
         #TRANSLATE: see http://www.moeraki.com/pygtktutorial/pygtk2reference/class-gtkactiongroup.html#method-gtkactiongroup--set-translation-domain
-        actiongroup.add_actions([('File', None, '_File'),
+        self.__actiongroup.add_actions([('File', None, '_File'),
                                  ('Device', None, '_Device'),
-                                 ('Connect', gtk.STOCK_CONNECT, '_Connect', None, 'Connect the device', self.connect_or_disconnect_device),
+                                 ('Connect', gtk.STOCK_CONNECT, '_Connect', None, 'Connect the device', self.on_connect_device),
+                                 ('Disconnect', gtk.STOCK_DISCONNECT, '_Disconnect', None, 'Disconnect the device', self.on_disconnect_device),
                                  ('Quit', gtk.STOCK_QUIT, '_Quit', None, 'Quit the Program', self.on_quit),
                                  ])
-        actiongroup_connected = gtk.ActionGroup('ActionConnected')
-        actiongroup_connected.add_actions([('CreateFolder', None, '_Create folder...', None, 'Create a folder into the selected folder', self.on_create_folder),
+        self.__actiongroup_connected = gtk.ActionGroup('ActionConnected')
+        self.__actiongroup_connected.add_actions([('CreateFolder', None, '_Create folder...', None, 'Create a folder into the selected folder', self.on_create_folder),
                                  ('SendFiles', gtk.STOCK_OPEN, '_Send files to device...', '<Control>S', 'Pickup files to transfer into the device', self.on_send_files),
                                  ('Delete', gtk.STOCK_DELETE, '_Delete', 'Delete', 'Delete the selected objects from device', self.on_delete_files)
                                  ])
-        actiongroup_connected.get_action('SendFiles').set_property('short-label', '_Send...')
-                                 
+        self.__actiongroup_connected.get_action('SendFiles').set_property('short-label', '_Send...')
+        self.__actiongroup_connected.set_sensitive(False)
+        self.__actiongroup.get_action("Disconnect").set_visible(False)
+
         uimanager = gtk.UIManager()
-        uimanager.insert_action_group(actiongroup, 0)
-        uimanager.insert_action_group(actiongroup_connected, 0)
+        uimanager.insert_action_group(self.__actiongroup, 0)
+        uimanager.insert_action_group(self.__actiongroup_connected, 0)
         uimanager.add_ui_from_string(ui)
-        
+
         self.window.add_accel_group(uimanager.get_accel_group())
         self.__getWidget("vbox_Menu_And_ToolBar").pack_start(uimanager.get_widget('/MenuBar'), expand=False)
         self.__getWidget("vbox_Menu_And_ToolBar").pack_start(uimanager.get_widget('/Toolbar'), expand=False)
@@ -171,7 +176,7 @@ class MTPnavigator:
         # find the last selected row ? FIXME: what to do there if more rows are selected?
         selrow_metadata = None
         selected = self.__get_currently_selected_rows_metadata()
-        if selected: 
+        if selected:
             selrow_metadata = selected[-1]
         parent_id=0
         if selrow_metadata:
@@ -192,26 +197,26 @@ class MTPnavigator:
         new_folder_name = dlg.get_text()
         if new_folder_name and new_folder_name<>"":
             self.__transferManager.create_folder(new_folder_name, parent_id)
-        
+
     def on_delete_files(self, emiter):
         #store the files id to delete before stating deleted, else, path may change if more line are selecetd
-        to_del = [] 
+        to_del = []
         folder_count = 0
         for row in self.__get_currently_selected_rows_metadata():
             to_del.append(row)
             if row.type == Metadata.TYPE_FOLDER:
                 folder_count+=1
-                
+
         if len(to_del)==0: return
 
-        # show confirmation                
+        # show confirmation
         msg = "You are about to delete %i files" % (len(to_del) - folder_count)
         if folder_count > 0:
             msg += " and %i folders\nAll the files contained within the folders will be destroyed as well" % folder_count
         confirm_dlg = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, msg)
         confirm_dlg.set_title("Confirm delete")
         response=confirm_dlg.run()
-        confirm_dlg.destroy() 
+        confirm_dlg.destroy()
         if response <> gtk.RESPONSE_OK:
             return
 
@@ -241,7 +246,7 @@ class MTPnavigator:
         selected = self.__get_currently_selected_rows_metadata()
         if selected:
             selrow_metadata = selected[-1]
-            
+
         # create and open the file chooser
         title = "Select files to transfer to the device"
         buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK)
@@ -254,7 +259,7 @@ class MTPnavigator:
             for uri in fs.get_uris():
                 self.send_file(uri, selrow_metadata)
         fs.destroy()
-        
+
     def on_drag_motion(self, treeview, drag_context, x, y, time):
         return #FIXME
         treeview.get_selection().set_mode( gtk.SELECTION_SINGLE)
@@ -266,7 +271,7 @@ class MTPnavigator:
         treeview.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
         treeview.set_hover_selection(False)
         treeview.set_hover_expand(False)
-        
+
     def on_drag_data_received(self, treeview, context, x, y, data, info, time):
         if data and data.format == 8:
             # find the row where data was dropped
@@ -274,12 +279,12 @@ class MTPnavigator:
             drop_info = treeview.get_dest_row_at_pos(x, y)
             if drop_info:
                 selrow_metadata = treeview.get_model().get_metadata(drop_info[0])
-                
+
             # process the list containing dropped objects
             for uri in data.data.split('\r\n')[:-1]:
                 self.send_file(uri, selrow_metadata)
         context.finish(True, False, time)
-        #FIXME: reject if not a file? 
+        #FIXME: reject if not a file?
 
     def send_file(self, uri, selrow_metadata):
         """
@@ -297,7 +302,7 @@ class MTPnavigator:
                 debug_trace("It was not a folder. Its parent %s is taken instead." % parent_id, sender=self)
 
         return self.__transferManager.send_file(uri, parent_id)
-        
+
     def exit(self):
         self.window.destroy()
         gtk.main_quit()
@@ -317,101 +322,112 @@ class MTPnavigator:
         (model, paths) = tv.get_selection().get_selected_rows()
         if tv:
             for path in paths:
-                selrow_metadata.append(model.get_metadata(path)) 
+                selrow_metadata.append(model.get_metadata(path))
         return selrow_metadata
-            
-    def connect_or_disconnect_device(self, widget=None):
-        if self.__device_engine:
-            self.__disconnect_device()
-        else:
-            self.__connect_device()
-            
-    def __connect_device(self):
+
+    def on_connect_device(self, widget=None):
         self.__device_engine = None
         if not pymtp_available:
             msg = "pymtp is not or incorrectly installed on your system.\nThis is needed to access you device.\nGoto http://nick125.com/projects/pymtp to grab it and get installation instruction "
             notify_error(msg, title="pymtp not available", sender=self.window)
-            return 
-        
+            self.__show_connected_state(False)
+            return
+
         dev = MTPDevice()
         self.__device_engine = DeviceEngine(dev)
         try:
             self.__device_engine.connect_device()
         except Exception, exc:
-            msg = "No device was found. Please verify it was correctly pluged"
+            msg = "No device was found.\nPlease verify it was correctly plugged"
             notify_error(msg, title="No device found", exception=exc, sender=self.window)
             self.__device_engine = None
+            self.__show_connected_state(False)
             return
+
+        self.__show_connected_state(True)
+
+        # FIXME Do not pass gui elements. use observer/observable instead
         tv = self.__getWidget("treeview_transfer_manager")
         notebook = self.__getWidget("notebook_device_info")
         prog_bar = self.__getWidget("progressbar_disk_usage")
         self.__transferManager = TransferManager(self.__device_engine, tv, notebook,prog_bar)
-        self.__transferManager
-        
         # update models
         model = self.__device_engine.get_track_listing_model()
         self.__treeview_track.set_model(model)
         model = self.__device_engine.get_file_tree_model()
         self.__treeview_file.set_model(model)
 
-        self.__getWidget("label_device_name").set_markup("<b>" + self.__device_engine.get_device().get_name() + "</b>")
-        self.__getWidget("label_device_name2").set_markup("<b>" + self.__device_engine.get_device().get_name() + "</b>")
-
-        # disk usage
-        used = self.__device_engine.get_device().get_diskusage()[0]
-        total = self.__device_engine.get_device().get_diskusage()[1]
-        prog_bar.set_fraction(float(used)/float(total))
-        prog_bar.set_text("%s of %s" % (util.format_filesize(used), util.format_filesize(total)))
-
-        # batterie level
-        max = self.__device_engine.get_device().get_batterylevel()[0]
-        current = self.__device_engine.get_device().get_batterylevel()[1]
-        prog_bar = self.__getWidget("progressbar_batterie_level")
-        fraction = float(current)/float(max)
-        prog_bar.set_fraction(fraction)
-        prog_bar.set_text("%i%%" % (fraction * 100))
-
-        infos = self.__device_engine.get_device().get_information()
-        text=""
-        for info in infos:
-            text += "<b>" + info[0] + ":</b> " + info[1] + "\n"
-        self.__getWidget("label_information").set_markup(text)
-
-    def __disconnect_device(self):
+    def on_disconnect_device(self, widget=None):
         self.__device_engine.disconnect_device()
         self.__device_engine = None
         self.__treeview_track.set_model(None)
         self.__treeview_file.set_model(None)
+        self.__show_connected_state(False)
 
-        self.__getWidget("label_device_name").set_markup("<b>No device connected</b>")
-        self.__getWidget("label_device_name2").set_markup("<b>No device connected</b>")
 
-        # device info
-        prog_bar.set_fraction(0)
-        prog_bar.set_text("")
-        prog_bar.set_fraction(0)
-        prog_bar.set_text("")
-        self.__getWidget("label_information").set_text("No device connected")
+    def __show_connected_state(self, is_connected):
+        self.__actiongroup_connected.set_sensitive(is_connected)
+        self.__actiongroup.get_action("Connect").set_visible(not is_connected)
+        self.__actiongroup.get_action("Disconnect").set_visible(is_connected)
+        self.__getWidget("hbox_device_information").set_sensitive(is_connected)
+
+        if is_connected:
+            connected_device = self.__device_engine.get_device().get_name()
+        else:
+            connected_device = "No device connected" #TRANSLATE
+        self.__getWidget("label_device_name").set_markup("<b>" + connected_device + "</b>")
+        self.__getWidget("label_device_name2").set_markup("<b>" + connected_device + "</b>")
+
+        if not is_connected:
+            prog_bar = self.__getWidget("progressbar_disk_usage")
+            prog_bar.set_fraction(0)
+            prog_bar.set_text("")
+            prog_bar = self.__getWidget("progressbar_batterie_level")
+            prog_bar.set_fraction(0)
+            prog_bar.set_text("")
+            self.__getWidget("label_information").set_text("No device connected")
+        else:
+            # disk usage
+            used = self.__device_engine.get_device().get_diskusage()[0]
+            total = self.__device_engine.get_device().get_diskusage()[1]
+            prog_bar = self.__getWidget("progressbar_disk_usage")
+            prog_bar.set_fraction(float(used)/float(total))
+            prog_bar.set_text("%s of %s" % (util.format_filesize(used), util.format_filesize(total)))
+
+            # batterie level
+            max = self.__device_engine.get_device().get_batterylevel()[0]
+            current = self.__device_engine.get_device().get_batterylevel()[1]
+            prog_bar = self.__getWidget("progressbar_batterie_level")
+            fraction = float(current)/float(max)
+            prog_bar.set_fraction(fraction)
+            prog_bar.set_text("%i%%" % (fraction * 100))
+
+            # general information
+            infos = self.__device_engine.get_device().get_information()
+            text=""
+            for info in infos:
+                text += "<b>" + info[0] + ":</b> " + info[1] + "\n"
+            self.__getWidget("label_information").set_markup(text)
 
 
 class GetTextDialog(gtk.MessageDialog):
     def __init__(self, parent, message):
-        gtk.MessageDialog.__init__(self, parent,  gtk.DIALOG_MODAL | 
-            gtk.DIALOG_DESTROY_WITH_PARENT,  
-            gtk.MESSAGE_QUESTION,  
-            gtk.BUTTONS_OK_CANCEL,  
-            None)  
-        self.set_markup(message)  
-        self.entry = gtk.Entry()  
-        self.vbox.pack_end(self.entry, True, True, 0)  
-        
-    def get_text(self):  
-        self.show_all()  
+        gtk.MessageDialog.__init__(self, parent,  gtk.DIALOG_MODAL |
+            gtk.DIALOG_DESTROY_WITH_PARENT,
+            gtk.MESSAGE_QUESTION,
+            gtk.BUTTONS_OK_CANCEL,
+            None)
+        self.set_markup(message)
+        self.entry = gtk.Entry()
+        self.vbox.pack_end(self.entry, True, True, 0)
+
+    def get_text(self):
+        self.show_all()
         text = None
         if self.run() == gtk.RESPONSE_OK:
-            text = self.entry.get_text()  
-        self.destroy()  
-        return text  
+            text = self.entry.get_text()
+        self.destroy()
+        return text
 
 if __name__ == "__main__":
     mtpnav = MTPnavigator()
