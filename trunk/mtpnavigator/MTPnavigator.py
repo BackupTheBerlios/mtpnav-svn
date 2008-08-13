@@ -115,8 +115,8 @@ class MTPnavigator:
         self.__treeview_file.connect('drag_drop', self.on_drag_drop)
         self.__treeview_file.connect('drag_data_received', self.on_drag_data_received)
 
-        self.connect_or_disconnect_device()
         self.window.show()
+        self.connect_or_disconnect_device()
         
     def __create_uimanager(self):
         ui = '''
@@ -126,14 +126,14 @@ class MTPnavigator:
                     <separator/>
                     <menuitem action="Quit"/>
                 </menu>
-                <menu action="Device">
+                <menu  action="Device">
                     <menuitem action="CreateFolder"/>
                     <menuitem action="SendFiles"/>
                     <menuitem action="Delete"/>
                 </menu>
             </menubar>
-            <toolbar name="Toolbar">
-                <toolitem action="Disconnect"/>
+            <toolbar action="Toolbar">
+                <toolitem action="Connect"/>
                 <separator/>
                 <toolitem action="SendFiles"/>
                 <toolitem action="Delete"/>
@@ -142,13 +142,15 @@ class MTPnavigator:
         
         actiongroup = gtk.ActionGroup('MainActions')
         #TRANSLATE: see http://www.moeraki.com/pygtktutorial/pygtk2reference/class-gtkactiongroup.html#method-gtkactiongroup--set-translation-domain
-        actiongroup.add_actions([('Connect', gtk.STOCK_CONNECT, '_Connect', None, 'Connect the device', self.connect_or_disconnect_device),
+        actiongroup.add_actions([('File', None, '_File'),
+                                 ('Device', None, '_Device'),
+                                 ('Connect', gtk.STOCK_CONNECT, '_Connect', None, 'Connect the device', self.connect_or_disconnect_device),
                                  ('Quit', gtk.STOCK_QUIT, '_Quit', None, 'Quit the Program', self.on_quit),
                                  ])
         actiongroup_connected = gtk.ActionGroup('ActionConnected')
-        actiongroup_connected.add_actions([('CreateFolder', None, '_Create folder', None, 'Create a folder into the selected folder', self.on_create_folder),
+        actiongroup_connected.add_actions([('CreateFolder', None, '_Create folder...', None, 'Create a folder into the selected folder', self.on_create_folder),
                                  ('SendFiles', gtk.STOCK_OPEN, '_Send files to device...', None, 'Pickup files to transfer into the device', self.on_send_files),
-                                 ('Delete', gtk.STOCK_DELETE, '_Delete', None, 'Delete the selected objects from device', self.on_delete_files)
+                                 ('Delete', gtk.STOCK_DELETE, '_Delete', 'Delete', 'Delete the selected objects from device', self.on_delete_files)
                                  ])
         actiongroup_connected.get_action('SendFiles').set_property('short-label', '_Send...')
                                  
@@ -158,8 +160,8 @@ class MTPnavigator:
         uimanager.add_ui_from_string(ui)
         
         self.window.add_accel_group(uimanager.get_accel_group())
-        self.__getWidget("vbox_main").pack_start(uimanager.get_widget('/MenuBar'), expand=False)
-        self.__getWidget("vbox_main").pack_start(uimanager.get_widget('/Toolbar'), expand=False)
+        self.__getWidget("vbox_Menu_And_ToolBar").pack_start(uimanager.get_widget('/MenuBar'), expand=False)
+        self.__getWidget("vbox_Menu_And_ToolBar").pack_start(uimanager.get_widget('/Toolbar'), expand=False)
 
     def __getWidget(self, widget_id):
         return self.gtkbuilder.get_object(widget_id)
@@ -318,7 +320,7 @@ class MTPnavigator:
                 selrow_metadata.append(model.get_metadata(path)) 
         return selrow_metadata
             
-    def connect_or_disconnect_device(self):
+    def connect_or_disconnect_device(self, widget=None):
         if self.__device_engine:
             self.__disconnect_device()
         else:
@@ -335,9 +337,9 @@ class MTPnavigator:
         self.__device_engine = DeviceEngine(dev)
         try:
             self.__device_engine.connect_device()
-        except Execption, exc:
+        except Exception, exc:
             msg = "No device was found. Please verify it was correctly pluged"
-            notify_error(msg, title="No device found", Exception=exc, sender=self.window)
+            notify_error(msg, title="No device found", exception=exc, sender=self.window)
             self.__device_engine = None
             return
         tv = self.__getWidget("treeview_transfer_manager")

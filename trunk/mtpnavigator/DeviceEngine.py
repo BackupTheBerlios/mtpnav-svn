@@ -49,7 +49,7 @@ class DeviceEngine:
     def disconnect_device(self):
         self.__track_listing_model = None
         self.__file_tree_model = None
-        self.__device.close()
+        self.__device.disconnect()
 
     def get_track_listing_model(self):
         return self.__track_listing_model

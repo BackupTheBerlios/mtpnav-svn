@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.3 on Wed Aug 13 16:20:12 2008 -->
+<!--Generated with glade3 3.4.5 on Wed Aug 13 17:43:55 2008 -->
 <glade-interface>
   <widget class="GtkWindow" id="window_mtpnav">
     <property name="title" translatable="yes">MTPnavigator</property>
@@ -10,10 +10,19 @@
       <widget class="GtkVBox" id="vbox_main">
         <property name="visible">True</property>
         <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
+          <widget class="GtkVBox" id="vbox_Menu_And_ToolBar">
+            <property name="visible">True</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+          </packing>
         </child>
         <child>
           <widget class="GtkVPaned" id="vpaned_main">
@@ -154,27 +163,34 @@
                             <property name="n_rows">2</property>
                             <property name="n_columns">2</property>
                             <child>
-                              <widget class="GtkProgressBar" id="progressbar_batterie_level">
+                              <widget class="GtkVBox" id="vbox6">
                                 <property name="visible">True</property>
-                                <property name="text" translatable="yes"></property>
+                                <child>
+                                  <widget class="GtkImage" id="image1">
+                                    <property name="visible">True</property>
+                                    <property name="icon_name">battery</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label7">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">batterie level</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
                               </widget>
                               <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
+                                <property name="x_options"></property>
                                 <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkProgressBar" id="progressbar_disk_usage">
-                                <property name="visible">True</property>
-                                <property name="text" translatable="yes"></property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="y_options"></property>
+                                <property name="x_padding">5</property>
                               </packing>
                             </child>
                             <child>
@@ -211,34 +227,27 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkVBox" id="vbox6">
+                              <widget class="GtkProgressBar" id="progressbar_disk_usage">
                                 <property name="visible">True</property>
-                                <child>
-                                  <widget class="GtkImage" id="image1">
-                                    <property name="visible">True</property>
-                                    <property name="icon_name">battery</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label7">
-                                    <property name="visible">True</property>
-                                    <property name="label" translatable="yes">batterie level</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
+                                <property name="text" translatable="yes"></property>
                               </widget>
                               <packing>
-                                <property name="x_options"></property>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
                                 <property name="y_options"></property>
-                                <property name="x_padding">5</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkProgressBar" id="progressbar_batterie_level">
+                                <property name="visible">True</property>
+                                <property name="text" translatable="yes"></property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="y_options"></property>
                               </packing>
                             </child>
                           </widget>
@@ -403,7 +412,7 @@ information</property>
             </child>
           </widget>
           <packing>
-            <property name="position">3</property>
+            <property name="position">1</property>
           </packing>
         </child>
       </widget>

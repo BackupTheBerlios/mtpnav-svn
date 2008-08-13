@@ -2,7 +2,6 @@ import time
 from notifications import *
 
 import pymtp
-from pymtp import CommandFailed
 import Metadata
 import DeviceEngine
 import time
@@ -101,13 +100,13 @@ class MTPDevice():
         try:
             self.__MTPDevice.connect()
             # build the initial tracks_list
-        except NoDeviceConnected, exc:
+        except pymtp.NoDeviceConnected, exc:
             raise DeviceEngine.DeviceError("Can't connect device")
 
-    def close(self):
+    def disconnect(self):
         try:
             self.__MTPDevice.disconnect()
-        except NoDeviceConnected, exc:
+        except pymtp.NoDeviceConnected, exc:
             raise DeviceEngine.DeviceError("Can't disconnect device")
 
     def send_track(self, metadata=None, callback=None):
@@ -118,7 +117,7 @@ class MTPDevice():
             metadata = Metadata.get_from_MTPTrack(self.__MTPDevice.get_track_metadata(new_id))
         except IOError:
             raise IOError("Failed to process the file from the filesystem") #TRANSLATE
-        except CommandFailed:
+        except pymtp.CommandFailed:
             if not self.__check_free_space(metadata.filesize): 
                 raise DeviceEngine.DeviceFullError("Not enought free space on device") #TRANSLATE
             if self.__file_exist(metadata.filename):
@@ -134,7 +133,7 @@ class MTPDevice():
         try:
             new_id =self.__MTPDevice.create_folder( metadata.filename, int(parent))
             metadata.id = new_id
-        except CommandFailed:
+        except pymtp.CommandFailed:
             if not self.__check_free_space(metadata.filesize): 
                 raise DeviceEngine.DeviceFullError("Not enought free space on device") #TRANSLATE
             if self.__file_exist(metadata.filename):
@@ -149,7 +148,7 @@ class MTPDevice():
         t = int(track_id)
         try:
             return str(self.__MTPDevice.delete_object(t))
-        except CommandFailed:
+        except pymtp.CommandFailed:
             raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
         except Exception, exc:
             raise exc
@@ -164,7 +163,7 @@ class MTPDevice():
                 m = Metadata.get_from_MTPTrack(track)
                 tracks.append(m)
             return tracks
-        except CommandFailed:
+        except pymtp.CommandFailed:
             raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
         except Exception, exc:
             raise exc
@@ -179,7 +178,7 @@ class MTPDevice():
                 m = Metadata.get_from_MTPFolder(folder)
                 folders.append(m)
             return folders
-        except CommandFailed:
+        except pymtp.CommandFailed:
             raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
         except Exception, exc:
             raise exc
@@ -194,7 +193,7 @@ class MTPDevice():
                 m = Metadata.get_from_MTPFile(file)
                 files.append(m)
             return files
-        except CommandFailed:
+        except pymtp.CommandFailed:
             raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
         except Exception, exc:
             raise exc
