@@ -13,7 +13,7 @@ RELEASE 0.1.0:
     *       identify from device what is a track and what is a file
     *       expand parent when add file or folder
 
-    PRERELEASE 0.1.a1: RELEASED
+    PRERELEASE 0.1.a1: RELEASED 04/08/2008
     * DONE: view device information
     * DONE: view tracks listing
     * DONE: add file to device
@@ -22,7 +22,7 @@ RELEASE 0.1.0:
     * DONE: job queue
     * DONE: get metadata from mp3 files tags
 
-    PRERELEASE 0.1.a2: IN DEVELOPPMENT
+    PRERELEASE 0.1.a2: RELEASED 14/08/2008
     * DONE: view files and folders listing
     * DONE: add a directory. Prevent adding directory to parent 0
     * DONE: remove a whole directory (directory and contained files)
@@ -32,7 +32,7 @@ RELEASE 0.1.0:
     * DONE: columns resizable
     * DONE: use action and uimanager to create menu and toolbox (hide create dir for track view)
 
-    PRERELEASE 0.1.a3: PLANNED
+    PRERELEASE 0.1.a3: IN DEVELOPPMENT
     *       get metadata from ogg files tags
     *       rigth click context menus
 	*       icons instead of SEND, CREATE, DEL... on transfer list
