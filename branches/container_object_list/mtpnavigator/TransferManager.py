@@ -24,7 +24,7 @@ class TransferManager():
             ACTION_GET: gtk.STOCK_GO_UP,
             ACTION_CREATE_FOLDER: gtk.STOCK_DIRECTORY,
             ACTION_CREATE_PLAYLIST: gtk.STOCK_EDIT,
-            ACTION_DEL_PLAYLIST: gtk.STOCK_DELETE }            
+            ACTION_DEL_PLAYLIST: gtk.STOCK_DELETE }
 
     STATUS_QUEUED = "queued"
     STATUS_PROCESSING = "processing"
@@ -84,15 +84,15 @@ class TransferManager():
 
     def get_selection(self):
         return self.__transfer_treeview.get_selection()
-        
+
     def create_folder(self, folder_name, parent_id):
         metadata = Metadata.Metadata()
         metadata.id = folder_name
         metadata.title = folder_name
         metadata.filename = folder_name
         metadata.parent_id = parent_id
-        metadata.type = Metadata.TYPE_FOLDER 
-        self.__queue_job(self.ACTION_CREATE_FOLDER, metadata)       
+        metadata.type = Metadata.TYPE_FOLDER
+        self.__queue_job(self.ACTION_CREATE_FOLDER, metadata)
 
     def send_file(self, file_url, parent_id):
         if DEBUG: debug_trace("request for sending %s" % file_url, sender=self)
@@ -132,7 +132,7 @@ class ProcessQueueThread(Thread):
             observer(signal, *args)
 
     def __device_callback(self, sent, total):
-        if self.__current_job.canceled: 
+        if self.__current_job.canceled:
             debug_trace("current job canceled", sender=self)
             return 1
         percentage = round(float(sent)/float(total)*100)
@@ -163,10 +163,10 @@ class ProcessQueueThread(Thread):
                     self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
                     job.object_id = metadata.id
                     job.metadata = metadata
-                    
+
                 elif job.action == TransferManager.ACTION_DEL:
                     self.__device_engine.del_file(job.object_id)
-                    
+
                     trace("file with id %s (%s) deleted succesfully" % (job.object_id, job.metadata.title), sender=self)
                 elif job.action == TransferManager.ACTION_CREATE_FOLDER:
                     metadata = self.__device_engine.create_folder(job.metadata)
@@ -242,8 +242,8 @@ class TransfertQueueModel(gtk.ListStore):
         it = self.__get_iter(object_id)
         if it:
             self.set_value(it, column, value)
-            if column==COL_ACTION:
-                self.set_value(it, COL_ACTION_STOCK, TransferManager.icons(value))                
+            if column==self.COL_ACTION:
+                self.set_value(it, self.COL_ACTION_STOCK, TransferManager.icons(value))
         else:
             debug_trace("trying to update non existing object %s from model" % object_id, sender=self)
         self.__lock.release()
@@ -264,4 +264,4 @@ class Job():
         """
             return a list of attributes. needed for model
         """
-        return [self.object_id, self.action, self.metadata.title, self.status, TransferManager.icons(self.status), self.progress, self]
+        return [self.object_id, self.action, TransferManager.icons[self.action], self.metadata.title, self.status, self.progress, self]

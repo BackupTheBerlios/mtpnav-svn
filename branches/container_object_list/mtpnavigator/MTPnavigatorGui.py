@@ -53,7 +53,7 @@ class MTPnavigator:
         self.window.set_size_request(500,350)
         self.window.set_title("MTP navigatore " + VERSION)
         self.__getWidget("vpaned_main").set_position(wheight-250) #TODO: save position
-        
+
         self.__create_track_view()
         self.__create_treeview_navigator()
 
@@ -117,7 +117,7 @@ class MTPnavigator:
         self.__treeview_track = self.__getWidget("treeview_object_list")
         self.__treeview_track.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
         t = ObjectListingModel
-        
+
         # first column is file icon
         col = gtk.TreeViewColumn("")
         cell = gtk.CellRendererPixbuf()
@@ -126,7 +126,7 @@ class MTPnavigator:
         col.set_sort_column_id(t.ICON)
         col.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         self.__treeview_track.append_column(col)
-        
+
         # other columns to create: (visible, title, model_col, sort_col, sizing, width, resizable)
         cols = [(DEBUG_ID, "object ID", t.OBJECT_ID, t.OBJECT_ID, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, False)
         ,(DEBUG_ID, "parent ID", t.PARENT_ID, t.PARENT_ID, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, False)
@@ -155,7 +155,7 @@ class MTPnavigator:
         # @TODO: deactivate if not connected
         self.__treeview_track.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_MOVE)
         self.__treeview_track.connect('drag_data_received', self.on_drag_data_received)
-        
+
     def __create_treeview_navigator(self):
         # create the file view
         self.__treeview_navigator = self.__getWidget("treeview_navigator_list")
@@ -183,7 +183,7 @@ class MTPnavigator:
         self.__treeview_navigator.connect('drag_motion', self.on_drag_motion)
         self.__treeview_navigator.connect('drag_drop', self.on_drag_drop)
         self.__treeview_navigator.connect('drag_data_received', self.on_drag_data_received)
-        
+
 
     #------ EVENTS ----------------------------------
     def on_create_folder(self, emiter):
@@ -207,7 +207,7 @@ class MTPnavigator:
             notify_error(msg, title="Add folder", exception=None, sender=self.window)
             return
 
-        dlg = notifications.GetTextDialog(self.window, "Enter the new folder name:")
+        dlg = GetTextDialog(self.window, "Enter the new folder name:")
         new_folder_name = dlg.get_text()
         if new_folder_name and new_folder_name<>"":
             self.__transferManager.create_folder(new_folder_name, parent_id)
@@ -299,11 +299,11 @@ class MTPnavigator:
                 self.send_file(uri, selrow_metadata)
         context.finish(True, False, time)
         #FIXME: reject if not a file?
-        
+
     def activate_mode(self, mode):
         if DEBUG: debug_trace("activating mode %i" % mode, sender=self)
         track_model = None
-        if mode == self.MODE_PLAYLIST_VIEW:
+        if mode == MODE_PLAYLIST_VIEW:
             track_model = self.__device_engine.get_track_listing_model()
             navigator_model = self.__device_engine.get_playlist_tree_model()
         elif mode == self.MODE_ALBUM_VIEW:
@@ -317,7 +317,7 @@ class MTPnavigator:
             assert True
         self.__treeview_track.set_model(track_model)
         self.__treeview_navigator.set_model(navigator_model)
-        
+
     def send_file(self, uri, selrow_metadata):
         """
             selected_row: the metadata of the selected row
