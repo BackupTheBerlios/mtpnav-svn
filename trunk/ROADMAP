@@ -2,7 +2,7 @@
 RELEASE 0.1.0: 
 --------------
     FIXME:
-    *       fix metadata and filenames encoding (accent and special charaters)
+    *       fix metadata and filenames encoding (accent and special charaters). Pass encode("utf-16") to pymtp
     *       warn when disconnecting during transfer (disconnect before exit)
     *       seg fault when deleting many files
     *       prevent deleting folders on first level
@@ -29,27 +29,27 @@ RELEASE 0.1.0:
     * DONE: add file to directory
     * DONE: button to cancel job in transfer window 
     * DONE: identify transfers errors for all operation (already on device/device full)
-    *       get metadata from ogg files tags
     * DONE: columns resizable
     * DONE: use action and uimanager to create menu and toolbox (hide create dir for track view)
-    *       rigth click context menus
-	*       icons instead of SEND, CREATE, DEL... on transfer list
 
     PRERELEASE 0.1.a3: PLANNED
-    * EXPERIMENT:  move files/directories(see expermental branch): seems not to be possible with actual pymtp
-    * trace debug and exceptions
-    * translation
-    * separate folders from files in the folder view ? Folder would be single select (better for adding folder or sending file to folder)
-    * add a whole directory (drag and drop + menu item). Only track added in track view
-    * add and remove playlist
-    * add tracks to playlist
-    * remove tracks from playlist
-    * button to cancel job /retry on error at row level
-    * get file from device
-    * preferences
-    * parametrize metadata from directory/file scheme if no tag
-    * display tooltips on track view and job list (artist, title genre...)
-    * about dialog
+    *       get metadata from ogg files tags
+    *       rigth click context menus
+	*       icons instead of SEND, CREATE, DEL... on transfer list
+    * EXPERIMENT:  move files/directories(see experimental branch): seems not to be possible with actual pymtp
+    *       trace debug and exceptions
+    *       translation
+    *       separate folders from files in the folder view ? Folder would be single select (better for adding folder or sending file to folder)
+    *       add a whole directory (drag and drop + menu item). Only track added in track view
+    *       add and remove playlist
+    *       add tracks to playlist
+    *       remove tracks from playlist
+    *       button to cancel job /retry on error at row level
+    *       get file from device
+    *       preferences
+    *       parametrize metadata from directory/file scheme if no tag
+    *       display tooltips on track view and job list (artist, title genre...)
+    *       about dialog
 
     RELEASE 0.1.0beta0 PLANNED
     * 	test and fixes + prerelease done

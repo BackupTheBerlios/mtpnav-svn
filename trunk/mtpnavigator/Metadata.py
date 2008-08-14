@@ -7,7 +7,7 @@ has_eyed3 = True
 try:
     import eyeD3
 except:
-    notify_warning("Install python-eyeD3 if you want to get mp3 tags")
+    notify_warning("Install python-eyeD3 if you want to get information from mp3 tags")
     has_eyed3 = False
 
 has_pymtp = True
