@@ -4,7 +4,7 @@ RELEASE 0.1.0:
     FIXME:
     *       fix metadata and filenames encoding (accent and special charaters). Pass encode("utf-16") to pymtp
     *       warn when disconnecting during transfer (disconnect before exit)
-    *       seg fault when deleting many files
+    *       seg fault when deleting many files (try gtk.gdk.threads_enter and leave)
     *       prevent deleting folders on first level
     *       prevent deleting system folders and files (waiting response from libmtp list)
     * FAIL: select the row under mouse when drag and dropping to file view (like in nautilus)
