@@ -10,7 +10,7 @@ from distutils.core import setup
 
 
 setup(name = "MTPnavigator",
-    version = "0.1.a2",
+    version = "0.1.a3",
     description = "Manage your portable media player",
     author = "Jérôme Chabod",
     author_email = "jerome.chabod@ifrance.com",

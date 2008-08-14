@@ -20,7 +20,7 @@ except:
     pymtp_available = False
 
 
-VERSION="0.1.a2"
+VERSION="0.1.a3"
 
 DATA_PATH = os.path.join("/usr", "share", "mtpnavigator")
 if "--local" in sys.argv or "-l" in sys.argv: DATA_PATH = "./data"
