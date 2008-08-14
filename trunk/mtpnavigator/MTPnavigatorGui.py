@@ -193,7 +193,7 @@ class MTPnavigator:
             notify_error(msg, title="Add folder", exception=None, sender=self.window)
             return
 
-        dlg = GetTextDialog(self.window, "Enter the new folder name:")
+        dlg = notifications.GetTextDialog(self.window, "Enter the new folder name:")
         new_folder_name = dlg.get_text()
         if new_folder_name and new_folder_name<>"":
             self.__transferManager.create_folder(new_folder_name, parent_id)
@@ -408,26 +408,6 @@ class MTPnavigator:
             for info in infos:
                 text += "<b>" + info[0] + ":</b> " + info[1] + "\n"
             self.__getWidget("label_information").set_markup(text)
-
-
-class GetTextDialog(gtk.MessageDialog):
-    def __init__(self, parent, message):
-        gtk.MessageDialog.__init__(self, parent,  gtk.DIALOG_MODAL |
-            gtk.DIALOG_DESTROY_WITH_PARENT,
-            gtk.MESSAGE_QUESTION,
-            gtk.BUTTONS_OK_CANCEL,
-            None)
-        self.set_markup(message)
-        self.entry = gtk.Entry()
-        self.vbox.pack_end(self.entry, True, True, 0)
-
-    def get_text(self):
-        self.show_all()
-        text = None
-        if self.run() == gtk.RESPONSE_OK:
-            text = self.entry.get_text()
-        self.destroy()
-        return text
 
 if __name__ == "__main__":
     mtpnav = MTPnavigator()

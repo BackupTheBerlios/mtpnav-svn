@@ -23,6 +23,7 @@ RELEASE 0.1.0:
     * DONE: get metadata from mp3 files tags
 
     PRERELEASE 0.1.a2: RELEASED 14/08/2008
+    * DONE: entry in gnome menu
     * DONE: view files and folders listing
     * DONE: add a directory. Prevent adding directory to parent 0
     * DONE: remove a whole directory (directory and contained files)
@@ -36,7 +37,6 @@ RELEASE 0.1.0:
     *       get metadata from ogg files tags
     *       rigth click context menus
 	*       icons instead of SEND, CREATE, DEL... on transfer list
-    * EXPERIMENT:  move files/directories(see experimental branch): seems not to be possible with actual pymtp
     *       trace debug and exceptions
     *       translation
     *       separate folders from files in the folder view ? Folder would be single select (better for adding folder or sending file to folder)
@@ -50,6 +50,7 @@ RELEASE 0.1.0:
     *       parametrize metadata from directory/file scheme if no tag
     *       display tooltips on track view and job list (artist, title genre...)
     *       about dialog
+    * EXPERIMENT:  move files/directories(see experimental branch): seems not to be possible with actual pymtp
 
     RELEASE 0.1.0beta0 PLANNED
     * 	test and fixes + prerelease done

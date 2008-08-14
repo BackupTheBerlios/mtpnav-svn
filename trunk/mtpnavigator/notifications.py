@@ -42,3 +42,22 @@ def notify_warning(message, exception=None):
         error = traceback.format_exc()
         if error.strip() != 'None':
             print error
+
+class GetTextDialog(gtk.MessageDialog):
+    def __init__(self, parent, message):
+        gtk.MessageDialog.__init__(self, parent,  gtk.DIALOG_MODAL |
+            gtk.DIALOG_DESTROY_WITH_PARENT,
+            gtk.MESSAGE_QUESTION,
+            gtk.BUTTONS_OK_CANCEL,
+            None)
+        self.set_markup(message)
+        self.entry = gtk.Entry()
+        self.vbox.pack_end(self.entry, True, True, 0)
+
+    def get_text(self):
+        self.show_all()
+        text = None
+        if self.run() == gtk.RESPONSE_OK:
+            text = self.entry.get_text()
+        self.destroy()
+        return text
