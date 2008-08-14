@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=mtpnavigator portable media player manager
+Name[fr]=mtpnavigator gestionnaire de lecteur de média portable
+GenericName=portable media player manager
+GenericName[fr]=gestionnaire de lecteur de média portable
+Comment=Easily manage your MTP based portable media player
+Comment[fr]=Gérez facilement votre lecteur de média portable
+Exec=mtpnavigator
+Icon=multimedia-player
+Terminal=false
+Type=Application
+Categories=AudioVideo;Audio;FileTransfer;GTK
