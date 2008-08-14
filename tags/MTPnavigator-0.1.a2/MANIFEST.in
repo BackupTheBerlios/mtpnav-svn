@@ -1,0 +1,3 @@
+include README INSTALL COPYING MANIFEST.in setup.py 
+recursive-include data *
+recursive-exclude data/.svn *
