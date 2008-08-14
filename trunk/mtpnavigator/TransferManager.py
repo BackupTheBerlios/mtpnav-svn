@@ -13,12 +13,18 @@ import Metadata
 import util
 
 class TransferManager():
-    ACTION_SEND = "SEND"
-    ACTION_DEL = "DELETE"
-    ACTION_GET = "GET"
-    ACTION_CREATE_FOLDER = "CREATE FOLDER"
-    ACTION_CREATE_PLAYLIST = "CREATE PLAYLIST"
-    ACTION_DEL_PLAYLIST = "REMOVE PLAYLIST"
+    ACTION_SEND = 0
+    ACTION_DEL = 1
+    ACTION_GET = 2
+    ACTION_CREATE_FOLDER = 3
+    ACTION_CREATE_PLAYLIST = 4
+    ACTION_DEL_PLAYLIST = 5
+    icons={ ACTION_SEND: gtk.STOCK_GO_DOWN,
+            ACTION_DEL: gtk.STOCK_DELETE,
+            ACTION_GET: gtk.STOCK_GO_UP,
+            ACTION_CREATE_FOLDER: gtk.STOCK_DIRECTORY,
+            ACTION_CREATE_PLAYLIST: gtk.STOCK_EDIT,
+            ACTION_DEL_PLAYLIST: gtk.STOCK_DELETE }            
 
     STATUS_QUEUED = "queued"
     STATUS_PROCESSING = "processing"
@@ -42,7 +48,7 @@ class TransferManager():
         if False:
             col = gtk.TreeViewColumn("object_id", gtk.CellRendererText(), text=t.COL_JOB_ID)
             transfer_treeview.append_column(col)
-        col = gtk.TreeViewColumn("action", gtk.CellRendererText(), text=t.COL_ACTION)
+        col = gtk.TreeViewColumn("action", gtk.CellRendererPixbuf (), stock_id=t.COL_ACTION_STOCK)
         transfer_treeview.append_column(col)
         col = gtk.TreeViewColumn("description", gtk.CellRendererText(), text=t.COL_DESCRIPTION)
         transfer_treeview.append_column(col)
@@ -186,13 +192,14 @@ class ProcessQueueThread(Thread):
 class TransfertQueueModel(gtk.ListStore):
     COL_JOB_ID=0
     COL_ACTION=1
-    COL_DESCRIPTION=2
-    COL_STATUS=3
-    COL_PROGRESS=4
-    COL_JOB=5
+    COL_ACTION_STOCK=2
+    COL_DESCRIPTION=3
+    COL_STATUS=4
+    COL_PROGRESS=5
+    COL_JOB=6
 
     def __init__(self):
-        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_FLOAT, gobject.TYPE_PYOBJECT)
+        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_FLOAT, gobject.TYPE_PYOBJECT)
         self.__cache = {}
         # lock to prevent more thread for updating the model at the same time
         self.__lock = Lock()
@@ -237,6 +244,8 @@ class TransfertQueueModel(gtk.ListStore):
         it = self.__get_iter(object_id)
         if it:
             self.set_value(it, column, value)
+            if column==COL_ACTION:
+                self.set_value(it, COL_ACTION_STOCK, TransferManager.icons(value))                
         else:
             debug_trace("trying to update non existing object %s from model" % object_id, sender=self)
         self.__lock.release()
@@ -257,4 +266,4 @@ class Job():
         """
             return a list of attributes. needed for model
         """
-        return [self.object_id, self.action, self.metadata.title, self.status, self.progress, self]
+        return [self.object_id, self.action, self.metadata.title, self.status, TransferManager.icons(self.status), self.progress, self]

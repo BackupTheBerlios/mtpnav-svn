@@ -4,7 +4,7 @@ RELEASE 0.1.0:
     FIXME:
     *       fix metadata and filenames encoding (accent and special charaters). Pass encode("utf-16") to pymtp
     *       warn when disconnecting during transfer (disconnect before exit)
-    *       seg fault when deleting many files (try gtk.gdk.threads_enter and leave)
+    *       seg fault when deleting many files (try gtk.gdk.threads_enter and leave. Try setting daemon to false)
     *       prevent deleting folders on first level
     *       prevent deleting system folders and files (waiting response from libmtp list)
     * FAIL: select the row under mouse when drag and dropping to file view (like in nautilus)
@@ -34,18 +34,18 @@ RELEASE 0.1.0:
     * DONE: use action and uimanager to create menu and toolbox (hide create dir for track view)
 
     PRERELEASE 0.1.a3: IN DEVELOPPMENT
-    *       get metadata from ogg files tags
+	* TEST: icons instead of SEND, CREATE, DEL... on transfer list
     *       rigth click context menus
-	*       icons instead of SEND, CREATE, DEL... on transfer list
-    *       trace debug and exceptions
-    *       translation
     *       separate folders from files in the folder view ? Folder would be single select (better for adding folder or sending file to folder)
-    *       add a whole directory (drag and drop + menu item). Only track added in track view
     *       add and remove playlist
     *       add tracks to playlist
     *       remove tracks from playlist
-    *       button to cancel job /retry on error at row level
+    *       get metadata from ogg files tags
+    *       trace debug and exceptions
+    *       translation
     *       get file from device
+    *       add a whole directory (drag and drop + menu item). Only track added in track view
+    *       button to cancel job /retry on error at row level
     *       preferences
     *       parametrize metadata from directory/file scheme if no tag
     *       display tooltips on track view and job list (artist, title genre...)
