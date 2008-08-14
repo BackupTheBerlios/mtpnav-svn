@@ -193,7 +193,7 @@ class MTPnavigator:
             notify_error(msg, title="Add folder", exception=None, sender=self.window)
             return
 
-        dlg = notifications.GetTextDialog(self.window, "Enter the new folder name:")
+        dlg = GetTextDialog(self.window, "Enter the new folder name:")
         new_folder_name = dlg.get_text()
         if new_folder_name and new_folder_name<>"":
             self.__transferManager.create_folder(new_folder_name, parent_id)
