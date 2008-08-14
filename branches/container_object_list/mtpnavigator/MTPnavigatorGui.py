@@ -306,10 +306,10 @@ class MTPnavigator:
         if mode == MODE_PLAYLIST_VIEW:
             track_model = self.__device_engine.get_track_listing_model()
             navigator_model = self.__device_engine.get_playlist_tree_model()
-        elif mode == self.MODE_ALBUM_VIEW:
+        elif mode == MODE_ALBUM_VIEW:
             track_model = self.__device_engine.get_track_listing_model()
             navigator_model = self.__device_engine.get_album_tree_model()
-        elif mode == self.MODE_FOLDER_VIEW:
+        elif mode == MODE_FOLDER_VIEW:
             track_model = self.__device_engine.get_file_listing_model()
             navigator_model = self.__device_engine.get_folder_tree_model()
         else:
@@ -383,7 +383,7 @@ class MTPnavigator:
         notebook = self.__getWidget("notebook_device_info")
         prog_bar = self.__getWidget("progressbar_disk_usage")
         self.__transferManager = TransferManager(self.__device_engine, tv, notebook,prog_bar)
-        self.activate_mode(MODE_PLAYLIST_VIEW)
+        self.activate_mode(MODE_FOLDER_VIEW)
 
     def on_disconnect_device(self, widget=None):
         self.__device_engine.disconnect_device()
