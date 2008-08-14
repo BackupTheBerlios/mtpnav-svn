@@ -131,6 +131,7 @@ class MTPnavigator:
         cols = [(DEBUG_ID, "object ID", t.OBJECT_ID, t.OBJECT_ID, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, False)
         ,(DEBUG_ID, "parent ID", t.PARENT_ID, t.PARENT_ID, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, False)
         ,(DEBUG_ID, "type", t.TYPE, t.TYPE, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, False)
+        ,(True, "file", t.FILE_NAME, t.FILE_NAME, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
         ,(True, "title", t.TITLE, t.TITLE, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
         ,(True, "artist", t.ARTIST, t.ARTIST, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
         ,(True, "album", t.ALBUM, t.ALBUM, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)

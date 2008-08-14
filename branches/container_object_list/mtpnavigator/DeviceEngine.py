@@ -88,19 +88,20 @@ class ObjectListingModel(gtk.ListStore):
     OBJECT_ID = 0
     PARENT_ID = 1
     TYPE = 2
-    TITLE = 3
-    ARTIST = 4
-    ALBUM = 5
-    GENRE = 6
-    SIZE_STR = 7
-    SIZE_INT = 8
-    DATE_STR = 9
-    DATE = 10
-    ICON = 11
-    METADATA = 12
+    FILE_NAME = 3
+    TITLE = 4
+    ARTIST = 5
+    ALBUM = 6
+    GENRE = 7
+    SIZE_STR = 8
+    SIZE_INT = 9
+    DATE_STR = 10
+    DATE = 11
+    ICON = 12
+    METADATA = 13
 
     def __init__(self, _device):
-        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)
+        gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)
         self.__filter_tracks = self.filter_new()
         self.__filter_tracks.set_visible_func(self.__filter_type, Metadata.TYPE_TRACK)
 
@@ -140,14 +141,14 @@ class ObjectListingModel(gtk.ListStore):
         if metadata.date:
             date_str = datetime.datetime.fromtimestamp(metadata.date).strftime('%a %d %b %Y')
         icon = "gtk-file"
-        if Metadata.TYPE_TRACK:
+        if metadata.type == Metadata.TYPE_TRACK:
             icon = "audio-x-generic"
 
         if DEBUG_LOCK: debug_trace(".append(): requesting lock (%s)" % m.id, sender=self)
         self.__lock.acquire()
         if DEBUG_LOCK: debug_trace(".append(): lock acquired (%s)" % m.id, sender=self)
 
-        row = [m.id, m.parent_id, m.type, m.title, m.artist, m.album, m.genre, util.format_filesize(m.filesize), m.filesize, date_str, m.date, icon, m]
+        row = [m.id, m.parent_id, m.type, m.filename, m.title, m.artist, m.album, m.genre, util.format_filesize(m.filesize), m.filesize, date_str, m.date, icon, m]
         iter = gtk.ListStore.append(self, row)
         self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()

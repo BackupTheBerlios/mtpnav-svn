@@ -82,7 +82,8 @@ class Metadata:
 def get_from_MTPTrack(track):
     m = Metadata()
     m.id = str(track.item_id)
-    m.type = TYPE_TRACK    
+    m.type = TYPE_TRACK
+    m.filename = track.filename
     m.parent_id = str(track.parent_id)
     m.title = track.title
     if not m.title or m.title=="": m.title=track.filename
@@ -98,7 +99,8 @@ def get_from_MTPFolder(folder):
     m = Metadata()
     m.id = str(folder.folder_id)
     m.parent_id = str(folder.parent_id)
-    m.type = TYPE_FOLDER 
+    m.type = TYPE_FOLDER
+    m.filename = folder.name
     m.title = folder.name
     if DEBUG: debug_trace("Metadata gotten from MTPfolder. They are %s" % m.to_string())
     return m
@@ -106,6 +108,7 @@ def get_from_MTPFolder(folder):
 def get_from_MTPFile(file):
     m = Metadata()
     m.type = TYPE_FILE
+    m.filename = file.filename
     m.id = str(file.item_id)
     m.parent_id = str(file.parent_id)
     m.title = file.filename
@@ -128,7 +131,7 @@ def get_from_file(path):
         m.type = TYPE_TRACK
     else:
         m.type = TYPE_FILE
-    
+
     if m.extension == ".mp3" and has_eyed3:
         return __get_from_MP3tags(m)
     elif m.extension == ".ogg":
