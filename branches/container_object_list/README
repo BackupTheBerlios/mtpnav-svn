@@ -1,0 +1,64 @@
+                            M T P   N a v i g a t o r                                
+                            
+                         / http:///mtpnav.berlios.de
+
+           - -- == === ================================= === == -- -
+    
+            Easily manage your MTP based portable media player
+                    Copyright (c) 2008 Jérôme Chabod
+                    
+ ==========================
+ License (see COPYING file)
+ ==========================
+
+ MTP navigator is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 3 of the License, or
+ (at your option) any later version.
+
+ MTP navigator is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+ ======================================
+ Dependencies for running MTP navigator
+ ======================================
+
+   * python (>= 2.4)
+   * python-gtk2 (>= 2.12)
+   * python-glade3
+   * pymtp (0.0.4 Pythonic binding to LibMTP to interact with MTP devices: http://nick125.com/projects/pymtp)
+ 
+ Additional dependencies for getting tags from audio files:
+ 
+   * python-eyed3 (for getting MP3 tags)
+   * vorbis-tools (for getting OGG tags)
+   
+ =============================
+ Install from a release tarbar
+ =============================
+  tar xzvf MTPnavigator-x.x.x.tar.gz
+  cd MTPnavigator-x.x.x
+  python setup.py install (as root)
+ 
+ launch with command "mtpnavigator"
+ 
+  =================================================
+  Additional dependencies for building from sources
+  =================================================
+     
+     * libgtk2.0-dev
+     * make
+ 
+  ==================================                     
+  Install from subversion repository
+  ==================================
+  svn checkout svn://svn.berlios.de/mtpnav/trunk mtpnavigator
+  cd mtpnavigator
+ 
+  launch with command "make test"
