@@ -110,7 +110,7 @@ class MTPDevice():
             raise DeviceEngine.DeviceError("Can't disconnect device")
 
     def send_track(self, metadata=None, callback=None):
-        parent = int(metadata.parent_id) 
+        parent = int(metadata.parent_id)
         try:
             new_id =self.__MTPDevice.send_track_from_file( metadata.path, metadata.filename, metadata.to_MTPTrack(), parent, callback=callback)
             # read metadata again, because they can be changed by the device (i.e. parent_id or paraneter not handled)
@@ -118,7 +118,7 @@ class MTPDevice():
         except IOError:
             raise IOError("Failed to process the file from the filesystem") #TRANSLATE
         except pymtp.CommandFailed:
-            if not self.__check_free_space(metadata.filesize): 
+            if not self.__check_free_space(metadata.filesize):
                 raise DeviceEngine.DeviceFullError("Not enought free space on device") #TRANSLATE
             if self.__file_exist(metadata.filename):
                 raise DeviceEngine.AlreadyOnDeviceError("Already exists on the device") #TRANSLATE
@@ -127,14 +127,15 @@ class MTPDevice():
         except Exception, exc:
             raise exc
         return metadata
-        
+
     def create_folder(self, metadata=None):
         parent = metadata.parent_id
+        assert parent<>0
         try:
             new_id =self.__MTPDevice.create_folder( metadata.filename, int(parent))
             metadata.id = new_id
         except pymtp.CommandFailed:
-            if not self.__check_free_space(metadata.filesize): 
+            if not self.__check_free_space(metadata.filesize):
                 raise DeviceEngine.DeviceFullError("Not enought free space on device") #TRANSLATE
             if self.__file_exist(metadata.filename):
                 raise DeviceEngine.AlreadyOnDeviceError("Already exists on the device") #TRANSLATE
@@ -142,17 +143,17 @@ class MTPDevice():
                 raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
         except Exception, exc:
             raise exc
-        return metadata    
+        return metadata
 
-    def remove_track(self, track_id):
-        t = int(track_id)
+    def remove_object(self, object_id):
+        o = int(object_id)
         try:
-            return str(self.__MTPDevice.delete_object(t))
+            return True #str(self.__MTPDevice.delete_object(o))
         except pymtp.CommandFailed:
             raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
         except Exception, exc:
             raise exc
-        return None            
+        return None
 
     def get_tracklisting(self):
         listing = []
@@ -183,7 +184,7 @@ class MTPDevice():
         except Exception, exc:
             raise exc
         return None
-            
+
     def get_filelisting(self):
         listing = []
         try:
@@ -219,7 +220,7 @@ class MTPDevice():
 
     def __check_free_space(self, objectsize):
         return objectsize <= self.__MTPDevice.get_freespace()
-        
+
     def __file_exist(self, filename):
         file_names = []
         for file in self.get_filelisting():

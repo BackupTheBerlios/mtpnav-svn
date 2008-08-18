@@ -34,6 +34,8 @@ MODE_FOLDER_VIEW = 1
 MODE_ALBUM_VIEW = 2
 
 class MTPnavigator:
+    #--- INITIALISATION ----------------------------------
+
     def __init__(self):
         self.__treeview_track = None
         self.__treeview_navigator = None
@@ -98,7 +100,7 @@ class MTPnavigator:
         self.__actiongroup_connected = gtk.ActionGroup('ActionConnected')
         self.__actiongroup_connected.add_actions([('CreateFolder', None, '_Create folder...', None, 'Create a folder into the selected folder', self.on_create_folder),
                                  ('SendFiles', gtk.STOCK_OPEN, '_Send files to device...', '<Control>S', 'Pickup files to transfer into the device', self.on_send_files),
-                                 ('Delete', gtk.STOCK_DELETE, '_Delete', 'Delete', 'Delete the selected objects from device', self.on_delete_files)
+                                 ('Delete', gtk.STOCK_DELETE, '_Delete', None, 'Delete the selected objects from device', self.on_delete_files)
                                  ])
         self.__actiongroup_connected.get_action('SendFiles').set_property('short-label', '_Send...')
         self.__actiongroup_connected.set_sensitive(False)
@@ -177,7 +179,11 @@ class MTPnavigator:
         col.set_sort_column_id(f.NAME)
         col.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         self.__treeview_navigator.append_column(col)
-        self.__treeview_navigator.expand_all()
+        self.__treeview_navigator.set_headers_visible(False)
+
+        #connect selection change event
+        self.__treeview_navigator.get_selection().connect('changed', self.on_navigator_selection_change)
+
         # add drag and drop support
         # @TODO: deactivate if not connected
         self.__treeview_navigator.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_MOVE)
@@ -186,35 +192,23 @@ class MTPnavigator:
         self.__treeview_navigator.connect('drag_data_received', self.on_drag_data_received)
 
 
-    #------ EVENTS ----------------------------------
+    #--- EVENTS ----------------------------------
+
+    def on_connect_device(self, widget=None):
+        self.connect_device()
+
+    def on_disconnect_device(self, widget=None):
+        self.disconnect_device()
+
     def on_create_folder(self, emiter):
-        # find the last selected row ? FIXME: what to do there if more rows are selected?
-        selrow_metadata = None
-        selected = self.__get_currently_selected_rows_metadata()
-        if selected:
-            selrow_metadata = selected[-1]
-        parent_id=0
-        if selrow_metadata:
-            parent_id = selrow_metadata.id
-            if DEBUG: debug_trace("create folder on item %s" % parent_id, sender=self)
-            # if the row is not a folder, take the parent which should be one
-            if selrow_metadata.type <> Metadata.TYPE_FOLDER:
-                parent_id  = selrow_metadata.parent_id
-                if DEBUG: debug_trace("It was not a folder. Its parent %s is taken instead." % parent_id, sender=self)
-
-        if parent_id==0:
-            # not allow to create folder on root
-            msg = "You can't add a folder to the root.\nSelect which folder to create a new one into"
-            notify_error(msg, title="Add folder", exception=None, sender=self.window)
-            return
-
+        parent_id = __get_currently_selected_folder()
         dlg = GetTextDialog(self.window, "Enter the new folder name:")
         new_folder_name = dlg.get_text()
         if new_folder_name and new_folder_name<>"":
             self.__transferManager.create_folder(new_folder_name, parent_id)
 
     def on_delete_files(self, emiter):
-        #store the files id to delete before stating deleted, else, path may change if more line are selecetd
+        #store the files id to delete before starting deleted, else, path may change if more line are selecetd
         to_del = []
         folder_count = 0
         for row in self.__get_currently_selected_rows_metadata():
@@ -256,11 +250,7 @@ class MTPnavigator:
         self.exit()
 
     def on_send_files(self, widget):
-        # find the last selected row ? FIXME: what to do there if more rows are selected?
-        selrow_metadata = None
-        selected = self.__get_currently_selected_rows_metadata()
-        if selected:
-            selrow_metadata = selected[-1]
+        parent_id = self.__get_currently_selected_folder()
 
         # create and open the file chooser
         title = "Select files to transfer to the device"
@@ -272,13 +262,19 @@ class MTPnavigator:
         response = fs.run()
         if response == gtk.RESPONSE_OK:
             for uri in fs.get_uris():
-                self.send_file(uri, selrow_metadata)
+                self.send_file(uri, parent_id)
         fs.destroy()
 
+    def on_navigator_selection_change(self, treeselection):
+        (model, iter) = treeselection.get_selected()
+        if not iter: return
+        metadata = model.get_metadata_from_iter(iter)
+        folder = metadata.id
+        if DEBUG: debug_trace("folder %s selected" % folder, sender=self)
+        self.__device_engine.get_object_listing_model().set_current_folder(folder)
+
     def on_drag_motion(self, treeview, drag_context, x, y, time):
-        return #FIXME
-        treeview.get_selection().set_mode( gtk.SELECTION_SINGLE)
-        treeview.set_hover_selection(True)
+        treeview.drag_highlight()
         treeview.set_hover_expand(True)
 
     def on_drag_drop(self, treeview, drag_context, x, y, time, data):
@@ -301,98 +297,21 @@ class MTPnavigator:
         context.finish(True, False, time)
         #FIXME: reject if not a file?
 
-    def activate_mode(self, mode):
-        if DEBUG: debug_trace("activating mode %i" % mode, sender=self)
-        track_model = None
-        if mode == MODE_PLAYLIST_VIEW:
-            track_model = self.__device_engine.get_track_listing_model()
-            navigator_model = self.__device_engine.get_playlist_tree_model()
-        elif mode == MODE_ALBUM_VIEW:
-            track_model = self.__device_engine.get_track_listing_model()
-            navigator_model = self.__device_engine.get_album_tree_model()
-        elif mode == MODE_FOLDER_VIEW:
-            track_model = self.__device_engine.get_file_listing_model()
-            navigator_model = self.__device_engine.get_folder_tree_model()
-        else:
-            if DEBUG: debug_trace("unknow mode mode %i" % mode, sender=self)
-            assert True
-        self.__treeview_track.set_model(track_model)
-        self.__treeview_navigator.set_model(navigator_model)
+    #--- CONTROL METHODS -----------------------
 
-    def send_file(self, uri, selrow_metadata):
-        """
-            selected_row: the metadata of the selected row
-        """
-        assert not selrow_metadata or type(selrow_metadata) is type(Metadata.Metadata())
-
-        parent_id=0
-        if selrow_metadata:
-            parent_id = selrow_metadata.id
-            if DEBUG: debug_trace("files where dropped on %s" % parent_id, sender=self)
-            # if the row is not a folder, take the parent which should be one
-            if selrow_metadata.type <> Metadata.TYPE_FOLDER:
-                parent_id  = selrow_metadata.parent_id
-                if DEBUG: debug_trace("It was not a folder. Its parent %s is taken instead." % parent_id, sender=self)
-
-        return self.__transferManager.send_file(uri, parent_id)
-
-    def exit(self):
-        self.window.destroy()
-        gtk.main_quit()
+    def __get_currently_selected_folder(self):
+        #FIXME: assert file mode
+        (model, iter)=self.__treeview_navigator.get_selection().get_selected()
+        metadata = model.get_metadata_from_iter(iter)
+        assert metadata.id and metadata.id <> 0
+        return metadata.id
 
     def __get_currently_selected_rows_metadata(self):
-        tv = None
-        selrow_metadata = None
-        #get the current treeview
-        if self.__treeview_folder.is_focus():
-            tv = self.__treeview_folder
-        elif self.__treeview_track.is_focus():
-            tv = self.__treeview_track
-        else:
-             return None
-        # find which (last) row was selected on which treeview
         selrow_metadata = []
-        (model, paths) = tv.get_selection().get_selected_rows()
-        if tv:
-            for path in paths:
-                selrow_metadata.append(model.get_metadata(path))
+        (model, paths) = self.__treeview_track.get_selection().get_selected_rows()
+        for path in paths:
+            selrow_metadata.append(self.__device_engine.get_object_listing_model().get_metadata(path))
         return selrow_metadata
-
-    def on_connect_device(self, widget=None):
-        self.__device_engine = None
-        if not pymtp_available:
-            msg = "pymtp is not or incorrectly installed on your system.\nThis is needed to access you device.\nGoto http://nick125.com/projects/pymtp to grab it and get installation instruction "
-            notify_error(msg, title="pymtp not available", sender=self.window)
-            self.__show_connected_state(False)
-            return
-
-        dev = MTPDevice()
-        self.__device_engine = DeviceEngine(dev)
-        try:
-            self.__device_engine.connect_device()
-        except Exception, exc:
-            msg = "No device was found.\nPlease verify it was correctly plugged"
-            notify_error(msg, title="No device found", exception=exc, sender=self.window)
-            self.__device_engine = None
-            self.__show_connected_state(False)
-            return
-
-        self.__show_connected_state(True)
-
-        # FIXME Do not pass gui elements. use observer/observable instead
-        tv = self.__getWidget("treeview_transfer_manager")
-        notebook = self.__getWidget("notebook_device_info")
-        prog_bar = self.__getWidget("progressbar_disk_usage")
-        self.__transferManager = TransferManager(self.__device_engine, tv, notebook,prog_bar)
-        self.activate_mode(MODE_FOLDER_VIEW)
-
-    def on_disconnect_device(self, widget=None):
-        self.__device_engine.disconnect_device()
-        self.__device_engine = None
-        self.__treeview_track.set_model(None)
-        self.__treeview_folder.set_model(None)
-        self.__show_connected_state(False)
-
 
     def __show_connected_state(self, is_connected):
         self.__actiongroup_connected.set_sensitive(is_connected)
@@ -437,6 +356,83 @@ class MTPnavigator:
             for info in infos:
                 text += "<b>" + info[0] + ":</b> " + info[1] + "\n"
             self.__getWidget("label_information").set_markup(text)
+
+    def connect_device(self):
+        self.__device_engine = None
+        if not pymtp_available:
+            msg = "pymtp is not or incorrectly installed on your system.\nThis is needed to access you device.\nGoto http://nick125.com/projects/pymtp to grab it and get installation instruction "
+            notify_error(msg, title="pymtp not available", sender=self.window)
+            self.__show_connected_state(False)
+            return
+
+        dev = MTPDevice()
+        self.__device_engine = DeviceEngine(dev)
+        try:
+            self.__device_engine.connect_device()
+        except Exception, exc:
+            msg = "No device was found.\nPlease verify it was correctly plugged"
+            notify_error(msg, title="No device found", exception=exc, sender=self.window)
+            self.__device_engine = None
+            self.__show_connected_state(False)
+            return
+
+        self.__show_connected_state(True)
+
+        # FIXME Do not pass gui elements. use observer/observable instead
+        tv = self.__getWidget("treeview_transfer_manager")
+        notebook = self.__getWidget("notebook_device_info")
+        prog_bar = self.__getWidget("progressbar_disk_usage")
+        self.__transferManager = TransferManager(self.__device_engine, tv, notebook,prog_bar)
+        self.activate_mode(MODE_FOLDER_VIEW)
+
+    def disconnect_device(self):
+        self.__device_engine.disconnect_device()
+        self.__device_engine = None
+        self.__treeview_track.set_model(None)
+        self.__treeview_folder.set_model(None)
+        self.__show_connected_state(False)
+
+    def activate_mode(self, mode):
+        if DEBUG: debug_trace("activating mode %i" % mode, sender=self)
+        track_model = None
+        if mode == MODE_PLAYLIST_VIEW:
+            track_model = self.__device_engine.get_track_listing_model()
+            navigator_model = self.__device_engine.get_playlist_tree_model()
+        elif mode == MODE_ALBUM_VIEW:
+            track_model = self.__device_engine.get_track_listing_model()
+            navigator_model = self.__device_engine.get_album_tree_model()
+        elif mode == MODE_FOLDER_VIEW:
+            track_model = self.__device_engine.get_file_listing_model()
+            navigator_model = self.__device_engine.get_folder_tree_model()
+        else:
+            if DEBUG: debug_trace("unknow mode mode %i" % mode, sender=self)
+            assert True
+        self.__treeview_track.set_model(track_model)
+        self.__treeview_navigator.set_model(navigator_model)
+        self.__treeview_navigator.get_selection().select_path(0)
+        self.__treeview_track.columns_autosize() # FIXME
+        self.__treeview_navigator.expand_all()
+
+    def send_file(self, uri, selrow_metadata):
+        """
+            selected_row: the metadata of the selected row
+        """
+        assert not selrow_metadata or type(selrow_metadata) is type(Metadata.Metadata())
+
+        parent_id=0
+        if selrow_metadata:
+            parent_id = selrow_metadata.id
+            if DEBUG: debug_trace("files where dropped on %s" % parent_id, sender=self)
+            # if the row is not a folder, take the parent which should be one
+            if selrow_metadata.type <> Metadata.TYPE_FOLDER:
+                parent_id  = selrow_metadata.parent_id
+                if DEBUG: debug_trace("It was not a folder. Its parent %s is taken instead." % parent_id, sender=self)
+
+        return self.__transferManager.send_file(uri, parent_id)
+
+    def exit(self):
+        self.window.destroy()
+        gtk.main_quit()
 
 if __name__ == "__main__":
     mtpnav = MTPnavigator()
