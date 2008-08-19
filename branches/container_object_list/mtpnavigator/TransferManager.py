@@ -67,10 +67,9 @@ class TransferManager():
                 self.__device_engine.get_object_listing_model().append(job.metadata)
             elif job.action==self.ACTION_DEL:
                 self.__device_engine.get_object_listing_model().remove_object(job.metadata.id)
-                self.__device_engine.get_container_tree_model().remove_object(job.metadata.id)
+                self.__device_engine.get_folder_tree_model().remove_object(job.metadata.id)
             elif job.action==self.ACTION_CREATE_FOLDER:
-                self.__device_engine.get_object_listing_model().append(job.metadata)
-                self.__device_engine.get_container_tree_model().append(job.metadata)
+                self.__device_engine.get_folder_tree_model().append(job.metadata)
 
     def __queue_job(self, job_type, metadata):
         assert type(metadata) is type(Metadata.Metadata())
