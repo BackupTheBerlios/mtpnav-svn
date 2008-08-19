@@ -44,11 +44,13 @@ class DeviceEngine:
         self.__device.connect()
         if DEBUG: debug_trace("Device connected successfully", sender=self)
         self.__object_listing_model = ObjectListingModel(self.__device)
-        self.__container_tree_model = ContainerTreeModel(self.__device)
+        self._folder_tree_model = FolderTreeModel(self.__device)
+        self._playlist_tree_model = PlaylistTreeModel(self.__device)
 
     def disconnect_device(self):
         self.__object_listing_model = None
-        self.__container_tree_model = None
+        self._folder_tree_model = None
+        self._playlist_tree_model = None
         self.__device.disconnect()
 
     def get_object_listing_model(self):
@@ -60,17 +62,11 @@ class DeviceEngine:
     def get_file_listing_model(self):
         return self.__object_listing_model.get_files()
 
-    def get_container_tree_model(self):
-        return self.__container_tree_model
-
     def get_folder_tree_model(self):
-        return self.__container_tree_model.get_folders()
+        return self._folder_tree_model
 
     def get_playlist_tree_model(self):
-        return self.__container_tree_model.get_playlists()
-
-    def get_album_tree_model(self):
-        return self.__container_tree_model.get_albums()
+        return self._playlist_tree_model
 
     def send_file(self, metadata, callback):
         return self.__device.send_track(metadata, callback)
@@ -110,13 +106,13 @@ class ObjectListingModel(gtk.ListStore):
         self.__lock = Lock()
 
         # add all tracks
-        tracks_list = _device.get_tracklisting()
+        tracks_list = _device.get_track_listing()
         for track_metadata in tracks_list:
             assert type(track_metadata) is type(Metadata.Metadata())
             self.append(track_metadata)
 
         # add other files (the ones which are not already registered as tracks)
-        file_list = _device.get_filelisting()
+        file_list = _device.get_file_listing()
         for file_metadata in file_list:
             assert type(file_metadata) is type(Metadata.Metadata())
             if not file_metadata.id in self.__cache.keys():
@@ -156,15 +152,12 @@ class ObjectListingModel(gtk.ListStore):
         date_str=""
         if metadata.date:
             date_str = datetime.datetime.fromtimestamp(metadata.date).strftime('%a %d %b %Y')
-        icon = "gtk-file"
-        if metadata.type == Metadata.TYPE_TRACK:
-            icon = "audio-x-generic"
 
         if DEBUG_LOCK: debug_trace(".append(): requesting lock (%s)" % m.id, sender=self)
         self.__lock.acquire()
         if DEBUG_LOCK: debug_trace(".append(): lock acquired (%s)" % m.id, sender=self)
 
-        row = [m.id, m.parent_id, m.type, m.filename, m.title, m.artist, m.album, m.genre, util.format_filesize(m.filesize), m.filesize, date_str, m.date, icon, m]
+        row = [m.id, m.parent_id, m.type, m.filename, m.title, m.artist, m.album, m.genre, util.format_filesize(m.filesize), m.filesize, date_str, m.date, m.get_icon(), m]
         iter = gtk.ListStore.append(self, row)
         self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()
@@ -205,24 +198,7 @@ class ContainerTreeModel(gtk.TreeStore):
         # lock to prevent more thread for updating the model at the same time
         self.__lock = Lock()
 
-        # add folder list
-        #FIXME: sort item so that parent is alway created before its childs
-        folder_list = _device.get_folder_list()
-        for dir in folder_list:
-            assert type(dir) is type(Metadata.Metadata())
-            self.append(dir)
-
-    def get_folders(self):
-        #TODO:
-        return self
-
-    def get_playlists(self):
-        #TODO:
-        return self
-
-    def get_albums(self):
-        #TODO:
-        return self
+        self.__fill()
 
     def __get_iter(self, object_id):
         try:
@@ -239,7 +215,7 @@ class ContainerTreeModel(gtk.TreeStore):
         parent=0
         parent = self.__get_iter(m.parent_id)
 
-        row = [m.id, m.parent_id, m.title, "folder", m]
+        row = [metadata.id, metadata.parent_id, metadata.title, metadata.get_icon(), metadata]
 
         iter = gtk.TreeStore.append(self, parent, row)
         self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
@@ -264,3 +240,23 @@ class ContainerTreeModel(gtk.TreeStore):
             debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
         self.__lock.release()
         if DEBUG_LOCK: debug_trace(".remove_object(): lock released (%s)" % object_id, sender=self)
+
+class FolderTreeModel(ContainerTreeModel):
+    def __fill(self):
+        # add folder list
+        #FIXME: sort item so that parent is alway created before its childs
+        folder_list = _device.get_folder_listing()
+        for dir in folder_list:
+            assert type(dir) is type(Metadata.Metadata())
+            self.append(dir)
+
+class PlaylistTreeModel(ContainerTreeModel):
+    def __fill(self):
+        # add playlists
+        for playlist in _device.get_playlist_listing():
+            assert type(playlist) is type(Metadata.Metadata())
+            self.append(playlist)
+            for track in _device.get_tracks_for_playlist(playlist): 
+                assert type(track) is type(Metadata.Metadata())
+                track.parent_id = playlist.id
+                self.append(track)

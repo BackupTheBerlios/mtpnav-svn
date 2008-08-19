@@ -20,9 +20,8 @@ except:
 TYPE_UNKNOW=0
 TYPE_FOLDER=1
 TYPE_PLAYLIST=2
-TYPE_FOLDER=3
-TYPE_FILE=4
-TYPE_TRACK=5
+TYPE_FILE=3
+TYPE_TRACK=4
 
 
 class Metadata:
@@ -47,6 +46,13 @@ class Metadata:
         self.rating = 0
         self.usecount = 0
         self.year = None
+        
+    def get_icon(self):
+        if self.type == TYPE_FOLDER: return "folder"
+        if self.type == TYPE_PLAYLIST: return "gtk-file" #TODO: find a better one
+        if self.type == TYPE_TRACK: return "audio-x-generic"
+        if self.type == TYPE_FILE: return "gtk-file"
+        return None
 
     def to_MTPTrack(self):
         mtp_metadata = pymtp.LIBMTP_Track()
@@ -104,6 +110,16 @@ def get_from_MTPFolder(folder):
     m.title = folder.name
     if DEBUG: debug_trace("Metadata gotten from MTPfolder. They are %s" % m.to_string())
     return m
+    
+def get_from_MTPPlaylist(playlist):
+    m = Metadata()
+    m.id = str(playlist.playlist_id)
+    m.parent_id = str(playlist.parent_id)
+    m.type = TYPE_PLAYLIST
+    m.filename = playlist.name
+    m.title = playlist.name
+    if DEBUG: debug_trace("Metadata gotten from MTPfolder. They are %s" % m.to_string())
+    return m    
 
 def get_from_MTPFile(file):
     m = Metadata()

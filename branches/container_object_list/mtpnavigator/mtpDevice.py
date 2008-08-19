@@ -7,6 +7,10 @@ import DeviceEngine
 import time
 import calendar
 
+ERRMSG_UNKNOW = "The device returned an unknow error" #TRANSLATE
+ERRMSG_DEVICE_FULL = "Not enought free space on device" #TRANSLATE
+ERRMSG_ALREADY_EXIST = "Already exists on the device" #TRANSLATE
+
 def date_to_mtp(date):
     """
     this function format the given date and time to a string representation
@@ -119,11 +123,11 @@ class MTPDevice():
             raise IOError("Failed to process the file from the filesystem") #TRANSLATE
         except pymtp.CommandFailed:
             if not self.__check_free_space(metadata.filesize):
-                raise DeviceEngine.DeviceFullError("Not enought free space on device") #TRANSLATE
+                raise DeviceEngine.DeviceFullError(ERRMSG_DEVICE_FULL)
             if self.__file_exist(metadata.filename):
-                raise DeviceEngine.AlreadyOnDeviceError("Already exists on the device") #TRANSLATE
+                raise DeviceEngine.AlreadyOnDeviceError(ERRMSG_ALREADY_EXIST)
             else:
-                raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
+                raise DeviceEngine.UnknowError(ERRMSG_UNKNOW) 
         except Exception, exc:
             raise exc
         return metadata
@@ -136,11 +140,11 @@ class MTPDevice():
             metadata.id = new_id
         except pymtp.CommandFailed:
             if not self.__check_free_space(metadata.filesize):
-                raise DeviceEngine.DeviceFullError("Not enought free space on device") #TRANSLATE
+                raise DeviceEngine.DeviceFullError(ERRMSG_DEVICE_FULL)
             if self.__file_exist(metadata.filename):
-                raise DeviceEngine.AlreadyOnDeviceError("Already exists on the device") #TRANSLATE
+                raise DeviceEngine.AlreadyOnDeviceError(ERRMSG_ALREADY_EXIST)
             else:
-                raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
+                raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
         except Exception, exc:
             raise exc
         return metadata
@@ -148,14 +152,14 @@ class MTPDevice():
     def remove_object(self, object_id):
         o = int(object_id)
         try:
-            return True #str(self.__MTPDevice.delete_object(o))
+            str(self.__MTPDevice.delete_object(o))
         except pymtp.CommandFailed:
-            raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
+            raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
         except Exception, exc:
             raise exc
         return None
 
-    def get_tracklisting(self):
+    def get_track_listing(self):
         listing = []
         try:
             listing = self.__MTPDevice.get_tracklisting()
@@ -165,12 +169,12 @@ class MTPDevice():
                 tracks.append(m)
             return tracks
         except pymtp.CommandFailed:
-            raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
+            raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
         except Exception, exc:
             raise exc
         return None
 
-    def get_folder_list(self):
+    def get_folder_listing(self):
         listing = []
         try:
             listing = self.__MTPDevice.get_folder_list().values()
@@ -180,12 +184,42 @@ class MTPDevice():
                 folders.append(m)
             return folders
         except pymtp.CommandFailed:
-            raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
+            raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
         except Exception, exc:
             raise exc
         return None
-
-    def get_filelisting(self):
+        
+    def get_playlist_listing(self):
+        listing = []
+        try:
+            listing = self.__MTPDevice.get_playlists()
+            playlists = []
+            for playlist in listing:
+                m = Metadata.get_from_MTPPlaylist(playlist)
+                playlists.append(m)
+            return playlists
+        except pymtp.CommandFailed:
+            raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
+        except Exception, exc:
+            raise exc
+        return None  
+        
+    def get_tracks_for_playlist(self, playlist): 
+        listing = []
+        try:
+            listing = self.__MTPDevice.get_playlist.tracks()
+            tracks = []
+            for track in listing:
+                m = Metadata.get_from_MTPTrack(track)
+                tracks.append(m)
+            return tracks
+        except pymtp.CommandFailed:
+            raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
+        except Exception, exc:
+            raise exc
+        return None
+        
+    def get_file_listing(self):
         listing = []
         try:
             listing = self.__MTPDevice.get_filelisting()
@@ -195,7 +229,7 @@ class MTPDevice():
                 files.append(m)
             return files
         except pymtp.CommandFailed:
-            raise DeviceEngine.UnknowError("The device returned an unknow error") #TRANSLATE
+            raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
         except Exception, exc:
             raise exc
         return None
@@ -211,11 +245,11 @@ class MTPDevice():
 
     def get_information(self):
         info = []
-        info.append(["Owner name", self.__MTPDevice.get_devicename()])
-        info.append(["Manufacturer", self.__MTPDevice.get_manufacturer()])
-        info.append(["Model name", self.__MTPDevice.get_modelname()])
-        info.append(["Serial number", self.__MTPDevice.get_serialnumber()])
-        info.append(["Firmware version", self.__MTPDevice.get_deviceversion()])
+        info.append(["Owner name", self.__MTPDevice.get_devicename()]) #TRANSLATE
+        info.append(["Manufacturer", self.__MTPDevice.get_manufacturer()]) #TRANSLATE
+        info.append(["Model name", self.__MTPDevice.get_modelname()]) #TRANSLATE
+        info.append(["Serial number", self.__MTPDevice.get_serialnumber()]) #TRANSLATE
+        info.append(["Firmware version", self.__MTPDevice.get_deviceversion()]) #TRANSLATE
         return info
 
     def __check_free_space(self, objectsize):
