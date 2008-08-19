@@ -46,7 +46,7 @@ class Metadata:
         self.rating = 0
         self.usecount = 0
         self.year = None
-        
+
     def get_icon(self):
         if self.type == TYPE_FOLDER: return "folder"
         if self.type == TYPE_PLAYLIST: return "gtk-file" #TODO: find a better one
@@ -110,16 +110,16 @@ def get_from_MTPFolder(folder):
     m.title = folder.name
     if DEBUG: debug_trace("Metadata gotten from MTPfolder. They are %s" % m.to_string())
     return m
-    
+
 def get_from_MTPPlaylist(playlist):
     m = Metadata()
     m.id = str(playlist.playlist_id)
-    m.parent_id = str(playlist.parent_id)
+    m.parent_id = 0
     m.type = TYPE_PLAYLIST
     m.filename = playlist.name
     m.title = playlist.name
     if DEBUG: debug_trace("Metadata gotten from MTPfolder. They are %s" % m.to_string())
-    return m    
+    return m
 
 def get_from_MTPFile(file):
     m = Metadata()

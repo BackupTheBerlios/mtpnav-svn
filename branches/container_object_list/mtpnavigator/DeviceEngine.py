@@ -197,8 +197,12 @@ class ContainerTreeModel(gtk.TreeStore):
         self.__cache = {}
         # lock to prevent more thread for updating the model at the same time
         self.__lock = Lock()
+        self._device = _device
 
-        self.__fill()
+        self.fill()
+
+    def fill(self):
+        pass
 
     def __get_iter(self, object_id):
         try:
@@ -242,21 +246,21 @@ class ContainerTreeModel(gtk.TreeStore):
         if DEBUG_LOCK: debug_trace(".remove_object(): lock released (%s)" % object_id, sender=self)
 
 class FolderTreeModel(ContainerTreeModel):
-    def __fill(self):
+    def fill(self):
         # add folder list
         #FIXME: sort item so that parent is alway created before its childs
-        folder_list = _device.get_folder_listing()
+        folder_list = self._device.get_folder_listing()
         for dir in folder_list:
             assert type(dir) is type(Metadata.Metadata())
             self.append(dir)
 
 class PlaylistTreeModel(ContainerTreeModel):
-    def __fill(self):
+    def fill(self):
         # add playlists
-        for playlist in _device.get_playlist_listing():
+        for playlist in self._device.get_playlist_listing():
             assert type(playlist) is type(Metadata.Metadata())
             self.append(playlist)
-            for track in _device.get_tracks_for_playlist(playlist): 
+            for track in self._device.get_tracks_for_playlist(playlist):
                 assert type(track) is type(Metadata.Metadata())
                 track.parent_id = playlist.id
                 self.append(track)

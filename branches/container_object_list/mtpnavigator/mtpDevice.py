@@ -127,7 +127,7 @@ class MTPDevice():
             if self.__file_exist(metadata.filename):
                 raise DeviceEngine.AlreadyOnDeviceError(ERRMSG_ALREADY_EXIST)
             else:
-                raise DeviceEngine.UnknowError(ERRMSG_UNKNOW) 
+                raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
         except Exception, exc:
             raise exc
         return metadata
@@ -188,7 +188,7 @@ class MTPDevice():
         except Exception, exc:
             raise exc
         return None
-        
+
     def get_playlist_listing(self):
         listing = []
         try:
@@ -202,12 +202,14 @@ class MTPDevice():
             raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
         except Exception, exc:
             raise exc
-        return None  
-        
-    def get_tracks_for_playlist(self, playlist): 
+        return None
+
+    def get_tracks_for_playlist(self, playlist):
         listing = []
         try:
-            listing = self.__MTPDevice.get_playlist.tracks()
+            print "ICI %s", playlist.id
+            playlist = self.__MTPDevice.get_playlist(int(playlist.id))
+            listing = playlist.tracks()
             tracks = []
             for track in listing:
                 m = Metadata.get_from_MTPTrack(track)
@@ -218,7 +220,7 @@ class MTPDevice():
         except Exception, exc:
             raise exc
         return None
-        
+
     def get_file_listing(self):
         listing = []
         try:

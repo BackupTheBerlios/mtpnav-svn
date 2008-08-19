@@ -2,6 +2,7 @@
 import pygtk
 pygtk.require("2.0")
 import gtk
+import gobject
 from DeviceEngine import DeviceEngine
 from TransferManager import TransferManager
 from notifications import *
@@ -58,14 +59,14 @@ class MTPnavigator:
 
         self.__create_track_view()
         self.__create_treeview_navigator()
-        self.__create_combo_change_mode()        
+        self.__create_combo_change_mode()
 
         self.window.show()
         self.on_connect_device()
 
     def __getWidget(self, widget_id):
         return self.gtkbuilder.get_object(widget_id)
-        
+
     def __create_uimanager(self):
         ui = '''
             <menubar name="MenuBar">
@@ -154,11 +155,11 @@ class MTPnavigator:
             if c[5]>0: col.set_fixed_width(c[5])
             col.set_resizable(c[6])
             self.__treeview_track.append_column(col)
-    
+
         # add support for del key
-        self.add_events(gtk.gdk.KEY_PRESS)
-        list_view.connect("key_press_event", self.on_keyboard_event)
-        
+        self.__treeview_track.add_events(gtk.gdk.KEY_PRESS)
+        self.__treeview_track.connect("key_press_event", self.on_keyboard_event)
+
         # add drag and drop support
         self.__treeview_track.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_MOVE)
         self.__treeview_track.connect('drag_data_received', self.on_drag_data_received)
@@ -189,8 +190,8 @@ class MTPnavigator:
         self.__treeview_navigator.get_selection().connect('changed', self.on_navigator_selection_change)
 
         # add support for del key
-        self.add_events(gtk.gdk.KEY_PRESS)
-        list_view.connect("key_press_event", self.on_keyboard_event)
+        self.__treeview_navigator.add_events(gtk.gdk.KEY_PRESS)
+        self.__treeview_navigator.connect("key_press_event", self.on_keyboard_event)
 
         # add drag and drop support
         self.__treeview_navigator.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_MOVE)
@@ -205,8 +206,8 @@ class MTPnavigator:
         combobox = self.__getWidget("combo_change_mode")
         combobox.set_model(liststore)
         cell = gtk.CellRendererPixbuf()
-        col.pack_start(cell, False)
-        col.set_attributes(cell, icon_name=0)
+        combobox.pack_start(cell, False)
+        combobox.set_attributes(cell, icon_name=0)
         cell = gtk.CellRendererText()
         combobox.pack_start(cell, True)
         combobox.add_attribute(cell, 'text', 1)
@@ -219,7 +220,7 @@ class MTPnavigator:
 
     def on_disconnect_device(self, widget=None):
         self.disconnect_device()
-        
+
     def on_keyboard_event(self, treeview, event):
         if gtk.gdk.keyval_name(event.keyval) == "Delete":
             self.delete_objects(treeview)
@@ -242,7 +243,7 @@ class MTPnavigator:
             if DEBUG: debug_trace("Delete action activated. No treeview has focus", sender=self)
             return
         self.delete_objects(treeview)
-    
+
     def on_button_cancel_job_clicked(self, emiter):
         (model, paths) = self.__transferManager.get_selection().get_selected_rows()
         to_cancel = [] #store the files id to delete before stating deleted, else, path may change if more line are selecetd
@@ -281,8 +282,8 @@ class MTPnavigator:
         folder = metadata.id
         if DEBUG: debug_trace("folder %s selected" % folder, sender=self)
         self.__device_engine.get_object_listing_model().set_current_folder(folder)
-        
-    def on_combo_change_mode_changed(combo):
+
+    def on_combo_change_mode_changed(self, combo):
         iter = combo.get_active_iter()
         mode = combo.get_model().get(iter, 2)[0]
         self.activate_mode(mode)
@@ -390,7 +391,7 @@ class MTPnavigator:
         notebook = self.__getWidget("notebook_device_info")
         prog_bar = self.__getWidget("progressbar_disk_usage")
         self.__transferManager = TransferManager(self.__device_engine, tv, notebook,prog_bar)
-        self.activate_mode(MODE_TRACK_VIEW)
+        self.activate_mode(MODE_PLAYLIST_VIEW)
 
     def disconnect_device(self):
         self.__device_engine.disconnect_device()
@@ -448,12 +449,12 @@ class MTPnavigator:
             if row.type == Metadata.TYPE_PLAYLIST: playlist_count+=1
             if row.type == Metadata.TYPE_FILE: file_count+=1
             if row.type == Metadata.TYPE_TRACK: track_count+=1
-                        
+
         if len(to_del)==0: return
 
         # show confirmation
         msg = "You are about to delete " #TRANSLATE
-        if track_count > 0:  msg += " %i tracks" % track_count 
+        if track_count > 0:  msg += " %i tracks" % track_count
         if file_count > 0:  msg += " %i files" % file_count
         if folder_count > 0: msg += " %i folders" % folder_count
         if playlist_count > 0: msg += " %i playlists" % playlist_count
@@ -469,7 +470,7 @@ class MTPnavigator:
         for metadata in to_del:
             if DEBUG: debug_trace("deleting file with ID %s (%s)" % (metadata.id, metadata.filename), sender=self)
             self.__transferManager.del_file(metadata)
-        
+
     def exit(self):
         self.window.destroy()
         gtk.main_quit()
