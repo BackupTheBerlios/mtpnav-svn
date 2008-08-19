@@ -34,16 +34,18 @@ RELEASE 0.1.0:
     * DONE: use action and uimanager to create menu and toolbox (hide create dir for track view)
 
     PRERELEASE 0.1.a3: IN DEVELOPPMENT
-	* TEST: icons instead of SEND, CREATE, DEL... on transfer list
+	* DONE: icons instead of SEND, CREATE, DEL... on transfer list
+    * BRANCH: separate folders from files in the folder view ? Folder would be single select (better for adding folder or sending file to folder)
     *       rigth click context menus
-    *       separate folders from files in the folder view ? Folder would be single select (better for adding folder or sending file to folder)
     *       add and remove playlist
     *       add tracks to playlist
     *       remove tracks from playlist
+    *       get file from device
+
+    PRERELEASE 0.1.a4: PLANNED
     *       get metadata from ogg files tags
     *       trace debug and exceptions
     *       translation
-    *       get file from device
     *       add a whole directory (drag and drop + menu item). Only track added in track view
     *       button to cancel job /retry on error at row level
     *       preferences
