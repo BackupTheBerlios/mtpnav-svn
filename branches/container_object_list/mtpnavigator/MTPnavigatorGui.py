@@ -225,6 +225,7 @@ class MTPnavigator:
             self.delete_objects(treeview)
 
     def on_create_folder(self, emiter):
+        #FIXME: assert file mode
         parent_id = __get_currently_selected_folder()
         dlg = GetTextDialog(self.window, "Enter the new folder name:")
         new_folder_name = dlg.get_text()
@@ -313,11 +314,11 @@ class MTPnavigator:
     #--- CONTROL METHODS -----------------------
 
     def __get_currently_selected_folder(self):
-        #FIXME: assert file mode
         (model, iter)=self.__treeview_navigator.get_selection().get_selected()
         metadata = model.get_metadata_from_iter(iter)
-        assert metadata.id and metadata.id <> 0
-        return metadata.id
+        if metadata.type == Metadata.TYPE_FOLDER:
+            return metadata.id
+        return 0
 
     def __show_connected_state(self, is_connected):
         self.__actiongroup_connected.set_sensitive(is_connected)
