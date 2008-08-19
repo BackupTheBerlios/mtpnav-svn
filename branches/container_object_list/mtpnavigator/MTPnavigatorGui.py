@@ -58,13 +58,14 @@ class MTPnavigator:
 
         self.__create_track_view()
         self.__create_treeview_navigator()
+        self.__create_combo_change_mode()        
 
         self.window.show()
         self.on_connect_device()
 
     def __getWidget(self, widget_id):
         return self.gtkbuilder.get_object(widget_id)
-
+        
     def __create_uimanager(self):
         ui = '''
             <menubar name="MenuBar">
@@ -191,6 +192,19 @@ class MTPnavigator:
         self.__treeview_navigator.connect('drag_drop', self.on_drag_drop)
         self.__treeview_navigator.connect('drag_data_received', self.on_drag_data_received)
 
+    def __create_combo_change_mode(self):
+        liststore = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT)
+        liststore.append(["audio-x-generic", "Playlists", MODE_PLAYLIST_VIEW]) #TRANSLATE
+        liststore.append(["folder", "Folders", MODE_FOLDER_VIEW]) #TRANSLATE
+        combobox = self.__getWidget("combo_change_mode")
+        combobox.set_model(liststore)
+        cell = gtk.CellRendererPixbuf()
+        col.pack_start(cell, False)
+        col.set_attributes(cell, icon_name=0)
+        cell = gtk.CellRendererText()
+        combobox.pack_start(cell, True)
+        combobox.add_attribute(cell, 'text', 1)
+        combobox.connect('changed', self.on_combo_change_mode_changed)
 
     #--- EVENTS ----------------------------------
 
@@ -272,6 +286,11 @@ class MTPnavigator:
         folder = metadata.id
         if DEBUG: debug_trace("folder %s selected" % folder, sender=self)
         self.__device_engine.get_object_listing_model().set_current_folder(folder)
+        
+    def on_combo_change_mode_changed(combo):
+        iter = combo.get_active_iter()
+        mode = combo.get_model().get(iter, 2)[0]
+        self.activate_mode(mode)
 
     def on_drag_motion(self, treeview, drag_context, x, y, time):
         treeview.drag_highlight()
@@ -383,7 +402,7 @@ class MTPnavigator:
         notebook = self.__getWidget("notebook_device_info")
         prog_bar = self.__getWidget("progressbar_disk_usage")
         self.__transferManager = TransferManager(self.__device_engine, tv, notebook,prog_bar)
-        self.activate_mode(MODE_FOLDER_VIEW)
+        self.activate_mode(MODE_TRACK_VIEW)
 
     def disconnect_device(self):
         self.__device_engine.disconnect_device()
