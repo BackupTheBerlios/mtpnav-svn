@@ -101,7 +101,7 @@ class MTPnavigator:
         self.__actiongroup_connected = gtk.ActionGroup('ActionConnected')
         self.__actiongroup_connected.add_actions([('CreateFolder', None, '_Create folder...', None, 'Create a folder into the selected folder', self.on_create_folder),
                                  ('SendFiles', gtk.STOCK_OPEN, '_Send files to device...', '<Control>S', 'Pickup files to transfer into the device', self.on_send_files),
-                                 ('Delete', gtk.STOCK_DELETE, '_Delete', None, 'Delete the selected objects from device', self.on_delete_files)
+                                 ('Delete', gtk.STOCK_DELETE, '_Delete', None, 'Delete the selected objects from device', self.on_delete_item_activate)
                                  ])
         self.__actiongroup_connected.get_action('SendFiles').set_property('short-label', '_Send...')
         self.__actiongroup_connected.set_sensitive(False)
@@ -154,9 +154,12 @@ class MTPnavigator:
             if c[5]>0: col.set_fixed_width(c[5])
             col.set_resizable(c[6])
             self.__treeview_track.append_column(col)
-
+    
+        # add support for del key
+        self.add_events(gtk.gdk.KEY_PRESS)
+        list_view.connect("key_press_event", self.on_keyboard_event)
+        
         # add drag and drop support
-        # @TODO: deactivate if not connected
         self.__treeview_track.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_MOVE)
         self.__treeview_track.connect('drag_data_received', self.on_drag_data_received)
 
@@ -185,8 +188,11 @@ class MTPnavigator:
         #connect selection change event
         self.__treeview_navigator.get_selection().connect('changed', self.on_navigator_selection_change)
 
+        # add support for del key
+        self.add_events(gtk.gdk.KEY_PRESS)
+        list_view.connect("key_press_event", self.on_keyboard_event)
+
         # add drag and drop support
-        # @TODO: deactivate if not connected
         self.__treeview_navigator.drag_dest_set(gtk.DEST_DEFAULT_ALL, [('text/uri-list', 0, 0)], gtk.gdk.ACTION_COPY | gtk.gdk.ACTION_MOVE)
         self.__treeview_navigator.connect('drag_motion', self.on_drag_motion)
         self.__treeview_navigator.connect('drag_drop', self.on_drag_drop)
@@ -213,6 +219,10 @@ class MTPnavigator:
 
     def on_disconnect_device(self, widget=None):
         self.disconnect_device()
+        
+    def on_keyboard_event(self, treeview, event):
+        if gtk.gdk.keyval_name(event.keyval) == "Delete":
+            self.delete_objects(treeview)
 
     def on_create_folder(self, emiter):
         parent_id = __get_currently_selected_folder()
@@ -221,33 +231,17 @@ class MTPnavigator:
         if new_folder_name and new_folder_name<>"":
             self.__transferManager.create_folder(new_folder_name, parent_id)
 
-    def on_delete_files(self, emiter):
-        #store the files id to delete before starting deleted, else, path may change if more line are selecetd
-        to_del = []
-        folder_count = 0
-        for row in self.__get_currently_selected_rows_metadata():
-            to_del.append(row)
-            if row.type == Metadata.TYPE_FOLDER:
-                folder_count+=1
-
-        if len(to_del)==0: return
-
-        # show confirmation
-        msg = "You are about to delete %i files" % (len(to_del) - folder_count)
-        if folder_count > 0:
-            msg += " and %i folders\nAll the files contained within the folders will be destroyed as well" % folder_count
-        confirm_dlg = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, msg)
-        confirm_dlg.set_title("Confirm delete")
-        response=confirm_dlg.run()
-        confirm_dlg.destroy()
-        if response <> gtk.RESPONSE_OK:
+    def on_delete_item_activate(self, emiter):
+        treeview = None
+        if __treeview_navigator.is_focus():
+            if DEBUG: debug_trace("Delete action activated. __treeview_navigator has focus", sender=self)
+        if __treeview_track.is_focus():
+            if DEBUG: debug_trace("Delete action activated. __treeview_track has focus", sender=self)
+        if not treeview:
+            if DEBUG: debug_trace("Delete action activated. No treeview has focus", sender=self)
             return
-
-        # send order to transfer manager
-        for metadata in to_del:
-            if DEBUG: debug_trace("deleting file with ID %s (%s)" % (metadata.id, metadata.filename), sender=self)
-            self.__transferManager.del_file(metadata)
-
+        self.delete_objects(treeview)
+    
     def on_button_cancel_job_clicked(self, emiter):
         (model, paths) = self.__transferManager.get_selection().get_selected_rows()
         to_cancel = [] #store the files id to delete before stating deleted, else, path may change if more line are selecetd
@@ -324,13 +318,6 @@ class MTPnavigator:
         metadata = model.get_metadata_from_iter(iter)
         assert metadata.id and metadata.id <> 0
         return metadata.id
-
-    def __get_currently_selected_rows_metadata(self):
-        selrow_metadata = []
-        (model, paths) = self.__treeview_track.get_selection().get_selected_rows()
-        for path in paths:
-            selrow_metadata.append(self.__device_engine.get_object_listing_model().get_metadata(path))
-        return selrow_metadata
 
     def __show_connected_state(self, is_connected):
         self.__actiongroup_connected.set_sensitive(is_connected)
@@ -449,6 +436,39 @@ class MTPnavigator:
 
         return self.__transferManager.send_file(uri, parent_id)
 
+    def delete_objects(self, treeview):
+        #store the files id to delete before starting deleted, else, path may change if more line are selecetd
+        to_del = []
+        (folder_count, file_count, playlist_count, track_count) = (0, 0, 0, 0)
+        (model, paths) = treeview.get_selection().get_selected_rows()
+        for path in paths:
+            to_del.append(treeview.get_model.get_metadata(path))
+            if row.type == Metadata.TYPE_FOLDER: folder_count+=1
+            if row.type == Metadata.TYPE_PLAYLIST: playlist_count+=1
+            if row.type == Metadata.TYPE_FILE: file_count+=1
+            if row.type == Metadata.TYPE_TRACK: track_count+=1
+                        
+        if len(to_del)==0: return
+
+        # show confirmation
+        msg = "You are about to delete " #TRANSLATE
+        if track_count > 0:  msg += " %i tracks" % track_count 
+        if file_count > 0:  msg += " %i files" % file_count
+        if folder_count > 0: msg += " %i folders" % folder_count
+        if playlist_count > 0: msg += " %i playlists" % playlist_count
+        if folder_count > 0 : msg += "\nAll the files contained within the folders will be destroyed as well"
+        confirm_dlg = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, msg)
+        confirm_dlg.set_title("Confirm delete")
+        response=confirm_dlg.run()
+        confirm_dlg.destroy()
+        if response <> gtk.RESPONSE_OK:
+            return
+
+        # send order to transfer manager
+        for metadata in to_del:
+            if DEBUG: debug_trace("deleting file with ID %s (%s)" % (metadata.id, metadata.filename), sender=self)
+            self.__transferManager.del_file(metadata)
+        
     def exit(self):
         self.window.destroy()
         gtk.main_quit()
