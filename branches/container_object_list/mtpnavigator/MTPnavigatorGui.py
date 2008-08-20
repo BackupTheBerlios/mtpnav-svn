@@ -391,7 +391,8 @@ class MTPnavigator:
         notebook = self.__getWidget("notebook_device_info")
         prog_bar = self.__getWidget("progressbar_disk_usage")
         self.__transferManager = TransferManager(self.__device_engine, tv, notebook,prog_bar)
-        self.activate_mode(MODE_PLAYLIST_VIEW)
+        self.activate_mode(MODE_FOLDER_VIEW)
+        self.__getWidget("combo_change_mode").set_active(MODE_FOLDER_VIEW)
 
     def disconnect_device(self):
         self.__device_engine.disconnect_device()

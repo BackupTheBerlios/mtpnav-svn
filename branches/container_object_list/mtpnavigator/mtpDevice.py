@@ -195,7 +195,6 @@ class MTPDevice():
     def get_tracks_for_playlist(self, playlist):
         tracks = []
         try:
-            print "ICI %s", playlist.id
             playlist = self.__MTPDevice.get_playlist(int(playlist.id))
             for track_id in playlist:
                 track = self.__MTPDevice.get_track_metadata(track_id)

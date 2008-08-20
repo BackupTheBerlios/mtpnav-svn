@@ -98,7 +98,10 @@ class ObjectListingModel(gtk.ListStore):
 
     def __init__(self, _device):
         gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)
-        self.__filter = self.filter_new()
+        self.__filter_tracks = self.filter_new()
+        self.__filter_tracks.set_visible_func(self.__filter_type, Metadata.TYPE_TRACK)
+        self.__filter_folders = self.filter_new()
+        self.__filter_folders.set_visible_func(self.__filter_folder)
         self.__current_folder_id = None
 
         self.__cache = {}
@@ -127,18 +130,14 @@ class ObjectListingModel(gtk.ListStore):
         return self.get_value(iter, self.PARENT_ID) == self.__current_folder_id
 
     def get_tracks(self):
-        self.__filter.set_visible_func(self.__filter_type, Metadata.TYPE_TRACK)
-        self.__filter.refilter()
-        return self.__filter
+        return self.__filter_tracks
 
     def get_files(self):
-        self.__filter.set_visible_func(self.__filter_folder)
-        self.__filter.refilter()
-        return self.__filter
+        return self.__filter_folders
 
     def set_current_folder(self, folder_id):
         self.__current_folder_id = folder_id
-        self.__filter.refilter()
+        self.__filter_folders.refilter()
 
     def __get_iter(self, object_id):
         try:
