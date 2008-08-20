@@ -128,8 +128,6 @@ class MTPDevice():
                 raise DeviceEngine.AlreadyOnDeviceError(ERRMSG_ALREADY_EXIST)
             else:
                 raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
-        except Exception, exc:
-            raise exc
         return metadata
 
     def create_folder(self, metadata=None):
@@ -145,8 +143,6 @@ class MTPDevice():
                 raise DeviceEngine.AlreadyOnDeviceError(ERRMSG_ALREADY_EXIST)
             else:
                 raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
-        except Exception, exc:
-            raise exc
         return metadata
 
     def remove_object(self, object_id):
@@ -155,8 +151,6 @@ class MTPDevice():
             str(self.__MTPDevice.delete_object(o))
         except pymtp.CommandFailed:
             raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
-        except Exception, exc:
-            raise exc
         return None
 
     def get_track_listing(self):
@@ -170,8 +164,6 @@ class MTPDevice():
             return tracks
         except pymtp.CommandFailed:
             raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
-        except Exception, exc:
-            raise exc
         return None
 
     def get_folder_listing(self):
@@ -185,8 +177,6 @@ class MTPDevice():
             return folders
         except pymtp.CommandFailed:
             raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
-        except Exception, exc:
-            raise exc
         return None
 
     def get_playlist_listing(self):
@@ -200,8 +190,6 @@ class MTPDevice():
             return playlists
         except pymtp.CommandFailed:
             raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
-        except Exception, exc:
-            raise exc
         return None
 
     def get_tracks_for_playlist(self, playlist):
@@ -217,8 +205,6 @@ class MTPDevice():
             return tracks
         except pymtp.CommandFailed:
             raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
-        except Exception, exc:
-            raise exc
         return None
 
     def get_file_listing(self):
@@ -232,8 +218,6 @@ class MTPDevice():
             return files
         except pymtp.CommandFailed:
             raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
-        except Exception, exc:
-            raise exc
         return None
 
     def get_diskusage(self):
