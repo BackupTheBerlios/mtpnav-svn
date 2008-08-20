@@ -227,7 +227,7 @@ class MTPnavigator:
 
     def on_create_folder(self, emiter):
         #FIXME: assert file mode
-        parent_id = __get_currently_selected_folder()
+        parent_id = self.__get_currently_selected_folder()
         dlg = GetTextDialog(self.window, "Enter the new folder name:")
         new_folder_name = dlg.get_text()
         if new_folder_name and new_folder_name<>"":
@@ -235,10 +235,12 @@ class MTPnavigator:
 
     def on_delete_item_activate(self, emiter):
         treeview = None
-        if __treeview_navigator.is_focus():
+        if self.__treeview_navigator.is_focus():
             if DEBUG: debug_trace("Delete action activated. __treeview_navigator has focus", sender=self)
-        if __treeview_track.is_focus():
+            treeview = self.__treeview_navigator
+        if self.__treeview_track.is_focus():
             if DEBUG: debug_trace("Delete action activated. __treeview_track has focus", sender=self)
+            treeview = self.__treeview_track
         if not treeview:
             if DEBUG: debug_trace("Delete action activated. No treeview has focus", sender=self)
             return
@@ -445,7 +447,11 @@ class MTPnavigator:
         (folder_count, file_count, playlist_count, track_count) = (0, 0, 0, 0)
         (model, paths) = treeview.get_selection().get_selected_rows()
         for path in paths:
-            to_del.append(treeview.get_model.get_metadata(path))
+            model = treeview.get_model()
+            if type(model) is type(gtk.TreeModelFilter()):
+                model = model.get_model()
+            row = model.get_metadata(path)
+            to_del.append(row)
             if row.type == Metadata.TYPE_FOLDER: folder_count+=1
             if row.type == Metadata.TYPE_PLAYLIST: playlist_count+=1
             if row.type == Metadata.TYPE_FILE: file_count+=1

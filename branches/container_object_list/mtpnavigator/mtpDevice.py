@@ -241,6 +241,6 @@ class MTPDevice():
 
     def __file_exist(self, filename):
         file_names = []
-        for file in self.get_filelisting():
+        for file in self.get_file_listing():
              file_names.append(file.title)
         return filename in file_names
