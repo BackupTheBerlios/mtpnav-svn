@@ -193,13 +193,12 @@ class MTPDevice():
         return None
 
     def get_tracks_for_playlist(self, playlist):
-        listing = []
+        tracks = []
         try:
             print "ICI %s", playlist.id
             playlist = self.__MTPDevice.get_playlist(int(playlist.id))
-            listing = playlist.tracks()
-            tracks = []
-            for track in listing:
+            for track_id in playlist:
+                track = self.__MTPDevice.get_track_metadata(track_id)
                 m = Metadata.get_from_MTPTrack(track)
                 tracks.append(m)
             return tracks
