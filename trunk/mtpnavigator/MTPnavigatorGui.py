@@ -28,6 +28,8 @@ if "--local" in sys.argv or "-l" in sys.argv: DATA_PATH = "./data"
 XML_GUI_FILE = os.path.join(DATA_PATH, "MTPnavigator.xml")
 
 COL_DEFAULT_WIDTH = 200
+TEXT_COLOR_GRAY = gtk.gdk.color_parse('#aaaaaa')
+TEXT_COLOR_DEFAULT = None
 
 #display modes
 MODE_PLAYLIST_VIEW = 0
@@ -42,6 +44,7 @@ class MTPnavigator:
         self.__treeview_navigator = None
         self.__device_engine = None
         self.__transferManager = None
+        self.__current_mode = None
 
         # bind to glade
         self.gtkbuilder = gtk.Builder()
@@ -49,6 +52,8 @@ class MTPnavigator:
         self.gtkbuilder.connect_signals(self)
         self.window = self.__getWidget("window_mtpnav")
         uimanager = self.__create_uimanager()
+
+        TEXT_COLOR_DEFAULT = self.__getWidget("entry_add_object").get_style().text[gtk.STATE_NORMAL]
 
         wwidth=800  #TODO save size
         wheight=600
@@ -77,7 +82,6 @@ class MTPnavigator:
                     <menuitem action="Quit"/>
                 </menu>
                 <menu  action="Device">
-                    <menuitem action="CreateFolder"/>
                     <menuitem action="SendFiles"/>
                     <menuitem action="Delete"/>
                 </menu>
@@ -280,35 +284,36 @@ class MTPnavigator:
         iter = combo.get_active_iter()
         mode = combo.get_model().get(iter, 2)[0]
         self.activate_mode(mode)
-        
-    def on_button_add_object_clicked(self, button):
+
+    def on_btn_add_object_clicked(self, button):
         new_object = self.__getWidget("entry_add_object").get_text()
         self.__empty_new_object_entry()
         if new_object=="" or new_object==self.__add_object_empty_text:
             msg = "Please, enter a name for the new element" #TRANSLATE
-            gtk.MessageDialog(self.window, gtk.DIALOG_MODAL, gtk.MESSAGE_WARNING, gtk.BUTTONS_CLOSE, msg)        
+            gtk.MessageDialog(self.window, gtk.DIALOG_MODAL, gtk.MESSAGE_WARNING, gtk.BUTTONS_CLOSE, msg)
             return
-        if self.__current_mode == MODE_PLAYLIST_VIEW:
-            self.__create_folder(new_object)            
-        elif self.__current_mode == MODE_FOLDER_VIEW:
+        if self.__current_mode == MODE_FOLDER_VIEW:
+            self.__create_folder(new_object)
+        elif self.__current_mode == MODE_PLAYLIST_VIEW:
             self.__create_playlist(new_object)
         else:
             if DEBUG: debug_trace("Unknow mode %i" % self.__current_mode, sender = self)
             assert True
 
-    def on_entry_add_object_changed(self, widget, event):
+    def on_entry_add_object_changed(self, widget, *args):
         active = widget.get_text() not in ('', self.__add_object_empty_text)
-        self.__getWidget("button_add_object").set_sensitive(active)
-    
-    def entry_add_object_focus(self, widget, event):
-        widget.modify_text(gtk.STATE_NORMAL, self.default_entry_text_color)
+        self.__getWidget("btn_add_object").set_sensitive(active)
+
+    def on_entry_add_object_focus_in_event(self, widget, event):
+        #widget.modify_text(gtk.STATE_NORMAL, self.default_entry_text_color)
         if widget.get_text() == self.__add_object_empty_text:
+            widget.modify_text(gtk.STATE_NORMAL, TEXT_COLOR_DEFAULT)
             widget.set_text('')
 
-    def entry_add_object_unfocus(self, widget, event):
+    def on_entry_add_object_focus_out_event(self, widget, event):
         if widget.get_text() == '':
             widget.set_text(self.__add_object_empty_text)
-            widget.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse('#aaaaaa'))
+            widget.modify_text(gtk.STATE_NORMAL, TEXT_COLOR_GRAY)
 
     def on_drag_motion(self, treeview, drag_context, x, y, time):
         treeview.drag_highlight()
@@ -346,7 +351,7 @@ class MTPnavigator:
     def __create_folder(self, new_folder_name):
         parent_id = self.__get_currently_selected_folder()
         self.__transferManager.create_folder(new_folder_name, parent_id)
-        
+
     def __create_playlist(self, new_folder_name):
         self.__transferManager.create_playlist(new_folder_name)
 
@@ -393,12 +398,12 @@ class MTPnavigator:
             for info in infos:
                 text += "<b>" + info[0] + ":</b> " + info[1] + "\n"
             self.__getWidget("label_information").set_markup(text)
-            
+
     def __empty_new_object_entry(self, ):
         if self.__current_mode == MODE_PLAYLIST_VIEW:
-            empty_text = "Enter new playlist name..." #TRANSLATE
+            empty_text = "New playlist name..." #TRANSLATE
         elif self.__current_mode == MODE_FOLDER_VIEW:
-            empty_text = "Enter new folder name..." #TRANSLATE
+            empty_text = "new folder name..." #TRANSLATE
         else:
             if DEBUG: debug_trace("Unknow mode %i" % self.__current_mode, sender = self)
             assert True
@@ -406,8 +411,8 @@ class MTPnavigator:
         self.__add_object_empty_text = empty_text
         entry = self.__getWidget("entry_add_object")
         entry.set_text(empty_text)
-        entry.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse('#aaaaaa'))
-        button = self.__getWidget("button_add_object")
+        entry.modify_text(gtk.STATE_NORMAL, TEXT_COLOR_GRAY)
+        button = self.__getWidget("btn_add_object")
         button.set_sensitive(False)
 
     def connect_device(self):
@@ -463,8 +468,9 @@ class MTPnavigator:
         self.__treeview_navigator.get_selection().select_path(0)
         self.__treeview_track.columns_autosize() # FIXME
         self.__treeview_navigator.expand_all()
-        self.__empty_new_object_entry()
         self.__current_mode = mode
+        self.__empty_new_object_entry()
+
 
     def send_file(self, uri, selrow_metadata):
         """

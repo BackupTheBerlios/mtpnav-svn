@@ -7,7 +7,7 @@
 #
 
 """
-	PyMTP is a pythonic wrapper around libmtp, making it a bit more 
+	PyMTP is a pythonic wrapper around libmtp, making it a bit more
 	friendly to use in python
 
 	Example Usage (or see examples/):
@@ -36,45 +36,45 @@ import ctypes
 import ctypes.util
 
 # NOTE: This code *may* work on windows, I don't have a win32 system to test
-# this on. 
-_module_path = ctypes.util.find_library("mtp") 
+# this on.
+_module_path = ctypes.util.find_library("mtp")
 _libmtp = ctypes.CDLL(_module_path)
 
 # ----------
 # Error Definitions
 # ----------
-class NoDeviceConnected(Exception): 
+class NoDeviceConnected(Exception):
 	"""
-		Raised when there isn't a device connected to the USB bus 
+		Raised when there isn't a device connected to the USB bus
 	"""
 
 	pass
 
 class AlreadyConnected(Exception):
 	"""
-		Raised when we're already connected to a device and there is 
+		Raised when we're already connected to a device and there is
 		an attempt to connect
 	"""
 
 	pass
-	
-class UnsupportedCommand(Exception): 
+
+class UnsupportedCommand(Exception):
 	"""
-		Raised when the connected device does not support the command 
+		Raised when the connected device does not support the command
 		issued
 	"""
 
 	pass
 
-class CommandFailed(Exception): 
+class CommandFailed(Exception):
 	"""
-		Raised when the connected device returned an error when trying 
+		Raised when the connected device returned an error when trying
 		to execute a command
 	"""
 
 	pass
 
-class NotConnected(Exception): 
+class NotConnected(Exception):
 	"""
 		Raised when a command is called and the device is not connected
 	"""
@@ -180,7 +180,7 @@ class LIBMTP_Track(ctypes.Structure):
 
 	def __repr__(self):
 		return "%s - %s (%s)" % (self.artist, self.title, self.item_id)
-		
+
 LIBMTP_Track._fields_ = [("item_id", ctypes.c_uint32),
 			("parent_id", ctypes.c_uint32),
 			("title", ctypes.c_char_p),
@@ -234,8 +234,8 @@ class LIBMTP_Playlist(ctypes.Structure):
 
 	def __setitem__(self, key, value):
 		"""
-			This allows the user to manipulate the playlist like a 
-			list. However, this will only modify existing objects, 
+			This allows the user to manipulate the playlist like a
+			list. However, this will only modify existing objects,
 			you can't try to set a key outside of the current size.
 		"""
 
@@ -257,7 +257,7 @@ class LIBMTP_Playlist(ctypes.Structure):
 			self.tracks[i] = self.tracks[i + 1]
 
 		self.no_tracks -= 1
-	
+
 	def append(self, value):
 		"""
 			This function appends a track to the end of the tracks
@@ -305,7 +305,7 @@ LIBMTP_Filetype = {
 	"OGG":			ctypes.c_int(3),
 	"AUDIBLE":		ctypes.c_int(4),
 	"MP4":			ctypes.c_int(5),
-	"UNDEF_AUDIO":		ctypes.c_int(6),	
+	"UNDEF_AUDIO":		ctypes.c_int(6),
 	"WMV":			ctypes.c_int(7),
 	"AVI":			ctypes.c_int(8),
 	"MPEG":			ctypes.c_int(9),
@@ -363,7 +363,7 @@ LIBMTP_Error_Number = {
 # ----------
 # Type Definitions
 # ----------
- 
+
 _libmtp.LIBMTP_Get_Friendlyname.restype = ctypes.c_char_p
 _libmtp.LIBMTP_Get_Serialnumber.restype = ctypes.c_char_p
 _libmtp.LIBMTP_Get_Modelname.restype = ctypes.c_char_p
@@ -389,12 +389,12 @@ Progressfunc = ctypes.CFUNCTYPE(ctypes.c_void_p, ctypes.c_uint64, ctypes.c_uint6
 
 class MTP:
 	"""
-		The MTP object 
+		The MTP object
 		This is the main wrapper around libmtp
 	"""
 
 	def __init__(self):
-		""" 
+		"""
 			Initializes the MTP object
 
 			@rtype: None
@@ -420,7 +420,7 @@ class MTP:
 
 	def connect(self):
 		"""
-			Initializes the MTP connection to the device 
+			Initializes the MTP connection to the device
 
 			@rtype: None
 			@return: None
@@ -435,7 +435,7 @@ class MTP:
 		if not self.device:
 			self.device = None
 			raise NoDeviceConnected
-			
+
 	def disconnect(self):
 		"""
 			Disconnects the MTP device and deletes the self.device object
@@ -453,18 +453,18 @@ class MTP:
 
 	def get_devicename(self):
 		"""
-			Returns the connected device's 'friendly name' (or 
+			Returns the connected device's 'friendly name' (or
 			known as the owner name)
 
 			@rtype: string
 			@return: The connected device's 'friendly name'
 		"""
 
-		if (self.device == None): 
+		if (self.device == None):
 			raise NotConnected
 
 		return self.mtp.LIBMTP_Get_Friendlyname(self.device)
-		
+
 	def set_devicename(self, name):
 		"""
 			Changes the connected device's 'friendly name' to name
@@ -511,11 +511,11 @@ class MTP:
 
 	def get_batterylevel(self):
 		"""
-			Returns the connected device's maximum and current 
+			Returns the connected device's maximum and current
 			battery levels
 
 			@rtype: tuple
-			@return: The connected device's maximum and current 
+			@return: The connected device's maximum and current
 			 battery levels ([0] is maximum, [1] is current)
 		"""
 
@@ -530,12 +530,12 @@ class MTP:
 
 		if (ret != 0):
 			raise CommandFailed
-			
+
 		return (maximum_level.value, current_level.value)
 
 	def get_modelname(self):
 		"""
-			Returns the connected device's model name (such 
+			Returns the connected device's model name (such
 			as "Zen V Plus")
 
 			@rtype: string
@@ -549,11 +549,11 @@ class MTP:
 
 	def get_deviceversion(self):
 		"""
-			Returns the connected device's version (such as 
+			Returns the connected device's version (such as
 			firmware/hardware version)
 
 			@rtype: string
-			@return: Returns the connect device's version 
+			@return: Returns the connect device's version
 			 information
 		"""
 
@@ -564,7 +564,7 @@ class MTP:
 
 	def get_filelisting(self, callback=None):
 		"""
-			Returns the connected device's file listing as a tuple, 
+			Returns the connected device's file listing as a tuple,
 			containing L{LIBMTP_File} objects.
 
 			@type callback: function or None
@@ -592,7 +592,7 @@ class MTP:
 			next = next.contents.next
 
 		return ret
-	
+
 	def get_filetype_description(self, filetype):
 		"""
 			Returns the description of the filetype
@@ -612,8 +612,8 @@ class MTP:
 		"""
 			Returns the file metadata from the connected device
 
-			As per the libmtp documentation, calling this function 
-			repeatly is not recommended, as it is slow and creates 
+			As per the libmtp documentation, calling this function
+			repeatly is not recommended, as it is slow and creates
 			a large amount of USB traffic.
 
 			@type file_id: int
@@ -631,7 +631,7 @@ class MTP:
 			raise ObjectNotFound
 
 		return ret.contents
-	
+
 	def get_tracklisting(self, callback=None):
 		"""
 			Returns tracks from the connected device
@@ -687,7 +687,7 @@ class MTP:
 
 	def get_file_to_file(self, file_id, target, callback=None):
 		"""
-			Downloads the file from the connected device and stores it at the 
+			Downloads the file from the connected device and stores it at the
 			target location
 
 			@type file_id: int
@@ -695,17 +695,17 @@ class MTP:
 			@type target: str
 			@param target: The location to place the file
 			@type callback: function or None
-			@param callback: The function provided to libmtp to 
-			 receive callbacks from ptp. Callback must take two 
+			@param callback: The function provided to libmtp to
+			 receive callbacks from ptp. Callback must take two
 			 arguments, total and sent (in bytes)
 		"""
 
 		if (self.device == None):
 			raise NotConnected
-			
+
 		if (callback != None):
 			callback = Progressfunc(callback)
-			
+
 		ret = self.mtp.LIBMTP_Get_File_To_File(self.device, file_id, target, callback, None)
 
 		if (ret != 0):
@@ -714,9 +714,9 @@ class MTP:
 
 	def get_track_to_file(self, track_id, target, callback=None):
 		"""
-			Downloads the track from the connected device and stores it at 
+			Downloads the track from the connected device and stores it at
 			the target location
-			
+
 			@type track_id: int
 			@param track_id: The unique numeric track id
 			@type target: str
@@ -729,7 +729,7 @@ class MTP:
 
 		if (self.device == None):
 			raise NotConnected
-			
+
 		if (callback != None):
 			callback = Progressfunc(callback)
 
@@ -741,10 +741,10 @@ class MTP:
 
 	def find_filetype(self, filename):
 		"""
-			Attempts to guess the filetype off the filename. Kind of 
+			Attempts to guess the filetype off the filename. Kind of
 			inaccurate and should be trusted with a grain of salt. It
 			works in most situations, though.
-			
+
 			@type filename: str
 			@param filename: The filename to attempt to guess from
 			@rtype: int
@@ -823,19 +823,19 @@ class MTP:
 		"""
 			Sends a file from the filesystem to the connected device
 			and stores it at the target filename inside the parent.
-		
-			This will attempt to "guess" the filetype with 
+
+			This will attempt to "guess" the filetype with
 			find_filetype()
-		
+
 			@type source: str
 			@param source: The path on the filesystem where the file resides
 			@type target: str
 			@param target: The target filename on the device
 			@type parent: int or 0
-			@param parent: The parent directory for the file to go 
+			@param parent: The parent directory for the file to go
 			 into; If 0, the file goes into main directory
 			@type callback: function or None
-			@param callback: The function provided to libmtp to 
+			@param callback: The function provided to libmtp to
 			 receive callbacks from ptp. Callback function must
 			 take two arguments, sent and total (in bytes)
 			@rtype: int
@@ -847,7 +847,7 @@ class MTP:
 
 		if (os.path.isfile(source) == False):
 			raise IOError
-			
+
 		if (callback != None):
 			callback = Progressfunc(callback)
 
@@ -863,12 +863,12 @@ class MTP:
 			raise CommandFailed
 
 		return metadata.item_id
-		
+
 	def send_track_from_file(self, source, target, metadata, parent=0, callback=None):
 		"""
-			Sends a track from the filesystem to the connected 
+			Sends a track from the filesystem to the connected
 			device
-			
+
 			@type source: str
 			@param source: The path where the track resides
 			@type target: str
@@ -891,10 +891,10 @@ class MTP:
 
 		if (os.path.exists(source) == None):
 			raise IOError
-		
+
 		if callback:
 			callback = Progressfunc(callback)
-		
+
 		metadata.filename = target
 		metadata.parent_id = parent
 		metadata.filetype = self.find_filetype(source)
@@ -908,7 +908,7 @@ class MTP:
 			raise CommandFailed
 
 		return metadata.item_id
-					
+
 	def get_freespace(self):
 		"""
 			Returns the amount of free space on the connected device
@@ -934,7 +934,7 @@ class MTP:
 
 		self.mtp.LIBMTP_Get_Storage(self.device, 0)
 		return self.device.contents.storage.contents.MaxCapacity
-		
+
 	def get_usedspace(self):
 		"""
 			Returns the amount of used space on the connected device
@@ -964,8 +964,8 @@ class MTP:
 		self.mtp.LIBMTP_Get_Storage(self.device, 0)
 		storage = self.device.contents.storage.contents
 
-		# Why don't we call self.get_totalspace/self.get_usedspace 
-		# here? That would require 3 *more* calls to 
+		# Why don't we call self.get_totalspace/self.get_usedspace
+		# here? That would require 3 *more* calls to
 		# LIBMTP_Get_Storage
 		usedspace = storage.MaxCapacity - storage.FreeSpaceInBytes
 		return ((float(usedspace) / float(storage.MaxCapacity)) * 100)
@@ -992,7 +992,7 @@ class MTP:
 			Returns a tuple filled with L{LIBMTP_Playlist} objects
 			from the connected device.
 
-			The main gotcha of this function is that the tracks 
+			The main gotcha of this function is that the tracks
 			variable of LIBMTP_Playlist isn't iterable (without
 			segfaults), so, you have to iterate over the no_tracks
 			(through range or xrange) and access it that way (i.e.
@@ -1044,7 +1044,7 @@ class MTP:
 			passed.
 
 			@type metadata: LIBMTP_Playlist
-			@param metadata: A LIBMTP_Playlist object describing 
+			@param metadata: A LIBMTP_Playlist object describing
 			 the playlist
 			@type parent: int or 0
 			@param parent: The parent ID or 0 for base
@@ -1054,10 +1054,10 @@ class MTP:
 
 		if (self.device == None):
 			raise NotConnected
-		
+
 		ret = self.mtp.LIBMTP_Create_New_Playlist(self.device, ctypes.pointer(metadata), parent)
 
-		if (ret == 0):
+		if (ret != 0):
 			self.debug_stack()
 			raise CommandFailed
 
@@ -1065,10 +1065,10 @@ class MTP:
 
 	def update_playlist(self, metadata):
 		"""
-			Updates a playlist based on the supplied metadata. 
-			
+			Updates a playlist based on the supplied metadata.
+
 			When updating the tracks field in a playlist, this
-			function will replace the playlist's tracks with 
+			function will replace the playlist's tracks with
 			the tracks supplied in the metadata object. This
 			means that the previous tracks in the playlist
 			will be overwritten.
@@ -1077,7 +1077,7 @@ class MTP:
 			@param metadata: A LIBMTP_Playlist object describing
 			 the updates to the playlist.
 		"""
-		
+
 		if (self.device == None):
 			raise NotConnected
 
@@ -1096,14 +1096,14 @@ class MTP:
 			@return: A dict of the folders on the device where
 			 the folder ID is the key.
 		"""
-		
+
 		if (self.device == None):
 			raise NotConnected
 
 		folders = self.mtp.LIBMTP_Get_Folder_List(self.device)
 		next = folders
 		# List of folders, key being the folder ID
-		ret = {}		
+		ret = {}
 		# Iterate over the folders to grab the first-level parents
 		while True:
 			next = next.contents
@@ -1128,11 +1128,11 @@ class MTP:
 				## and we aren't at the parent, go back to
 				## the parent.
 			 	next = self.mtp.LIBMTP_Find_Folder(folders, int(next.parent_id))
-		
+
 			else:
 				## We have scanned everything, let's go home.
 				break
-		
+
 		return ret
 
 	def get_parent_folders(self):
@@ -1141,7 +1141,7 @@ class MTP:
 			@rtype: list
 			@return: Returns a list of the parent folders
 		"""
-				
+
 		if (self.device == None):
 			raise NotConnected
 
@@ -1175,9 +1175,9 @@ class MTP:
 
 	def create_folder(self, name, parent=0):
 		"""
-			This creates a new folder in the parent. If the parent 
+			This creates a new folder in the parent. If the parent
 			is 0, it will go in the main directory.
-			
+
 			@type name: str
 			@param name: The name for the folder
 			@type parent: int
@@ -1188,12 +1188,12 @@ class MTP:
 
 		if (self.device == None):
 			raise NotConnected
-			
+
 		ret = self.mtp.LIBMTP_Create_Folder(self.device, name, parent)
 
 		if (ret == 0):
 			self.debug_stack()
-			raise CommandFailed 
+			raise CommandFailed
 
 		return ret
 
@@ -1207,7 +1207,7 @@ class MTP:
 
 		if (self.device == None):
 			raise NotConnected
-		
+
 		ret = self.mtp.LIBMTP_Get_Errorstack(self.device)
 
 		if (ret != 0):

@@ -145,10 +145,12 @@ class MTPDevice():
                 raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
         return metadata
 
-    def create_playlist(self, metadata=None):
+    def create_playlist(self, metadata):
+        mtp_metadata = pymtp.LIBMTP_Playlist()
+        mtp_metadata.name = metadata.filename
         parent = metadata.parent_id
         try:
-            new_id =self.__MTPDevice.create_new_playlist( metadata.filename, int(parent))
+            new_id =self.__MTPDevice.create_new_playlist( mtp_metadata, int(parent))
             metadata.id = new_id
         except pymtp.CommandFailed:
             if not self.__check_free_space(metadata.filesize):
