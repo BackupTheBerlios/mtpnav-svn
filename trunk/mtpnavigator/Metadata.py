@@ -20,9 +20,8 @@ except:
 TYPE_UNKNOW=0
 TYPE_FOLDER=1
 TYPE_PLAYLIST=2
-TYPE_FOLDER=3
-TYPE_FILE=4
-TYPE_TRACK=5
+TYPE_FILE=3
+TYPE_TRACK=4
 
 
 class Metadata:
@@ -47,6 +46,13 @@ class Metadata:
         self.rating = 0
         self.usecount = 0
         self.year = None
+
+    def get_icon(self):
+        if self.type == TYPE_FOLDER: return "folder"
+        if self.type == TYPE_PLAYLIST: return "gtk-file" #TODO: find a better one
+        if self.type == TYPE_TRACK: return "audio-x-generic"
+        if self.type == TYPE_FILE: return "gtk-file"
+        return None
 
     def to_MTPTrack(self):
         mtp_metadata = pymtp.LIBMTP_Track()
@@ -82,7 +88,8 @@ class Metadata:
 def get_from_MTPTrack(track):
     m = Metadata()
     m.id = str(track.item_id)
-    m.type = TYPE_TRACK    
+    m.type = TYPE_TRACK
+    m.filename = track.filename
     m.parent_id = str(track.parent_id)
     m.title = track.title
     if not m.title or m.title=="": m.title=track.filename
@@ -98,14 +105,26 @@ def get_from_MTPFolder(folder):
     m = Metadata()
     m.id = str(folder.folder_id)
     m.parent_id = str(folder.parent_id)
-    m.type = TYPE_FOLDER 
+    m.type = TYPE_FOLDER
+    m.filename = folder.name
     m.title = folder.name
+    if DEBUG: debug_trace("Metadata gotten from MTPfolder. They are %s" % m.to_string())
+    return m
+
+def get_from_MTPPlaylist(playlist):
+    m = Metadata()
+    m.id = str(playlist.playlist_id)
+    m.parent_id = 0
+    m.type = TYPE_PLAYLIST
+    m.filename = playlist.name
+    m.title = playlist.name
     if DEBUG: debug_trace("Metadata gotten from MTPfolder. They are %s" % m.to_string())
     return m
 
 def get_from_MTPFile(file):
     m = Metadata()
     m.type = TYPE_FILE
+    m.filename = file.filename
     m.id = str(file.item_id)
     m.parent_id = str(file.parent_id)
     m.title = file.filename
@@ -128,7 +147,7 @@ def get_from_file(path):
         m.type = TYPE_TRACK
     else:
         m.type = TYPE_FILE
-    
+
     if m.extension == ".mp3" and has_eyed3:
         return __get_from_MP3tags(m)
     elif m.extension == ".ogg":
