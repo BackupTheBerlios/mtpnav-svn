@@ -290,7 +290,7 @@ class MTPnavigator:
         self.__empty_new_object_entry()
         if new_object=="" or new_object==self.__add_object_empty_text:
             msg = "Please, enter a name for the new element" #TRANSLATE
-            gtk.MessageDialog(self.window, gtk.DIALOG_MODAL, gtk.MESSAGE_WARNING, gtk.BUTTONS_CLOSE, msg)
+            notify_information(msg, sender=self.window)
             return
         if self.__current_mode == MODE_FOLDER_VIEW:
             self.__create_folder(new_object)
@@ -299,10 +299,6 @@ class MTPnavigator:
         else:
             if DEBUG: debug_trace("Unknow mode %i" % self.__current_mode, sender = self)
             assert True
-
-    def on_entry_add_object_changed(self, widget, *args):
-        active = widget.get_text() not in ('', self.__add_object_empty_text)
-        self.__getWidget("btn_add_object").set_sensitive(active)
 
     def on_entry_add_object_focus_in_event(self, widget, event):
         #widget.modify_text(gtk.STATE_NORMAL, self.default_entry_text_color)
@@ -413,7 +409,6 @@ class MTPnavigator:
         entry.set_text(empty_text)
         entry.modify_text(gtk.STATE_NORMAL, TEXT_COLOR_GRAY)
         button = self.__getWidget("btn_add_object")
-        button.set_sensitive(False)
 
     def connect_device(self):
         self.__device_engine = None
