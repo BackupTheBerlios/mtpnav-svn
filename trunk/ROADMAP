@@ -35,12 +35,13 @@ RELEASE 0.1.0:
 
     PRERELEASE 0.1.a3: IN DEVELOPPMENT
 	* DONE: icons instead of SEND, CREATE, DEL... on transfer list
-    * BRANCH: separate folders from files in the folder view ? Folder would be single select (better for adding folder or sending file to folder)
-    *       rigth click context menus
+    * TEST: separate folders from files in the folder view
+    * TEST: switch playlist/folder view
     *       add and remove playlist
     *       add tracks to playlist
     *       remove tracks from playlist
     *       get file from device
+    *       rigth click context menus
 
     PRERELEASE 0.1.a4: PLANNED
     *       get metadata from ogg files tags

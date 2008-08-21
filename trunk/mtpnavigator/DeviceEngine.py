@@ -74,6 +74,9 @@ class DeviceEngine:
     def create_folder(self, metadata):
         return self.__device.create_folder(metadata)
 
+    def create_playlist(self, metadata):
+        return self.__device.create_playlist(metadata)
+
     def del_file(self, file_id):
         return self.__device.remove_object(file_id)
 

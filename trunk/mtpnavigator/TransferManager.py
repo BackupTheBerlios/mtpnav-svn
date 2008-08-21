@@ -70,6 +70,8 @@ class TransferManager():
                 self.__device_engine.get_folder_tree_model().remove_object(job.metadata.id)
             elif job.action==self.ACTION_CREATE_FOLDER:
                 self.__device_engine.get_folder_tree_model().append(job.metadata)
+            elif job.action==self.ACTION_CREATE_PLAYLIST:
+                self.__device_engine.get_folder_tree_model().append(job.metadata)
 
     def __queue_job(self, job_type, metadata):
         assert type(metadata) is type(Metadata.Metadata())
@@ -93,6 +95,15 @@ class TransferManager():
         metadata.type = Metadata.TYPE_FOLDER
         self.__queue_job(self.ACTION_CREATE_FOLDER, metadata)
 
+    def create_playlist(self, playlist_name):
+        metadata = Metadata.Metadata()
+        metadata.id = playlist_name
+        metadata.title = playlist_name
+        metadata.filename = playlist_name
+        metadata.parent_id = 0
+        metadata.type = Metadata.TYPE_PLAYLIST
+        self.__queue_job(self.ACTION_CREATE_PLAYLIST, metadata)
+        
     def send_file(self, file_url, parent_id):
         if DEBUG: debug_trace("request for sending %s" % file_url, sender=self)
         url = urlparse(file_url)
@@ -165,14 +176,22 @@ class ProcessQueueThread(Thread):
 
                 elif job.action == TransferManager.ACTION_DEL:
                     self.__device_engine.del_file(job.object_id)
-
                     trace("file with id %s (%s) deleted succesfully" % (job.object_id, job.metadata.title), sender=self)
+
                 elif job.action == TransferManager.ACTION_CREATE_FOLDER:
                     metadata = self.__device_engine.create_folder(job.metadata)
                     trace("New folder %s created succesfully. New id is %s" % (job.object_id, metadata.id), sender=self)
                     self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
                     job.object_id = metadata.id
                     job.metadata = metadata
+
+                elif job.action == TransferManager.ACTION_CREATE_PLAYLIST:
+                    metadata = self.__device_engine.create_playlist(job.metadata)
+                    trace("New playlist %s created succesfully. New id is %s" % (job.object_id, metadata.id), sender=self)
+                    self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
+                    job.object_id = metadata.id
+                    job.metadata = metadata
+
                 else:
                     assert False
                 disque_usage = self.__device_engine.get_device().get_diskusage()

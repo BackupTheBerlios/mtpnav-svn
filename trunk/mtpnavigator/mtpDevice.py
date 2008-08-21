@@ -145,6 +145,20 @@ class MTPDevice():
                 raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
         return metadata
 
+    def create_playlist(self, metadata=None):
+        parent = metadata.parent_id
+        try:
+            new_id =self.__MTPDevice.create_new_playlist( metadata.filename, int(parent))
+            metadata.id = new_id
+        except pymtp.CommandFailed:
+            if not self.__check_free_space(metadata.filesize):
+                raise DeviceEngine.DeviceFullError(ERRMSG_DEVICE_FULL)
+            if self.__file_exist(metadata.filename):
+                raise DeviceEngine.AlreadyOnDeviceError(ERRMSG_ALREADY_EXIST)
+            else:
+                raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
+        return metadata
+
     def remove_object(self, object_id):
         o = int(object_id)
         try:
