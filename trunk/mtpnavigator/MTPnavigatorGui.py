@@ -281,7 +281,7 @@ class MTPnavigator:
         mode = combo.get_model().get(iter, 2)[0]
         self.activate_mode(mode)
         
-    def on_button_add_object_activate(self, button):
+    def on_button_add_object_clicked(self, button):
         new_object = self.__getWidget("entry_add_object").get_text()
         self.__empty_new_object_entry()
         if new_object=="" or new_object==self.__add_object_empty_text:
@@ -295,6 +295,20 @@ class MTPnavigator:
         else:
             if DEBUG: debug_trace("Unknow mode %i" % self.__current_mode, sender = self)
             assert True
+
+    def on_entry_add_object_changed(self, widget, event):
+        active = widget.get_text() not in ('', self.__add_object_empty_text)
+        self.__getWidget("button_add_object").set_sensitive(active)
+    
+    def entry_add_object_focus(self, widget, event):
+        widget.modify_text(gtk.STATE_NORMAL, self.default_entry_text_color)
+        if widget.get_text() == self.__add_object_empty_text:
+            widget.set_text('')
+
+    def entry_add_object_unfocus(self, widget, event):
+        if widget.get_text() == '':
+            widget.set_text(self.__add_object_empty_text)
+            widget.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse('#aaaaaa'))
 
     def on_drag_motion(self, treeview, drag_context, x, y, time):
         treeview.drag_highlight()
