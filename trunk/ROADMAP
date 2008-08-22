@@ -37,7 +37,7 @@ RELEASE 0.1.0:
 	* DONE: icons instead of SEND, CREATE, DEL... on transfer list
     * TEST: separate folders from files in the folder view
     * TEST: switch playlist/folder view
-    *       add and remove playlist
+    * TEST: add and remove playlist
     *       add tracks to playlist
     *       remove tracks from playlist
     *       get file from device
