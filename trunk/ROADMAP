@@ -5,7 +5,6 @@ RELEASE 0.1.0:
     *       fix metadata and filenames encoding (accent and special charaters). Pass encode("utf-16") to pymtp
     *       warn when disconnecting during transfer (disconnect before exit)
     *       seg fault when deleting many files (try gtk.gdk.threads_enter and leave. Try setting daemon to false)
-    *       prevent deleting folders on first level
     *       prevent deleting system folders and files (waiting response from libmtp list)
     * FAIL: select the row under mouse when drag and dropping to file view (like in nautilus)
     *       check if job already present before adding
@@ -35,13 +34,17 @@ RELEASE 0.1.0:
 
     PRERELEASE 0.1.a3: IN DEVELOPPMENT
 	* DONE: icons instead of SEND, CREATE, DEL... on transfer list
-    * TEST: separate folders from files in the folder view
-    * TEST: switch playlist/folder view
+    * DONE: separate folders from files in the folder view
+    * DONE: switch playlist/folder view
+    * TEST: intern drag and drop support
+    * FIX:  delete when filtered
     * TEST: add and remove playlist
     *       add tracks to playlist
     *       remove tracks from playlist
+    *       order files within playlist
     *       get file from device
     *       rigth click context menus
+    * EXPERIMENT:  move files/directories(see experimental branch): seems not to be possible with actual pymtp
 
     PRERELEASE 0.1.a4: PLANNED
     *       get metadata from ogg files tags
@@ -53,7 +56,6 @@ RELEASE 0.1.0:
     *       parametrize metadata from directory/file scheme if no tag
     *       display tooltips on track view and job list (artist, title genre...)
     *       about dialog
-    * EXPERIMENT:  move files/directories(see experimental branch): seems not to be possible with actual pymtp
 
     RELEASE 0.1.0beta0 PLANNED
     * 	test and fixes + prerelease done
