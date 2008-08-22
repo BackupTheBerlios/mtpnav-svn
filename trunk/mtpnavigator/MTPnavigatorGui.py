@@ -491,9 +491,10 @@ class MTPnavigator:
         (model, paths) = treeview.get_selection().get_selected_rows()
         for path in paths:
             model = treeview.get_model()
+            iter = model.get_iter(path)
             if type(model) is type(gtk.TreeModelFilter()):
                 model = model.get_model()
-            row = model.get_metadata(path)
+            row = model.get_metadata_from_iter(iter)
             to_del.append(row)
             if row.type == Metadata.TYPE_FOLDER: folder_count+=1
             if row.type == Metadata.TYPE_PLAYLIST: playlist_count+=1
