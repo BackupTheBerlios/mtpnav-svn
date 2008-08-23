@@ -38,9 +38,9 @@ MODE_ALBUM_VIEW = 2
 
 #drag and drop
 DND_EXTERN = 0
-DND_TARGET_INTERN = 1
+DND_INTERN = 1
 DND_TARGET_EXTERN_FILE = ('text/uri-list', 0, DND_EXTERN)
-DND_TARGET_INTERN = ('MTPNAV_FILE', gtk.TARGET_SAME_APP, DND_TARGET_INTERN)
+DND_TARGET_INTERN = ('INTERN', gtk.TARGET_SAME_APP, DND_INTERN)
 
 class MTPnavigator:
     #--- INITIALISATION ----------------------------------
@@ -212,38 +212,29 @@ class MTPnavigator:
         combobox.pack_start(cell, True)
         combobox.add_attribute(cell, 'text', 1)
         combobox.connect('changed', self.on_combo_change_mode_changed)
-        
+
     def __setup_drag_and_drop(self):
         # source
-        self.__treeview_navigator.drag_source_set(BUTTON1_MASK, [DND_TARGET_INTERN], gtk.gdk.ACTION_MOVE)
+        self.__treeview_navigator.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [DND_TARGET_INTERN], gtk.gdk.ACTION_MOVE)
         self.__treeview_navigator.connect('drag_data_get', self.on_drag_data_get)
-        self.__treeview_track.drag_source_set(BUTTON1_MASK, [DND_TARGET_INTERN], gtk.gdk.ACTION_MOVE)
+        self.__treeview_track.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [DND_TARGET_INTERN], gtk.gdk.ACTION_MOVE)
         self.__treeview_track.connect('drag_data_get', self.on_drag_data_get)
 
         # destination
-        self.__treeview_navigator.drag_dest_set(gtk.DEST_DEFAULT_ALL, [DND_TARGET_EXTERN_FILE, DND_TARGET_INTERN], gtk.gdk.ACTION_COPY)
+        self.__treeview_navigator.enable_model_drag_dest([DND_TARGET_INTERN], gtk.gdk.ACTION_COPY)
         self.__treeview_navigator.connect('drag_data_received', self.on_drag_data_received)
-        self.__treeview_navigator.connect('drag_motion', self.on_drag_motion)
         self.__treeview_track.drag_dest_set(gtk.DEST_DEFAULT_ALL, [DND_TARGET_EXTERN_FILE], gtk.gdk.ACTION_COPY)
         self.__treeview_track.connect('drag_data_received', self.on_drag_data_received)
-        self.__treeview_track.connect('drag_motion', self.on_drag_motion)
-        
 
     #--- EVENTS ----------------------------------
 
-    def on_drag_motion(self, treeview, drag_context, x, y, time):
-        treeview.drag_highlight()
-        treeview.set_hover_selection(True)
-        treeview.set_hover_expand(True)
-        
     def on_drag_data_get(self, treeview, drag_context, data, info, time):
         selected = self.__get_selected_row_metadata(treeview)
-        data_string = []
+        data_string = ""
         for metadata in selected:
-            metadata = model.get_metadata(path)
             data_string += str(metadata.type) + ":" + metadata.id + "!"
         if DEBUG: debug_trace("on_drag_data_get: send data %s" % data_string, sender=self)
-        data.set(selection.target, 8, data_string) # 8 = type string
+        data.set(data.target, 8, data_string) # 8 = type string
 
     def on_drag_data_received(self, treeview, drag_context, x, y, data, info, time):
         if info == DND_EXTERN:
@@ -254,7 +245,7 @@ class MTPnavigator:
                 drop_info = treeview.get_dest_row_at_pos(x, y)
                 if drop_info:
                     selrow_metadata = treeview.get_model().get_metadata(drop_info[0])
-    
+
                 # process the list containing dropped objects
                 for uri in data.data.split('\r\n')[:-1]:
                     self.send_file(uri, selrow_metadata)
@@ -265,7 +256,7 @@ class MTPnavigator:
             if DEBUG: debug_trace("intern drag and drop detected with data %s" % data.data, sender=self)
             #TODO
             drag_context.drop_finish(success=True, time=time)
-        else: 
+        else:
             drag_context.drop_finish(success=False, time=time)
             if DEBUG: debug_trace("on_drag_data_received(): Unknow info value passed: %i" % info, sender=self)
             assert False
@@ -371,16 +362,15 @@ class MTPnavigator:
         if metadata.type == Metadata.TYPE_FOLDER:
             return metadata.id
         return 0
-        
+
     def __get_selected_row_metadata(self, treeview):
         metadata = []
         (model, paths) = treeview.get_selection().get_selected_rows()
         for path in paths:
-            model = treeview.get_model()
-            iter = model.get_iter(path)
             if type(model) is type(gtk.TreeModelFilter()):
-                model = model.get_model()
-            row = model.get_metadata_from_iter(iter)
+                row = model.get_model().get_metadata(model.convert_path_to_child_path(path))
+            else:
+                row = model.get_metadata(path)
             metadata.append(row)
         return metadata
 
@@ -528,7 +518,7 @@ class MTPnavigator:
         #store the files id to delete before starting deleted, else, path may change if more line are selecetd
         to_del = []
         (folder_count, file_count, playlist_count, track_count) = (0, 0, 0, 0)
-        selected = __get_selected_row_metadata(treeview)
+        selected = self.__get_selected_row_metadata(treeview)
         for metadata in selected:
             to_del.append(metadata)
             if metadata.type == Metadata.TYPE_FOLDER: folder_count+=1

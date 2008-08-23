@@ -164,7 +164,8 @@ class MTPDevice():
     def remove_object(self, object_id):
         o = int(object_id)
         try:
-            str(self.__MTPDevice.delete_object(o))
+            pass
+            #str(self.__MTPDevice.delete_object(o))
         except pymtp.CommandFailed:
             raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
         return None
