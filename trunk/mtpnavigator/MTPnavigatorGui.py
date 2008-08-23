@@ -217,13 +217,14 @@ class MTPnavigator:
         # source
         self.__treeview_navigator.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [DND_TARGET_INTERN], gtk.gdk.ACTION_MOVE)
         self.__treeview_navigator.connect('drag_data_get', self.on_drag_data_get)
-        self.__treeview_track.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [DND_TARGET_INTERN], gtk.gdk.ACTION_MOVE)
+        self.__treeview_track.drag_source_set(gtk.gdk.BUTTON1_MASK, [DND_TARGET_INTERN], gtk.gdk.ACTION_MOVE)
         self.__treeview_track.connect('drag_data_get', self.on_drag_data_get)
 
         # destination
         self.__treeview_navigator.enable_model_drag_dest([DND_TARGET_INTERN], gtk.gdk.ACTION_COPY)
         self.__treeview_navigator.connect('drag_data_received', self.on_drag_data_received)
-        self.__treeview_track.drag_dest_set(gtk.DEST_DEFAULT_ALL, [DND_TARGET_EXTERN_FILE], gtk.gdk.ACTION_COPY)
+        #FIXME: make TreeModelFilter DND des capable
+        self.__treeview_track.enable_model_drag_dest([DND_TARGET_EXTERN_FILE], gtk.gdk.ACTION_COPY)
         self.__treeview_track.connect('drag_data_received', self.on_drag_data_received)
 
     #--- EVENTS ----------------------------------
@@ -467,7 +468,7 @@ class MTPnavigator:
         prog_bar = self.__getWidget("progressbar_disk_usage")
         self.__transferManager = TransferManager(self.__device_engine, tv, notebook,prog_bar)
         self.activate_mode(MODE_FOLDER_VIEW)
-        self.__getWidget("combo_change_mode").set_active(MODE_FOLDER_VIEW)
+        self.__getWidget("combo_change_mode").set_active(MODE_PLAYLIST_VIEW)
 
     def disconnect_device(self):
         self.__device_engine.disconnect_device()

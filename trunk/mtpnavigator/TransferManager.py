@@ -18,13 +18,11 @@ class TransferManager():
     ACTION_GET = 2
     ACTION_CREATE_FOLDER = 3
     ACTION_CREATE_PLAYLIST = 4
-    ACTION_DEL_PLAYLIST = 5
     icons={ ACTION_SEND: gtk.STOCK_GO_DOWN,
             ACTION_DEL: gtk.STOCK_DELETE,
             ACTION_GET: gtk.STOCK_GO_UP,
             ACTION_CREATE_FOLDER: gtk.STOCK_DIRECTORY,
-            ACTION_CREATE_PLAYLIST: gtk.STOCK_EDIT,
-            ACTION_DEL_PLAYLIST: gtk.STOCK_DELETE }
+            ACTION_CREATE_PLAYLIST: gtk.STOCK_EDIT }
 
     STATUS_QUEUED = "queued"
     STATUS_PROCESSING = "processing"
@@ -66,12 +64,16 @@ class TransferManager():
             if job.action==self.ACTION_SEND:
                 self.__device_engine.get_object_listing_model().append(job.metadata)
             elif job.action==self.ACTION_DEL:
-                self.__device_engine.get_object_listing_model().remove_object(job.metadata.id)
-                self.__device_engine.get_folder_tree_model().remove_object(job.metadata.id)
+                if job.metadata.type == Metadata.TYPE_FOLDER:
+                    self.__device_engine.get_folder_tree_model().remove_object(job.metadata.id)
+                elif job.metadata.type == Metadata.TYPE_PLAYLIST:
+                    self.__device_engine.get_playlist_tree_model().remove_object(job.metadata.id)
+                else:
+                   self.__device_engine.get_object_listing_model().remove_object(job.metadata.id)
             elif job.action==self.ACTION_CREATE_FOLDER:
                 self.__device_engine.get_folder_tree_model().append(job.metadata)
             elif job.action==self.ACTION_CREATE_PLAYLIST:
-                self.__device_engine.get_folder_tree_model().append(job.metadata)
+                self.__device_engine.get_playlist_tree_model().append(job.metadata)
 
     def __queue_job(self, job_type, metadata):
         assert type(metadata) is type(Metadata.Metadata())
@@ -103,7 +105,7 @@ class TransferManager():
         metadata.parent_id = 0
         metadata.type = Metadata.TYPE_PLAYLIST
         self.__queue_job(self.ACTION_CREATE_PLAYLIST, metadata)
-        
+
     def send_file(self, file_url, parent_id):
         if DEBUG: debug_trace("request for sending %s" % file_url, sender=self)
         url = urlparse(file_url)
