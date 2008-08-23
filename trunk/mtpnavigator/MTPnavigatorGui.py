@@ -46,11 +46,10 @@ class MTPnavigator:
     #--- INITIALISATION ----------------------------------
 
     def __init__(self):
-        self.__treeview_track = None
-        self.__treeview_navigator = None
         self.__device_engine = None
         self.__transferManager = None
         self.__current_mode = None
+        self.__current_folder = None
 
         # bind to glade
         self.gtkbuilder = gtk.Builder()
@@ -58,6 +57,13 @@ class MTPnavigator:
         self.gtkbuilder.connect_signals(self)
         self.window = self.__getWidget("window_mtpnav")
         uimanager = self.__create_uimanager()
+
+        self.__treeview_files = TreeViewFiles()
+        self.__treeview_navigator = TreeViewNavigator(self)
+        self.__getWidget("scrolledwindow_navigator").add(self.__treeview_navigator)
+        self.__treeview_navigator.set_property("visible",True)
+        self.__getWidget("scrolledwindow_files").add(self.__treeview_files)
+        self.__treeview_files.set_property("visible",True)
 
         TEXT_COLOR_DEFAULT = self.__getWidget("entry_add_object").get_style().text[gtk.STATE_NORMAL]
 
@@ -68,10 +74,7 @@ class MTPnavigator:
         self.window.set_title("MTP navigatore " + VERSION)
         self.__getWidget("vpaned_main").set_position(wheight-250) #TODO: save position
 
-        self.__create_track_view()
-        self.__create_treeview_navigator()
         self.__create_combo_change_mode()
-        self.__setup_drag_and_drop()
 
         self.window.show()
         self.on_connect_device()
@@ -127,78 +130,6 @@ class MTPnavigator:
         self.__getWidget("vbox_Menu_And_ToolBar").pack_start(uimanager.get_widget('/MenuBar'), expand=False)
         self.__getWidget("vbox_Menu_And_ToolBar").pack_start(uimanager.get_widget('/Toolbar'), expand=False)
 
-    def __create_track_view(self):
-        self.__treeview_track = self.__getWidget("treeview_object_list")
-        self.__treeview_track.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
-        t = ObjectListingModel
-
-        # first column is file icon
-        col = gtk.TreeViewColumn("")
-        cell = gtk.CellRendererPixbuf()
-        col.pack_start(cell, True)
-        col.set_attributes(cell, icon_name=t.ICON)
-        col.set_sort_column_id(t.ICON)
-        col.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
-        self.__treeview_track.append_column(col)
-
-        # other columns to create: (visible, title, model_col, sort_col, sizing, width, resizable)
-        cols = [(DEBUG_ID, "object ID", t.OBJECT_ID, t.OBJECT_ID, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, False)
-        ,(DEBUG_ID, "parent ID", t.PARENT_ID, t.PARENT_ID, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, False)
-        ,(DEBUG_ID, "type", t.TYPE, t.TYPE, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, False)
-        ,(True, "file", t.FILE_NAME, t.FILE_NAME, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
-        ,(True, "title", t.TITLE, t.TITLE, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
-        ,(True, "artist", t.ARTIST, t.ARTIST, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
-        ,(True, "album", t.ALBUM, t.ALBUM, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
-        ,(True, "genre", t.GENRE, t.GENRE, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
-        ,(True, "length", t.SIZE_STR, t.SIZE_INT, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, True)
-        ,(True, "date", t.DATE_STR, t.DATE, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, True)]
-
-        for c in cols:
-            if not c[0]: continue
-            col = gtk.TreeViewColumn(c[1])
-            cell = gtk.CellRendererText()
-            cell.set_property('ellipsize', pango.ELLIPSIZE_END)
-            col.pack_start(cell, True)
-            col.set_attributes(cell, text=c[2])
-            col.set_sort_column_id(c[3])
-            col.set_sizing(c[4])
-            if c[5]>0: col.set_fixed_width(c[5])
-            col.set_resizable(c[6])
-            self.__treeview_track.append_column(col)
-
-        # add support for del key
-        self.__treeview_track.add_events(gtk.gdk.KEY_PRESS)
-        self.__treeview_track.connect("key_press_event", self.on_keyboard_event)
-
-    def __create_treeview_navigator(self):
-        # create the file view
-        self.__treeview_navigator = self.__getWidget("treeview_navigator_list")
-        self.__treeview_navigator.get_selection().set_mode( gtk.SELECTION_SINGLE)
-        f = ContainerTreeModel
-        if DEBUG_ID:
-            col = gtk.TreeViewColumn("object ID", gtk.CellRendererText(), text=f.OBJECT_ID)
-            self.__treeview_navigator.append_column(col)
-            col = gtk.TreeViewColumn("parent ID", gtk.CellRendererText(), text=f.PARENT_ID)
-            self.__treeview_navigator.append_column(col)
-        col = gtk.TreeViewColumn("name")
-        cell = gtk.CellRendererPixbuf()
-        col.pack_start(cell, False)
-        col.set_attributes(cell, icon_name=f.ICON)
-        cell = gtk.CellRendererText()
-        col.pack_start(cell, True)
-        col.set_attributes(cell, text=f.NAME)
-        col.set_sort_column_id(f.NAME)
-        col.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
-        self.__treeview_navigator.append_column(col)
-        self.__treeview_navigator.set_headers_visible(False)
-
-        #connect selection change event
-        self.__treeview_navigator.get_selection().connect('changed', self.on_navigator_selection_change)
-
-        # add support for del key
-        self.__treeview_navigator.add_events(gtk.gdk.KEY_PRESS)
-        self.__treeview_navigator.connect("key_press_event", self.on_keyboard_event)
-
     def __create_combo_change_mode(self):
         liststore = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_UINT)
         liststore.append(["audio-x-generic", "Playlists", MODE_PLAYLIST_VIEW]) #TRANSLATE
@@ -213,56 +144,7 @@ class MTPnavigator:
         combobox.add_attribute(cell, 'text', 1)
         combobox.connect('changed', self.on_combo_change_mode_changed)
 
-    def __setup_drag_and_drop(self):
-        # source
-        self.__treeview_navigator.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [DND_TARGET_INTERN], gtk.gdk.ACTION_MOVE)
-        self.__treeview_navigator.connect('drag_data_get', self.on_drag_data_get)
-        self.__treeview_track.drag_source_set(gtk.gdk.BUTTON1_MASK, [DND_TARGET_INTERN], gtk.gdk.ACTION_MOVE)
-        self.__treeview_track.connect('drag_data_get', self.on_drag_data_get)
-
-        # destination
-        self.__treeview_navigator.enable_model_drag_dest([DND_TARGET_INTERN], gtk.gdk.ACTION_COPY)
-        self.__treeview_navigator.connect('drag_data_received', self.on_drag_data_received)
-        #FIXME: make TreeModelFilter DND des capable
-        self.__treeview_track.enable_model_drag_dest([DND_TARGET_EXTERN_FILE], gtk.gdk.ACTION_COPY)
-        self.__treeview_track.connect('drag_data_received', self.on_drag_data_received)
-
     #--- EVENTS ----------------------------------
-
-    def on_drag_data_get(self, treeview, drag_context, data, info, time):
-        selected = self.__get_selected_row_metadata(treeview)
-        d = []
-        for metadata in selected:
-            d.append(metadata.encode_as_string())
-        data_string = "&&".join(d)
-        if DEBUG: debug_trace("on_drag_data_get: send data %s" % data_string, sender=self)
-        data.set(data.target, 8, data_string) # 8 = type string
-
-    def on_drag_data_received(self, treeview, drag_context, x, y, data, info, time):
-        if info == DND_EXTERN:
-            if DEBUG: debug_trace("extern drag and drop detected with data %s" % data.data, sender=self)
-            if data and data.format == 8: # 8 = type string
-                # find the row where data was dropped
-                selrow_metadata = None
-                drop_info = treeview.get_dest_row_at_pos(x, y)
-                if drop_info:
-                    selrow_metadata = treeview.get_model().get_metadata(drop_info[0])
-
-                # process the list containing dropped objects
-                for uri in data.data.split('\r\n')[:-1]:
-                    self.send_file(uri, selrow_metadata)
-                drag_context.drop_finish(success=True, time=time)
-            else:
-                drag_context.drop_finish(success=False, time=time)
-        elif info == DND_INTERN:
-            for m in data.data.split("&&"):
-                metadata = Metadata.decode_from_string(m)
-                if DEBUG: debug_trace("intern drag and drop detected with data %s" % metadata.to_string(), sender=self)
-            drag_context.drop_finish(success=True, time=time)
-        else:
-            drag_context.drop_finish(success=False, time=time)
-            if DEBUG: debug_trace("on_drag_data_received(): Unknow info value passed: %i" % info, sender=self)
-            assert False
 
     def on_connect_device(self, widget=None):
         self.connect_device()
@@ -270,18 +152,14 @@ class MTPnavigator:
     def on_disconnect_device(self, widget=None):
         self.disconnect_device()
 
-    def on_keyboard_event(self, treeview, event):
-        if gtk.gdk.keyval_name(event.keyval) == "Delete":
-            self.delete_objects(treeview)
-
     def on_delete_item_activate(self, emiter):
         treeview = None
         if self.__treeview_navigator.is_focus():
             if DEBUG: debug_trace("Delete action activated. __treeview_navigator has focus", sender=self)
             treeview = self.__treeview_navigator
-        if self.__treeview_track.is_focus():
-            if DEBUG: debug_trace("Delete action activated. __treeview_track has focus", sender=self)
-            treeview = self.__treeview_track
+        if self.__treeview_files.is_focus():
+            if DEBUG: debug_trace("Delete action activated. __treeview_files has focus", sender=self)
+            treeview = self.__treeview_files
         if not treeview:
             if DEBUG: debug_trace("Delete action activated. No treeview has focus", sender=self)
             return
@@ -318,14 +196,6 @@ class MTPnavigator:
                 self.send_file(uri, parent_id)
         fs.destroy()
 
-    def on_navigator_selection_change(self, treeselection):
-        (model, iter) = treeselection.get_selected()
-        if not iter: return
-        metadata = model.get_metadata_from_iter(iter)
-        folder = metadata.id
-        if DEBUG: debug_trace("folder %s selected" % folder, sender=self)
-        self.__device_engine.get_object_listing_model().set_current_folder(folder)
-
     def on_combo_change_mode_changed(self, combo):
         iter = combo.get_active_iter()
         mode = combo.get_model().get(iter, 2)[0]
@@ -360,11 +230,11 @@ class MTPnavigator:
     #--- CONTROL METHODS -----------------------
 
     def __get_currently_selected_folder(self):
-        (model, iter)=self.__treeview_navigator.get_selection().get_selected()
-        metadata = model.get_metadata_from_iter(iter)
-        if metadata.type == Metadata.TYPE_FOLDER:
-            return metadata.id
-        return 0
+        return self.__current_folder
+
+    def change_current_folder(self, folder):
+        self.__current_folder = folder
+        self.__device_engine.get_object_listing_model().set_current_folder(folder)
 
     def __get_selected_row_metadata(self, treeview):
         metadata = []
@@ -475,7 +345,7 @@ class MTPnavigator:
     def disconnect_device(self):
         self.__device_engine.disconnect_device()
         self.__device_engine = None
-        self.__treeview_track.set_model(None)
+        self.__treeview_files.set_model(None)
         self.__treeview_folder.set_model(None)
         self.__show_connected_state(False)
 
@@ -491,10 +361,10 @@ class MTPnavigator:
         else:
             if DEBUG: debug_trace("unknow mode %i" % mode, sender=self)
             assert True
-        self.__treeview_track.set_model(track_model)
+        self.__treeview_files.set_model(track_model)
         self.__treeview_navigator.set_model(navigator_model)
         self.__treeview_navigator.get_selection().select_path(0)
-        self.__treeview_track.columns_autosize() # FIXME
+        self.__treeview_files.columns_autosize() # FIXME
         self.__treeview_navigator.expand_all()
         self.__current_mode = mode
         self.__empty_new_object_entry()
@@ -518,6 +388,7 @@ class MTPnavigator:
         return self.__transferManager.send_file(uri, parent_id)
 
     def delete_objects(self, treeview):
+        #FIXME: move to treeview objects then remove self.__get_selected_row_metadat method
         #store the files id to delete before starting deleted, else, path may change if more line are selecetd
         to_del = []
         (folder_count, file_count, playlist_count, track_count) = (0, 0, 0, 0)
@@ -552,6 +423,201 @@ class MTPnavigator:
     def exit(self):
         self.window.destroy()
         gtk.main_quit()
+
+class TreeViewNavigator(gtk.TreeView):
+    def __init__(self, gui):
+        gtk.TreeView.__init__(self)
+        self.__gui = gui
+
+        self.get_selection().set_mode( gtk.SELECTION_SINGLE)
+        f = ContainerTreeModel
+        if DEBUG_ID:
+            col = gtk.TreeViewColumn("object ID", gtk.CellRendererText(), text=f.OBJECT_ID)
+            self.__treeview_navigator.append_column(col)
+            col = gtk.TreeViewColumn("parent ID", gtk.CellRendererText(), text=f.PARENT_ID)
+            self.__treeview_navigator.append_column(col)
+        col = gtk.TreeViewColumn("name")
+        cell = gtk.CellRendererPixbuf()
+        col.pack_start(cell, False)
+        col.set_attributes(cell, icon_name=f.ICON)
+        cell = gtk.CellRendererText()
+        col.pack_start(cell, True)
+        col.set_attributes(cell, text=f.NAME)
+        col.set_sort_column_id(f.NAME)
+        col.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        self.append_column(col)
+        self.set_headers_visible(False)
+
+        #connect selection change event
+        self.get_selection().connect('changed', self.on_selection_change)
+
+        # add support for del key
+        self.add_events(gtk.gdk.KEY_PRESS)
+        self.connect("key_press_event", self.on_keyboard_event)
+
+        # drag and drop source
+        self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [DND_TARGET_INTERN], gtk.gdk.ACTION_MOVE)
+        self.connect('drag_data_get', self.on_drag_data_get)
+
+        # drag and drop destination
+        self.enable_model_drag_dest([DND_TARGET_INTERN], gtk.gdk.ACTION_COPY)
+        self.connect('drag_data_received', self.on_drag_data_received)
+
+    def on_keyboard_event(self, treeview, event):
+        if gtk.gdk.keyval_name(event.keyval) == "Delete":
+            self.delete_objects(treeview)
+
+    def on_selection_change(self, treeselection):
+        (model, iter) = treeselection.get_selected()
+        if not iter: return
+        metadata = model.get_metadata_from_iter(iter)
+        folder = metadata.id
+        if DEBUG: debug_trace("folder %s selected" % folder, sender=self)
+        self.__gui.change_current_folder(folder)
+
+    def on_drag_data_get(self, treeview, drag_context, data, info, time):
+        selected = self.__get_selected_row_metadata(treeview)
+        d = []
+        for metadata in selected:
+            d.append(metadata.encode_as_string())
+        data_string = "&&".join(d)
+        if DEBUG: debug_trace("on_drag_data_get: send data %s" % data_string, sender=self)
+        data.set(data.target, 8, data_string) # 8 = type string
+
+    def on_drag_data_received(self, treeview, drag_context, x, y, data, info, time):
+        if info == DND_EXTERN:
+            if DEBUG: debug_trace("extern drag and drop detected with data %s" % data.data, sender=self)
+            if data and data.format == 8: # 8 = type string
+                # find the row where data was dropped
+                selrow_metadata = None
+                drop_info = treeview.get_dest_row_at_pos(x, y)
+                if drop_info:
+                    selrow_metadata = treeview.get_model().get_metadata(drop_info[0])
+
+                # process the list containing dropped objects
+                for uri in data.data.split('\r\n')[:-1]:
+                    self.send_file(uri, selrow_metadata)
+                drag_context.drop_finish(success=True, time=time)
+            else:
+                drag_context.drop_finish(success=False, time=time)
+        elif info == DND_INTERN:
+            for m in data.data.split("&&"):
+                metadata = Metadata.decode_from_string(m)
+                if DEBUG: debug_trace("intern drag and drop detected with data %s" % metadata.to_string(), sender=self)
+            drag_context.drop_finish(success=True, time=time)
+        else:
+            drag_context.drop_finish(success=False, time=time)
+            if DEBUG: debug_trace("on_drag_data_received(): Unknow info value passed: %i" % info, sender=self)
+            assert False
+    def __get_selected_row_metadata(self, treeview):
+        metadata = []
+        (model, paths) = treeview.get_selection().get_selected_rows()
+        for path in paths:
+            row = model.get_metadata(path)
+            metadata.append(row)
+        return metadata
+
+
+class TreeViewFiles(gtk.TreeView):
+    def __init__(self):
+        gtk.TreeView.__init__(self)
+
+        self.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
+        t = ObjectListingModel
+
+        # first column is file icon
+        col = gtk.TreeViewColumn("")
+        cell = gtk.CellRendererPixbuf()
+        col.pack_start(cell, True)
+        col.set_attributes(cell, icon_name=t.ICON)
+        col.set_sort_column_id(t.ICON)
+        col.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        self.append_column(col)
+
+        # other columns to create: (visible, title, model_col, sort_col, sizing, width, resizable)
+        cols = [(DEBUG_ID, "object ID", t.OBJECT_ID, t.OBJECT_ID, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, False)
+        ,(DEBUG_ID, "parent ID", t.PARENT_ID, t.PARENT_ID, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, False)
+        ,(DEBUG_ID, "type", t.TYPE, t.TYPE, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, False)
+        ,(True, "file", t.FILE_NAME, t.FILE_NAME, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
+        ,(True, "title", t.TITLE, t.TITLE, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
+        ,(True, "artist", t.ARTIST, t.ARTIST, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
+        ,(True, "album", t.ALBUM, t.ALBUM, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
+        ,(True, "genre", t.GENRE, t.GENRE, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
+        ,(True, "length", t.SIZE_STR, t.SIZE_INT, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, True)
+        ,(True, "date", t.DATE_STR, t.DATE, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, True)]
+
+        for c in cols:
+            if not c[0]: continue
+            col = gtk.TreeViewColumn(c[1])
+            cell = gtk.CellRendererText()
+            cell.set_property('ellipsize', pango.ELLIPSIZE_END)
+            col.pack_start(cell, True)
+            col.set_attributes(cell, text=c[2])
+            col.set_sort_column_id(c[3])
+            col.set_sizing(c[4])
+            if c[5]>0: col.set_fixed_width(c[5])
+            col.set_resizable(c[6])
+            self.append_column(col)
+
+        # add support for del key
+        self.add_events(gtk.gdk.KEY_PRESS)
+        self.connect("key_press_event", self.on_keyboard_event)
+
+       # drag and drop source
+        self.drag_source_set(gtk.gdk.BUTTON1_MASK, [DND_TARGET_INTERN], gtk.gdk.ACTION_MOVE)
+        self.connect('drag_data_get', self.on_drag_data_get)
+
+        # drag and drop destination
+        #FIXME: make TreeModelFilter DND des capable
+        self.enable_model_drag_dest([DND_TARGET_EXTERN_FILE], gtk.gdk.ACTION_COPY)
+        self.connect('drag_data_received', self.on_drag_data_received)
+
+    def on_keyboard_event(self, treeview, event):
+        if gtk.gdk.keyval_name(event.keyval) == "Delete":
+            pass #FIXME self.delete_objects(treeview)
+
+    def on_drag_data_get(self, treeview, drag_context, data, info, time):
+        selected = self.__get_selected_row_metadata(treeview)
+        d = []
+        for metadata in selected:
+            d.append(metadata.encode_as_string())
+        data_string = "&&".join(d)
+        if DEBUG: debug_trace("on_drag_data_get: send data %s" % data_string, sender=self)
+        data.set(data.target, 8, data_string) # 8 = type string
+
+    def on_drag_data_received(self, treeview, drag_context, x, y, data, info, time):
+        if info == DND_EXTERN:
+            if DEBUG: debug_trace("extern drag and drop detected with data %s" % data.data, sender=self)
+            if data and data.format == 8: # 8 = type string
+                # find the row where data was dropped
+                selrow_metadata = None
+                drop_info = treeview.get_dest_row_at_pos(x, y)
+                if drop_info:
+                    selrow_metadata = treeview.get_model().get_metadata(drop_info[0])
+
+                # process the list containing dropped objects
+                for uri in data.data.split('\r\n')[:-1]:
+                    self.send_file(uri, selrow_metadata)
+                drag_context.drop_finish(success=True, time=time)
+            else:
+                drag_context.drop_finish(success=False, time=time)
+        elif info == DND_INTERN:
+            for m in data.data.split("&&"):
+                metadata = Metadata.decode_from_string(m)
+                if DEBUG: debug_trace("intern drag and drop detected with data %s" % metadata.to_string(), sender=self)
+            drag_context.drop_finish(success=True, time=time)
+        else:
+            drag_context.drop_finish(success=False, time=time)
+            if DEBUG: debug_trace("on_drag_data_received(): Unknow info value passed: %i" % info, sender=self)
+            assert False
+
+    def __get_selected_row_metadata(self, treeview):
+        metadata = []
+        (model, paths) = treeview.get_selection().get_selected_rows()
+        for path in paths:
+            row = model.get_model().get_metadata(model.convert_path_to_child_path(path))
+            metadata.append(row)
+        return metadata
 
 if __name__ == "__main__":
     mtpnav = MTPnavigator()
