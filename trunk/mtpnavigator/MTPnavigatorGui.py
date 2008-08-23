@@ -231,9 +231,10 @@ class MTPnavigator:
 
     def on_drag_data_get(self, treeview, drag_context, data, info, time):
         selected = self.__get_selected_row_metadata(treeview)
-        data_string = ""
+        d = []
         for metadata in selected:
-            data_string += str(metadata.type) + ":" + metadata.id + "!"
+            d.append(metadata.encode_as_string())
+        data_string = "&&".join(d)
         if DEBUG: debug_trace("on_drag_data_get: send data %s" % data_string, sender=self)
         data.set(data.target, 8, data_string) # 8 = type string
 
@@ -254,8 +255,9 @@ class MTPnavigator:
             else:
                 drag_context.drop_finish(success=False, time=time)
         elif info == DND_INTERN:
-            if DEBUG: debug_trace("intern drag and drop detected with data %s" % data.data, sender=self)
-            #TODO
+            for m in data.data.split("&&"):
+                metadata = Metadata.decode_from_string(m)
+                if DEBUG: debug_trace("intern drag and drop detected with data %s" % metadata.to_string(), sender=self)
             drag_context.drop_finish(success=True, time=time)
         else:
             drag_context.drop_finish(success=False, time=time)

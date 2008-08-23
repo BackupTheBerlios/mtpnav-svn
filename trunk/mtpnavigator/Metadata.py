@@ -74,16 +74,36 @@ class Metadata:
         mtp_metadata.usecount = self.usecount
         return mtp_metadata
 
-    if DEBUG:
-        def to_string(self):
-            str = ""
-            str += " id=" + self.id
-            if self.parent_id: str += " parent_id=" + self.parent_id
-            if self.title: str += " title=" + self.title
-            if self.album: str += " album=" + self.album
-            if self.artist: str += " artist="+ self.artist
-            if self.genre: str += " genre=" + self.genre
-            return str
+    def encode_as_string(self):
+        """
+            This function encodes the metadata as as String.
+            Needed for drag and drop support, since DND only allow to send
+            data of string type.
+        """
+        m=[]
+        m.append(self.id)
+        m.append(str(self.type))
+        mstr="##".join(m)
+        if DEBUG: debug_trace("Metada encoded as %s" % mstr, sender=self)
+        return mstr
+
+    def to_string(self):
+        mstr = ["Id="]
+        mstr.append(self.id)
+        if self.parent_id: mstr.append(" parent_id=" + self.parent_id)
+        if self.title: mstr.append(" title=" + self.title)
+        if self.album: mstr.append(" album=" + self.album)
+        if self.artist: mstr.append(" artist="+ self.artist)
+        if self.genre: mstr.append(" genre=" + self.genre)
+        if DEBUG: mstr.append(" type=" + str(self.type))
+        return "".join(mstr)
+
+def decode_from_string(mstr):
+    m = Metadata()
+    (m.id, type) = mstr.split("##")
+    m.type=int(type)
+    if DEBUG: debug_trace("Metada decoded: %s" % m.to_string())
+    return m
 
 def get_from_MTPTrack(track):
     m = Metadata()
