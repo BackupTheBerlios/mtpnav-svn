@@ -22,7 +22,7 @@ TYPE_FOLDER=1
 TYPE_PLAYLIST=2
 TYPE_FILE=3
 TYPE_TRACK=4
-
+TYPE_PLAYLIST_ITEM=5
 
 class Metadata:
     def __init__(self):
@@ -52,6 +52,7 @@ class Metadata:
         if self.type == TYPE_PLAYLIST: return "gtk-file" #TODO: find a better one
         if self.type == TYPE_TRACK: return "audio-x-generic"
         if self.type == TYPE_FILE: return "gtk-file"
+        if self.type == TYPE_PLAYLIST_ITEM: return "audio-x-generic"
         return None
 
     def to_MTPTrack(self):
@@ -83,6 +84,7 @@ class Metadata:
         m=[]
         m.append(self.id)
         m.append(str(self.type))
+        m.append(self.title)
         mstr="##".join(m)
         if DEBUG: debug_trace("Metada encoded as %s" % mstr, sender=self)
         return mstr
@@ -100,7 +102,7 @@ class Metadata:
 
 def decode_from_string(mstr):
     m = Metadata()
-    (m.id, type) = mstr.split("##")
+    (m.id, type, m.title) = mstr.split("##")
     m.type=int(type)
     if DEBUG: debug_trace("Metada decoded: %s" % m.to_string())
     return m

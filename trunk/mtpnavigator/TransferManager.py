@@ -18,11 +18,13 @@ class TransferManager():
     ACTION_GET = 2
     ACTION_CREATE_FOLDER = 3
     ACTION_CREATE_PLAYLIST = 4
+    ACTION_ADD_TO_PLAYLIST = 5
     icons={ ACTION_SEND: gtk.STOCK_GO_DOWN,
             ACTION_DEL: gtk.STOCK_DELETE,
             ACTION_GET: gtk.STOCK_GO_UP,
             ACTION_CREATE_FOLDER: gtk.STOCK_DIRECTORY,
-            ACTION_CREATE_PLAYLIST: gtk.STOCK_EDIT }
+            ACTION_CREATE_PLAYLIST: gtk.STOCK_EDIT,
+            ACTION_ADD_TO_PLAYLIST: gtk.STOCK_ADD }
 
     STATUS_QUEUED = "queued"
     STATUS_PROCESSING = "processing"
@@ -105,6 +107,12 @@ class TransferManager():
         metadata.parent_id = 0
         metadata.type = Metadata.TYPE_PLAYLIST
         self.__queue_job(self.ACTION_CREATE_PLAYLIST, metadata)
+
+    def add_track_to_playlist(self, playlist_metadata, track, previous_track):
+        if DEBUG: debug_trace("request for adding %s to playlist %s" % (track.title, playlist_metadata .title), sender=self)
+        #TODO: handle previous_track in job
+        track.parent_id = playlist_metadata.id
+        self.__queue_job(self.ACTION_ADD_TO_PLAYLIST, track)
 
     def send_file(self, file_url, parent_id):
         if DEBUG: debug_trace("request for sending %s" % file_url, sender=self)
@@ -194,7 +202,12 @@ class ProcessQueueThread(Thread):
                     job.object_id = metadata.id
                     job.metadata = metadata
 
+                elif job.action == TransferManager.ACTION_ADD_TO_PLAYLIST:
+                    self.__device_engine.add_track_to_playlist(job.metadata)
+                    trace("Track %s added succesfullyc.to playlist %s" % (job.metadata.title, job.metadata.parent_id), sender=self)
+
                 else:
+                    if DEBUG: debug_trace("Unknow action: %i" % job.action, sender=self)
                     assert False
                 disque_usage = self.__device_engine.get_device().get_diskusage()
                 self.__notify(self.SIGNAL_DEVICE_CONTENT_CHANGED, job, disque_usage[0], disque_usage[1])

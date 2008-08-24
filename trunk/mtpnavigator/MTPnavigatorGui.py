@@ -47,7 +47,7 @@ class MTPnavigator:
 
     def __init__(self):
         self.__device_engine = None
-        self.__transferManager = None
+        self.transfer_manager = None
         self.__current_mode = None
         self.__current_folder = None
 
@@ -58,7 +58,7 @@ class MTPnavigator:
         self.window = self.__getWidget("window_mtpnav")
         uimanager = self.__create_uimanager()
 
-        self.__treeview_files = TreeViewFiles()
+        self.__treeview_files = TreeViewFiles(self)
         self.__treeview_navigator = TreeViewNavigator(self)
         self.__getWidget("scrolledwindow_navigator").add(self.__treeview_navigator)
         self.__treeview_navigator.set_property("visible",True)
@@ -166,13 +166,13 @@ class MTPnavigator:
         self.delete_objects(treeview)
 
     def on_button_cancel_job_clicked(self, emiter):
-        (model, paths) = self.__transferManager.get_selection().get_selected_rows()
+        (model, paths) = self.transfer_manager.get_selection().get_selected_rows()
         to_cancel = [] #store the files id to delete before stating deleted, else, path may change if more line are selecetd
         for path in paths:
             job =  model.get_job(path)
             to_cancel.append(job)
         for job in to_cancel:
-            self.__transferManager.cancel_job(job)
+            self.transfer_manager.cancel_job(job)
 
     def on_quit(self, emiter):
         self.exit()
@@ -232,10 +232,6 @@ class MTPnavigator:
     def __get_currently_selected_folder(self):
         return self.__current_folder
 
-    def change_current_folder(self, folder):
-        self.__current_folder = folder
-        self.__device_engine.get_object_listing_model().set_current_folder(folder)
-
     def __get_selected_row_metadata(self, treeview):
         metadata = []
         (model, paths) = treeview.get_selection().get_selected_rows()
@@ -249,10 +245,10 @@ class MTPnavigator:
 
     def __create_folder(self, new_folder_name):
         parent_id = self.__get_currently_selected_folder()
-        self.__transferManager.create_folder(new_folder_name, parent_id)
+        self.transfer_manager.create_folder(new_folder_name, parent_id)
 
     def __create_playlist(self, new_folder_name):
-        self.__transferManager.create_playlist(new_folder_name)
+        self.transfer_manager.create_playlist(new_folder_name)
 
     def __show_connected_state(self, is_connected):
         self.__actiongroup_connected.set_sensitive(is_connected)
@@ -338,7 +334,7 @@ class MTPnavigator:
         tv = self.__getWidget("treeview_transfer_manager")
         notebook = self.__getWidget("notebook_device_info")
         prog_bar = self.__getWidget("progressbar_disk_usage")
-        self.__transferManager = TransferManager(self.__device_engine, tv, notebook,prog_bar)
+        self.transfer_manager = TransferManager(self.__device_engine, tv, notebook,prog_bar)
         self.activate_mode(MODE_FOLDER_VIEW)
         self.__getWidget("combo_change_mode").set_active(MODE_PLAYLIST_VIEW)
 
@@ -362,6 +358,7 @@ class MTPnavigator:
             if DEBUG: debug_trace("unknow mode %i" % mode, sender=self)
             assert True
         self.__treeview_files.set_model(track_model)
+        self.__treeview_navigator.set_mode(mode)
         self.__treeview_navigator.set_model(navigator_model)
         self.__treeview_navigator.get_selection().select_path(0)
         self.__treeview_files.columns_autosize() # FIXME
@@ -369,6 +366,9 @@ class MTPnavigator:
         self.__current_mode = mode
         self.__empty_new_object_entry()
 
+    def change_current_folder(self, folder):
+        self.__current_folder = folder
+        self.__device_engine.get_object_listing_model().set_current_folder(folder)
 
     def send_file(self, uri, selrow_metadata):
         """
@@ -385,23 +385,19 @@ class MTPnavigator:
                 parent_id  = selrow_metadata.parent_id
                 if DEBUG: debug_trace("It was not a folder. Its parent %s is taken instead." % parent_id, sender=self)
 
-        return self.__transferManager.send_file(uri, parent_id)
+        return self.transfer_manager.send_file(uri, parent_id)
 
-    def delete_objects(self, treeview):
-        #FIXME: move to treeview objects then remove self.__get_selected_row_metadat method
-        #store the files id to delete before starting deleted, else, path may change if more line are selecetd
-        to_del = []
-        (folder_count, file_count, playlist_count, track_count) = (0, 0, 0, 0)
-        selected = self.__get_selected_row_metadata(treeview)
-        for metadata in selected:
-            to_del.append(metadata)
+    def delete_objects(self, to_del):
+        if len(to_del)==0: return
+        (folder_count, playlist_count, file_count, track_count) = (0, 0, 0, 0)
+
+        # show confirmation
+        for metadata in to_del:
             if metadata.type == Metadata.TYPE_FOLDER: folder_count+=1
             if metadata.type == Metadata.TYPE_PLAYLIST: playlist_count+=1
             if metadata.type == Metadata.TYPE_FILE: file_count+=1
             if metadata.type == Metadata.TYPE_TRACK: track_count+=1
-        if len(to_del)==0: return
 
-        # show confirmation
         msg = "You are about to delete " #TRANSLATE
         if track_count > 0:  msg += " %i tracks" % track_count
         if file_count > 0:  msg += " %i files" % file_count
@@ -418,7 +414,7 @@ class MTPnavigator:
         # send order to transfer manager
         for metadata in to_del:
             if DEBUG: debug_trace("deleting file with ID %s (%s)" % (metadata.id, metadata.filename), sender=self)
-            self.__transferManager.del_file(metadata)
+            self.transfer_manager.del_file(metadata)
 
     def exit(self):
         self.window.destroy()
@@ -428,6 +424,7 @@ class TreeViewNavigator(gtk.TreeView):
     def __init__(self, gui):
         gtk.TreeView.__init__(self)
         self.__gui = gui
+        self.__mode = None
 
         self.get_selection().set_mode( gtk.SELECTION_SINGLE)
         f = ContainerTreeModel
@@ -463,9 +460,16 @@ class TreeViewNavigator(gtk.TreeView):
         self.enable_model_drag_dest([DND_TARGET_INTERN], gtk.gdk.ACTION_COPY)
         self.connect('drag_data_received', self.on_drag_data_received)
 
+    def set_mode(self, mode):
+        self.__mode = mode
+
     def on_keyboard_event(self, treeview, event):
         if gtk.gdk.keyval_name(event.keyval) == "Delete":
-            self.delete_objects(treeview)
+            selected = self.__get_selected_row_metadata(treeview)
+            if selected.type == Metadata.TYPE_PLAYLIST_ITEM:
+                pass #TODO remove from playlist
+            else:
+                self.__gui.delete_objects([selected])
 
     def on_selection_change(self, treeselection):
         (model, iter) = treeselection.get_selected()
@@ -485,42 +489,55 @@ class TreeViewNavigator(gtk.TreeView):
         data.set(data.target, 8, data_string) # 8 = type string
 
     def on_drag_data_received(self, treeview, drag_context, x, y, data, info, time):
+        # find the row where data was dropped
+        selrow_metadata = None
+        drop_info = treeview.get_dest_row_at_pos(x, y)
+        if drop_info:
+            selrow_metadata = treeview.get_model().get_metadata(drop_info[0])
+        parent = selrow_metadata
+        if selrow_metadata.type != Metadata.TYPE_FOLDER and selrow_metadata.type != Metadata.TYPE_PLAYLIST:
+            parent = selrow_metadata
+
         if info == DND_EXTERN:
             if DEBUG: debug_trace("extern drag and drop detected with data %s" % data.data, sender=self)
             if data and data.format == 8: # 8 = type string
-                # find the row where data was dropped
-                selrow_metadata = None
-                drop_info = treeview.get_dest_row_at_pos(x, y)
-                if drop_info:
-                    selrow_metadata = treeview.get_model().get_metadata(drop_info[0])
-
                 # process the list containing dropped objects
                 for uri in data.data.split('\r\n')[:-1]:
                     self.send_file(uri, selrow_metadata)
                 drag_context.drop_finish(success=True, time=time)
             else:
                 drag_context.drop_finish(success=False, time=time)
-        elif info == DND_INTERN:
+            return
+
+        if info == DND_INTERN:
             for m in data.data.split("&&"):
                 metadata = Metadata.decode_from_string(m)
                 if DEBUG: debug_trace("intern drag and drop detected with data %s" % metadata.to_string(), sender=self)
+                if self.__mode == MODE_PLAYLIST_VIEW:
+                    if metadata.type != Metadata.TYPE_TRACK and metadata.type != Metadata.TYPE_PLAYLIST_ITEM:
+                        drag_context.drop_finish(success=False, time=time)
+                        if DEBUG: debug_trace("An invalid object type was dropped: %i" % i, sender=self)
+                        return
+                    self.__gui.transfer_manager.add_track_to_playlist(parent, metadata, selrow_metadata)
+                else:
+                    pass #TODO: move file to dir
             drag_context.drop_finish(success=True, time=time)
+            return
+
         else:
             drag_context.drop_finish(success=False, time=time)
             if DEBUG: debug_trace("on_drag_data_received(): Unknow info value passed: %i" % info, sender=self)
             assert False
+
     def __get_selected_row_metadata(self, treeview):
-        metadata = []
-        (model, paths) = treeview.get_selection().get_selected_rows()
-        for path in paths:
-            row = model.get_metadata(path)
-            metadata.append(row)
+        (model, iter) = treeview.get_selection().get_selected()
+        metadata = model.get_metadata_from_iter(iter)
         return metadata
 
-
 class TreeViewFiles(gtk.TreeView):
-    def __init__(self):
+    def __init__(self, gui):
         gtk.TreeView.__init__(self)
+        self.__gui = gui
 
         self.get_selection().set_mode( gtk.SELECTION_MULTIPLE)
         t = ObjectListingModel
@@ -572,10 +589,6 @@ class TreeViewFiles(gtk.TreeView):
         self.enable_model_drag_dest([DND_TARGET_EXTERN_FILE], gtk.gdk.ACTION_COPY)
         self.connect('drag_data_received', self.on_drag_data_received)
 
-    def on_keyboard_event(self, treeview, event):
-        if gtk.gdk.keyval_name(event.keyval) == "Delete":
-            pass #FIXME self.delete_objects(treeview)
-
     def on_drag_data_get(self, treeview, drag_context, data, info, time):
         selected = self.__get_selected_row_metadata(treeview)
         d = []
@@ -610,6 +623,11 @@ class TreeViewFiles(gtk.TreeView):
             drag_context.drop_finish(success=False, time=time)
             if DEBUG: debug_trace("on_drag_data_received(): Unknow info value passed: %i" % info, sender=self)
             assert False
+
+    def on_keyboard_event(self, treeview, event):
+        if gtk.gdk.keyval_name(event.keyval) == "Delete":
+            selected = self.__get_selected_row_metadata(treeview)
+            self.__gui.delete_objects(selected)
 
     def __get_selected_row_metadata(self, treeview):
         metadata = []

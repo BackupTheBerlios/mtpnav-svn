@@ -161,6 +161,11 @@ class MTPDevice():
                 raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
         return metadata
 
+    def add_track_to_playlist(self, metadata):
+        m = self.__MTPDevice.get_playlist(int(metadata.parent_id))
+        m.append(int(metadata.id))
+        self.__MTPDevice.update_playlist(m)
+
     def remove_object(self, object_id):
         o = int(object_id)
         try:
@@ -215,6 +220,8 @@ class MTPDevice():
             for track_id in playlist:
                 track = self.__MTPDevice.get_track_metadata(track_id)
                 m = Metadata.get_from_MTPTrack(track)
+                m.type = Metadata.TYPE_PLAYLIST_ITEM
+                m.parent = playlist
                 tracks.append(m)
             return tracks
         except pymtp.CommandFailed:
