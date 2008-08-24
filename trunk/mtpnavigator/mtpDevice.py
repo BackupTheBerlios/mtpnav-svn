@@ -150,7 +150,7 @@ class MTPDevice():
         mtp_metadata.name = metadata.filename
         parent = metadata.parent_id
         try:
-            new_id =self.__MTPDevice.create_new_playlist( mtp_metadata, int(parent))
+            new_id=self.__MTPDevice.create_new_playlist( mtp_metadata, int(parent))
             metadata.id = new_id
         except pymtp.CommandFailed:
             if not self.__check_free_space(metadata.filesize):
