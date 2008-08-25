@@ -17,10 +17,10 @@ try:
     import pymtp
     from mtpDevice import MTPDevice
     pymtp_available = True
-except:
+except Exception, exc:
+    if DEBUG: debug_trace("can't import pymtp", exception=exc)
     pymtp_available = False
-
-
+    
 VERSION="0.1.a3"
 
 DATA_PATH = os.path.join("/usr", "share", "mtpnavigator")
