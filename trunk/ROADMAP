@@ -2,11 +2,13 @@
 RELEASE 0.1.0:
 --------------
     FIXME:
+    *       creating playlist does not return the new id (pymtp or libmtp?)
+    *       delete from menu item
+    *       add from menu item
     *       fix metadata and filenames encoding (accent and special charaters). Pass encode("utf-16") to pymtp
     *       warn when disconnecting during transfer (disconnect before exit)
     *       seg fault when deleting many files (try gtk.gdk.threads_enter and leave. Try setting daemon to false)
     *       prevent deleting system folders and files (waiting response from libmtp list)
-    * FAIL: select the row under mouse when drag and dropping to file view (like in nautilus)
     *       check if job already present before adding
     *       refuse adding others than tracks in track view ?
     *       identify from device what is a track and what is a file
@@ -38,13 +40,14 @@ RELEASE 0.1.0:
     * DONE: switch playlist/folder view
     * DONE: intern drag and drop support
     * DONE:  delete when filtered
-    * TEST: add and remove playlist
-    * TEST: add tracks to playlist
+    * DONE: add and remove playlist
+    * DONE: add tracks to playlist
     * TEST: remove tracks from playlist
+    *       move files/directories. Need patching actual pymtp
     *       order files within playlist
     *       get file from device
     *       rigth click context menus
-    * EXPERIMENT:  move files/directories(see experimental branch): seems not to be possible with actual pymtp
+    * DONE: dummy device for testing (option --dummy-devcie)
 
     PRERELEASE 0.1.a4: PLANNED
     *       get metadata from ogg files tags
