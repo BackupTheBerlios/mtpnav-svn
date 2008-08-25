@@ -214,7 +214,7 @@ class MTPnavigator:
             self.__create_playlist(new_object)
         else:
             if DEBUG: debug_trace("Unknow mode %i" % self.__current_mode, sender = self)
-            assert True
+            assert False
 
     def on_entry_add_object_focus_in_event(self, widget, event):
         #widget.modify_text(gtk.STATE_NORMAL, self.default_entry_text_color)
@@ -301,7 +301,7 @@ class MTPnavigator:
             empty_text = "new folder name..." #TRANSLATE
         else:
             if DEBUG: debug_trace("Unknow mode %i" % self.__current_mode, sender = self)
-            assert True
+            assert False
 
         self.__add_object_empty_text = empty_text
         entry = self.__getWidget("entry_add_object")
@@ -311,13 +311,18 @@ class MTPnavigator:
 
     def connect_device(self):
         self.__device_engine = None
-        if not pymtp_available:
-            msg = "pymtp is not or incorrectly installed on your system.\nThis is needed to access you device.\nGoto http://nick125.com/projects/pymtp to grab it and get installation instruction "
-            notify_error(msg, title="pymtp not available", sender=self.window)
-            self.__show_connected_state(False)
-            return
+        
+        if "--dummy-device" in sys.argv:
+            import dummyDevice
+            dev = dummyDevice.DummyDevice()
+        else:
+            if not pymtp_available:
+                msg = "pymtp is not or incorrectly installed on your system.\nThis is needed to access you device.\nGoto http://nick125.com/projects/pymtp to grab it and get installation instruction "
+                notify_error(msg, title="pymtp not available", sender=self.window)
+                self.__show_connected_state(False)
+                return
+            dev = MTPDevice()
 
-        dev = MTPDevice()
         self.__device_engine = DeviceEngine(dev)
         try:
             self.__device_engine.connect_device()
@@ -356,7 +361,7 @@ class MTPnavigator:
             navigator_model = self.__device_engine.get_folder_tree_model()
         else:
             if DEBUG: debug_trace("unknow mode %i" % mode, sender=self)
-            assert True
+            assert False
         self.__treeview_files.set_model(track_model)
         self.__treeview_navigator.set_mode(mode)
         self.__treeview_navigator.set_model(navigator_model)
@@ -374,7 +379,8 @@ class MTPnavigator:
         """
             selected_row: the metadata of the selected row
         """
-        assert not selrow_metadata or type(selrow_metadata) is type(Metadata.Metadata())
+        print type(selrow_metadata)
+        assert selrow_metadata and type(selrow_metadata) is type(Metadata.Metadata())
 
         parent_id=0
         if selrow_metadata:
