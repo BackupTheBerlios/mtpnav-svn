@@ -65,7 +65,18 @@ class DummyDevice():
         print "DUMMY: track %s added to playlist %s" % (metadata.title, metadata.parent_id)
 
     def remove_object(self, object_id):
-        pass
+        if int(object_id) in self.FOLDER_LISTING:
+            del(self.FOLDER_LISTING[int(object_id)])
+            print "DUMMY: folder %s removed" % object_id
+        elif int(object_id) in self.FILE_LISTING:
+            del(self.FILE_LISTING[int(object_id)])
+            print "DUMMY: file %s removed" % object_id
+        elif int(object_id) in self.PLAYLIST_LISTING:
+            del(self.PLAYLIST_LISTING[int(object_id)])
+            print "DUMMY: playlist %s removed" % object_id
+        else:
+            print "DUMMY: object %s not found" % object_id
+            assert False
 
     def get_track_listing(self):
         tracks = []

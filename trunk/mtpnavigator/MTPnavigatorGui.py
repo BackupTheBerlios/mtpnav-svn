@@ -575,7 +575,7 @@ class TreeViewFiles(gtk.TreeView):
         self.connect('drag_data_get', self.on_drag_data_get)
 
         # drag and drop destination
-        #FIXME: make TreeModelFilter DND des capable
+        #FIXME: make TreeModelFilter DND dest capable
         self.enable_model_drag_dest([DND_TARGET_EXTERN_FILE], gtk.gdk.ACTION_COPY)
         self.connect('drag_data_received', self.on_drag_data_received)
 
