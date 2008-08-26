@@ -55,12 +55,14 @@ class DummyDevice():
     def create_playlist(self, metadata):
         self.object_next_id+=1
         metadata.id = str(self.object_next_id)
-        self.PLAYLIST_LISTING[metadata.id] = (metadata.parent_id, metadata.title)
+        self.PLAYLIST_LISTING[self.object_next_id] = (int(metadata.parent_id), metadata.title, [])
         print "DUMMY: play list created: %s" % metadata.to_string()
         return metadata
 
     def add_track_to_playlist(self, metadata):
-        pass
+        playlist = self.PLAYLIST_LISTING[int(metadata.parent_id)]
+        playlist[2].append(int(metadata.id))       
+        print "DUMMY: track %s added to playlist %s" % (metadata.title, metadata.parent_id)
 
     def remove_object(self, object_id):
         pass

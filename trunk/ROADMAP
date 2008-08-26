@@ -36,18 +36,17 @@ RELEASE 0.1.0:
 
     PRERELEASE 0.1.a3: IN DEVELOPPMENT
 	* DONE: icons instead of SEND, CREATE, DEL... on transfer list
-    * DONE: separate folders from files in the folder view
-    * DONE: switch playlist/folder view
+    *       messages on transfer list (sending x to playlist y, deleting k, adding z...)
+    * DONE: playlist and folder/files view
     * DONE: intern drag and drop support
-    * DONE:  delete when filtered
-    * DONE: add and remove playlist
-    * DONE: add tracks to playlist
+    * DONE: delete when filtered
+    * DONE: manage playlist (add and remove playlist, add and remove tracks)
+    *       order files within playlist
     * TEST: remove tracks from playlist
     *       move files/directories. Need patching actual pymtp
-    *       order files within playlist
     *       get file from device
     *       rigth click context menus
-    * DONE: dummy device for testing (option --dummy-devcie)
+    * DONE: dummy device implemented for safe testing (use option --dummy-device)
 
     PRERELEASE 0.1.a4: PLANNED
     *       get metadata from ogg files tags
