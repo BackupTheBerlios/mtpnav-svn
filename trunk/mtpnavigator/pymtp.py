@@ -1061,7 +1061,7 @@ class MTP:
 			self.debug_stack()
 			raise CommandFailed
 
-		return ret
+		return metadata.playlist_id
 
 	def update_playlist(self, metadata):
 		"""
