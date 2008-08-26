@@ -110,10 +110,10 @@ class TransferManager():
         metadata.type = Metadata.TYPE_PLAYLIST
         self.__queue_job(self.ACTION_CREATE_PLAYLIST, metadata)
 
-    def add_track_to_playlist(self, playlist_metadata, track, previous_track):
-        if DEBUG: debug_trace("request for adding %s to playlist %s" % (track.title, playlist_metadata .title), sender=self)
+    def add_track_to_playlist(self, play_list_id, track, previous_track):
+        if DEBUG: debug_trace("request for adding %s to playlist %s" % (track.title, play_list_id), sender=self)
         #TODO: handle previous_track in job
-        track.parent_id = playlist_metadata.id
+        track.parent_id = play_list_id
         self.__queue_job(self.ACTION_ADD_TO_PLAYLIST, track)
 
     def send_file(self, file_url, parent_id):
@@ -206,7 +206,7 @@ class ProcessQueueThread(Thread):
 
                 elif job.action == TransferManager.ACTION_ADD_TO_PLAYLIST:
                     self.__device_engine.add_track_to_playlist(job.metadata)
-                    trace("Track %s added succesfullyc.to playlist %s" % (job.metadata.title, job.metadata.parent_id), sender=self)
+                    trace("Track %s succesfully added to playlist %s" % (job.metadata.title, job.metadata.parent_id), sender=self)
 
                 else:
                     if DEBUG: debug_trace("Unknow action: %i" % job.action, sender=self)

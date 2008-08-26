@@ -193,7 +193,7 @@ class MTPnavigator:
         response = fs.run()
         if response == gtk.RESPONSE_OK:
             for uri in fs.get_uris():
-                self.send_file(uri, parent_id)
+                self.transfer_manager.send_file(uri, parent_id)
         fs.destroy()
 
     def on_combo_change_mode_changed(self, combo):
@@ -377,24 +377,6 @@ class MTPnavigator:
         self.__current_folder = folder
         self.__device_engine.get_object_listing_model().set_current_folder(folder)
 
-    def send_file(self, uri, selrow_metadata):
-        """
-            selected_row: the metadata of the selected row
-        """
-        print type(selrow_metadata)
-        assert selrow_metadata and type(selrow_metadata) is type(Metadata.Metadata())
-
-        parent_id=0
-        if selrow_metadata:
-            parent_id = selrow_metadata.id
-            if DEBUG: debug_trace("files where dropped on %s" % parent_id, sender=self)
-            # if the row is not a folder, take the parent which should be one
-            if selrow_metadata.type <> Metadata.TYPE_FOLDER:
-                parent_id  = selrow_metadata.parent_id
-                if DEBUG: debug_trace("It was not a folder. Its parent %s is taken instead." % parent_id, sender=self)
-
-        return self.transfer_manager.send_file(uri, parent_id)
-
     def delete_objects(self, to_del):
         if len(to_del)==0: return
         (folder_count, playlist_count, file_count, track_count) = (0, 0, 0, 0)
@@ -502,16 +484,16 @@ class TreeViewNavigator(gtk.TreeView):
         drop_info = treeview.get_dest_row_at_pos(x, y)
         if drop_info:
             selrow_metadata = treeview.get_model().get_metadata(drop_info[0])
-        parent = selrow_metadata
+        parent = selrow_metadata.id
         if selrow_metadata.type != Metadata.TYPE_FOLDER and selrow_metadata.type != Metadata.TYPE_PLAYLIST:
-            parent = selrow_metadata
+            parent = selrow_metadata.parent_id
 
         if info == DND_EXTERN:
             if DEBUG: debug_trace("extern drag and drop detected with data %s" % data.data, sender=self)
             if data and data.format == 8: # 8 = type string
                 # process the list containing dropped objects
                 for uri in data.data.split('\r\n')[:-1]:
-                    self.send_file(uri, selrow_metadata)
+                    self.send_file(uri, parent)
                 drag_context.drop_finish(success=True, time=time)
             else:
                 drag_context.drop_finish(success=False, time=time)
