@@ -18,9 +18,9 @@ class DummyDevice():
                     14: (True, 3, "TEST4.MP3", "title4", "artist4", "album4", "genre4", 4444, 123454)
                     }
 
-    PLAYLIST_LISTING = {12: (0, "testPL", [10,12,13])}
+    PLAYLIST_LISTING = {15: (0, "testPL", [10,12,13])}
 
-    object_next_id = 13
+    object_next_id = 16
 
     def __init__(self):
         pass
@@ -104,7 +104,9 @@ class DummyDevice():
         playlist=self.PLAYLIST_LISTING[int(playlist_meta.id)]
         tracks=[]
         for track_id in playlist[2]:
-            tracks.append(self.__get_file_metadata(track_id))
+            m = self.__get_file_metadata(track_id)
+            m.parent_id = playlist_meta.id
+            tracks.append(m)
         return tracks
         
     def get_file_listing(self):

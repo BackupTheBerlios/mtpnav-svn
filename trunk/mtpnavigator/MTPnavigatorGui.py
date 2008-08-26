@@ -255,6 +255,8 @@ class MTPnavigator:
         self.__actiongroup.get_action("Connect").set_visible(not is_connected)
         self.__actiongroup.get_action("Disconnect").set_visible(is_connected)
         self.__getWidget("hbox_device_information").set_sensitive(is_connected)
+        self.__getWidget("scrolledwindow_files").set_sensitive(is_connected)
+        self.__getWidget("vbox1").set_sensitive(is_connected)
 
         if is_connected:
             connected_device = self.__device_engine.get_device().get_name()
@@ -347,7 +349,7 @@ class MTPnavigator:
         self.__device_engine.disconnect_device()
         self.__device_engine = None
         self.__treeview_files.set_model(None)
-        self.__treeview_folder.set_model(None)
+        self.__treeview_navigator.set_model(None)
         self.__show_connected_state(False)
 
     def activate_mode(self, mode):
@@ -436,9 +438,9 @@ class TreeViewNavigator(gtk.TreeView):
         f = ContainerTreeModel
         if DEBUG_ID:
             col = gtk.TreeViewColumn("object ID", gtk.CellRendererText(), text=f.OBJECT_ID)
-            self.__treeview_navigator.append_column(col)
+            self.append_column(col)
             col = gtk.TreeViewColumn("parent ID", gtk.CellRendererText(), text=f.PARENT_ID)
-            self.__treeview_navigator.append_column(col)
+            self.append_column(col)
         col = gtk.TreeViewColumn("name")
         cell = gtk.CellRendererPixbuf()
         col.pack_start(cell, False)
