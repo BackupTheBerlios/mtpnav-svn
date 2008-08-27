@@ -72,7 +72,7 @@ class MTPnavigator:
         self.window.set_default_size(wwidth, wheight)
         self.window.set_size_request(500,350)
         self.window.set_title("MTP navigatore " + VERSION)
-        self.__getWidget("vpaned_main").set_position(wheight-250) #TODO: save position
+        #self.__getWidget("vpaned_main").set_position(wheight-250) #TODO: save position
 
         self.__create_combo_change_mode()
 
@@ -163,7 +163,8 @@ class MTPnavigator:
         if not treeview:
             if DEBUG: debug_trace("Delete action activated. No treeview has focus", sender=self)
             return
-        self.delete_objects(treeview)
+        selection = treeview.get_selected_rows_metadata()
+        self.delete_objects(selection)
 
     def on_button_cancel_job_clicked(self, emiter):
         (model, paths) = self.transfer_manager.get_selection().get_selected_rows()
@@ -232,7 +233,7 @@ class MTPnavigator:
     def __get_currently_selected_folder(self):
         return self.__current_folder
 
-    def __get_selected_row_metadata(self, treeview):
+    def get_selected_rows_metadata(self, treeview):
         metadata = []
         (model, paths) = treeview.get_selection().get_selected_rows()
         for path in paths:
@@ -379,32 +380,41 @@ class MTPnavigator:
 
     def delete_objects(self, to_del):
         if len(to_del)==0: return
+        to_remove_from_playlist = []
         (folder_count, playlist_count, file_count, track_count) = (0, 0, 0, 0)
-
-        # show confirmation
+        
         for metadata in to_del:
             if metadata.type == Metadata.TYPE_FOLDER: folder_count+=1
             if metadata.type == Metadata.TYPE_PLAYLIST: playlist_count+=1
             if metadata.type == Metadata.TYPE_FILE: file_count+=1
             if metadata.type == Metadata.TYPE_TRACK: track_count+=1
+            if metadata.type == Metadata.TYPE_PLAYLIST_ITEM:
+                to_remove_from_playlist.append(metadata)
+                to_del.remove(metadata)
 
-        msg = "You are about to delete " #TRANSLATE
-        if track_count > 0:  msg += " %i tracks" % track_count
-        if file_count > 0:  msg += " %i files" % file_count
-        if folder_count > 0: msg += " %i folders" % folder_count
-        if playlist_count > 0: msg += " %i playlists" % playlist_count
-        if folder_count > 0 : msg += "\nAll the files contained within the folders will be destroyed as well"
-        confirm_dlg = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, msg)
-        confirm_dlg.set_title("Confirm delete")
-        response=confirm_dlg.run()
-        confirm_dlg.destroy()
-        if response <> gtk.RESPONSE_OK:
-            return
-
-        # send order to transfer manager
-        for metadata in to_del:
-            if DEBUG: debug_trace("deleting file with ID %s (%s)" % (metadata.id, metadata.filename), sender=self)
-            self.transfer_manager.del_file(metadata)
+        if len(to_del)>0:
+            # show confirmation and delete objects
+            msg = "You are about to delete " #TRANSLATE
+            if track_count > 0:  msg += " %i tracks" % track_count
+            if file_count > 0:  msg += " %i files" % file_count
+            if folder_count > 0: msg += " %i folders" % folder_count
+            if playlist_count > 0: msg += " %i playlists" % playlist_count
+            if folder_count > 0 : msg += "\nAll the files contained within the folders will be destroyed as well"
+            confirm_dlg = gtk.MessageDialog(self.window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, msg)
+            confirm_dlg.set_title("Confirm delete")
+            response=confirm_dlg.run()
+            confirm_dlg.destroy()
+            if response <> gtk.RESPONSE_OK:
+                return
+    
+            # send order to transfer manager
+            for metadata in to_del:
+                if DEBUG: debug_trace("deleting file with ID %s (%s)" % (metadata.id, metadata.filename), sender=self)
+                self.transfer_manager.del_file(metadata)
+            
+        # remove tracks from playlist
+        for metadata in to_remove_from_playlist:
+            self.transfer_manager.remove_track_from_playlist(metadata)
 
     def exit(self):
         self.window.destroy()
@@ -455,11 +465,8 @@ class TreeViewNavigator(gtk.TreeView):
 
     def on_keyboard_event(self, treeview, event):
         if gtk.gdk.keyval_name(event.keyval) == "Delete":
-            selected = self.__get_selected_row_metadata(treeview)
-            if selected.type == Metadata.TYPE_PLAYLIST_ITEM:
-                self.__gui.transfer_manager.remove_track_from_playlist(selected)
-            else:
-                self.__gui.delete_objects([selected])
+            selected = self.get_selected_rows_metadata()
+            self.__gui.delete_objects(selected)
 
     def on_selection_change(self, treeselection):
         (model, iter) = treeselection.get_selected()
@@ -470,7 +477,7 @@ class TreeViewNavigator(gtk.TreeView):
         self.__gui.change_current_folder(folder)
 
     def on_drag_data_get(self, treeview, drag_context, data, info, time):
-        selected = self.__get_selected_row_metadata(treeview)
+        selected = self.get_selected_row_metadata()
         d = []
         for metadata in selected:
             d.append(metadata.encode_as_string())
@@ -519,10 +526,14 @@ class TreeViewNavigator(gtk.TreeView):
             if DEBUG: debug_trace("on_drag_data_received(): Unknow info value passed: %i" % info, sender=self)
             assert False
 
-    def __get_selected_row_metadata(self, treeview):
-        (model, iter) = treeview.get_selection().get_selected()
+    def get_selected_row_metadata(self):
+        (model, iter) = self.get_selection().get_selected()
         metadata = model.get_metadata_from_iter(iter)
         return metadata
+        
+    def get_selected_rows_metadata(self):
+        return [self.get_selected_row_metadata()]
+        
 
 class TreeViewFiles(gtk.TreeView):
     def __init__(self, gui):
@@ -580,7 +591,7 @@ class TreeViewFiles(gtk.TreeView):
         self.connect('drag_data_received', self.on_drag_data_received)
 
     def on_drag_data_get(self, treeview, drag_context, data, info, time):
-        selected = self.__get_selected_row_metadata(treeview)
+        selected = self.__get_selected_rows_metadata()
         d = []
         for metadata in selected:
             d.append(metadata.encode_as_string())
@@ -616,12 +627,12 @@ class TreeViewFiles(gtk.TreeView):
 
     def on_keyboard_event(self, treeview, event):
         if gtk.gdk.keyval_name(event.keyval) == "Delete":
-            selected = self.__get_selected_row_metadata(treeview)
+            selected = self.get_selected_rows_metadata()
             self.__gui.delete_objects(selected)
 
-    def __get_selected_row_metadata(self, treeview):
+    def get_selected_rows_metadata(self):
         metadata = []
-        (model, paths) = treeview.get_selection().get_selected_rows()
+        (model, paths) = self.get_selection().get_selected_rows()
         for path in paths:
             row = model.get_model().get_metadata(model.convert_path_to_child_path(path))
             metadata.append(row)

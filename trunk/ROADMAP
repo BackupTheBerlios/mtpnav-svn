@@ -2,8 +2,6 @@
 RELEASE 0.1.0:
 --------------
     FIXME:
-    *       creating playlist does not return the new id (pymtp or libmtp?)
-    *       delete from menu item
     *       add from menu item
     *       fix metadata and filenames encoding (accent and special charaters). Pass encode("utf-16") to pymtp
     *       warn when disconnecting during transfer (disconnect before exit)
