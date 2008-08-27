@@ -187,7 +187,7 @@ class ObjectListingModel(gtk.ListStore):
         if it:
             self.remove(it)
         else:
-            debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
+            if DEBUG: debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
         self.__lock.release()
         if DEBUG_LOCK: debug_trace(".remove_object(): lock released (%s)" % object_id, sender=self)
 
@@ -249,7 +249,7 @@ class ContainerTreeModel(gtk.TreeStore):
         if it:
             self.remove(it)
         else:
-            debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
+            if DEBUG: debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
         self.__lock.release()
         if DEBUG_LOCK: debug_trace(".remove_object(): lock released (%s)" % object_id, sender=self)
 

@@ -72,6 +72,10 @@ class TransferManager():
                     self.__device_engine.get_folder_tree_model().remove_object(job.metadata.id)
                 elif job.metadata.type == Metadata.TYPE_PLAYLIST:
                     self.__device_engine.get_playlist_tree_model().remove_object(job.metadata.id)
+                elif job.metadata.type == Metadata.TYPE_TRACK:
+                    self.__device_engine.get_object_listing_model().remove_object(job.metadata.id)
+                    # also try to remove from playlist model if the track belogn a playlist
+                    self.__device_engine.get_playlist_tree_model().remove_object(job.metadata.id)
                 else:
                    self.__device_engine.get_object_listing_model().remove_object(job.metadata.id)
             elif job.action==self.ACTION_CREATE_FOLDER:
