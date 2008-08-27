@@ -63,6 +63,12 @@ class DummyDevice():
         playlist = self.PLAYLIST_LISTING[int(metadata.parent_id)]
         playlist[2].append(int(metadata.id))       
         print "DUMMY: track %s added to playlist %s" % (metadata.title, metadata.parent_id)
+        
+    def remove_track_from_playlist(self, metadata):
+        playlist = self.PLAYLIST_LISTING[int(metadata.parent_id)]
+        playlist[2].remove(int(metadata.id))       
+        print "DUMMY: track %s deleted from playlist %s" % (metadata.title, metadata.parent_id)
+        
 
     def remove_object(self, object_id):
         if int(object_id) in self.FOLDER_LISTING:
@@ -150,11 +156,12 @@ class DummyDevice():
         for track_id in playlist[2]:
             m = self.__get_track_metadata(track_id)
             m.parent_id = playlist_meta.id
+            m.type = TYPE_PLAYLIST_ITEM
             tracks.append(m)
         return tracks
        
     def get_diskusage(self):
-        return [752,1000]
+        return [752000,1000000]
 
     def get_usedspace(self):
         return 752

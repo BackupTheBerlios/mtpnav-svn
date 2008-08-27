@@ -19,12 +19,14 @@ class TransferManager():
     ACTION_CREATE_FOLDER = 3
     ACTION_CREATE_PLAYLIST = 4
     ACTION_ADD_TO_PLAYLIST = 5
+    ACTION_REMOVE_FROM_PLAYLIST = 6
     icons={ ACTION_SEND: gtk.STOCK_GO_DOWN,
             ACTION_DEL: gtk.STOCK_DELETE,
             ACTION_GET: gtk.STOCK_GO_UP,
             ACTION_CREATE_FOLDER: gtk.STOCK_DIRECTORY,
             ACTION_CREATE_PLAYLIST: gtk.STOCK_EDIT,
-            ACTION_ADD_TO_PLAYLIST: gtk.STOCK_ADD }
+            ACTION_ADD_TO_PLAYLIST: gtk.STOCK_ADD, 
+            ACTION_REMOVE_FROM_PLAYLIST: gtk.STOCK_REMOVE}
 
     STATUS_QUEUED = "queued"
     STATUS_PROCESSING = "processing"
@@ -78,6 +80,8 @@ class TransferManager():
                 self.__device_engine.get_playlist_tree_model().append(job.metadata)
             elif job.action==self.ACTION_ADD_TO_PLAYLIST:
                 self.__device_engine.get_playlist_tree_model().append(job.metadata)
+            elif job.action==self.ACTION_REMOVE_FROM_PLAYLIST:
+                self.__device_engine.get_playlist_tree_model().remove_object(job.metadata.id)
 
     def __queue_job(self, job_type, metadata):
         assert type(metadata) is type(Metadata.Metadata())
@@ -115,6 +119,10 @@ class TransferManager():
         #TODO: handle previous_track in job
         track.parent_id = play_list_id
         self.__queue_job(self.ACTION_ADD_TO_PLAYLIST, track)
+        
+    def remove_track_from_playlist(self, playlist_item_metadata):
+        if DEBUG: debug_trace("request for removing %s from playlist %s" % (playlist_item_metadata.title, playlist_item_metadata.parent_id), sender=self)
+        self.__queue_job(self.ACTION_REMOVE_FROM_PLAYLIST, playlist_item_metadata)
 
     def send_file(self, file_url, parent_id):
         if DEBUG: debug_trace("request for sending %s" % file_url, sender=self)
@@ -206,7 +214,11 @@ class ProcessQueueThread(Thread):
 
                 elif job.action == TransferManager.ACTION_ADD_TO_PLAYLIST:
                     self.__device_engine.add_track_to_playlist(job.metadata)
-                    trace("Track %s succesfully added to playlist %s" % (job.metadata.title, job.metadata.parent_id), sender=self)
+                    trace("Track %s successfully added to playlist %s" % (job.metadata.title, job.metadata.parent_id), sender=self)
+                    
+                elif job.action == TransferManager.ACTION_REMOVE_FROM_PLAYLIST:
+                    self.__device_engine.remove_track_from_playlist(job.metadata)
+                    trace("Track %s successfully removed from playlist %s" % (job.metadata.title, job.metadata.parent_id), sender=self)
 
                 else:
                     if DEBUG: debug_trace("Unknow action: %i" % job.action, sender=self)

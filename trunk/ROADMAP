@@ -74,11 +74,13 @@ RELEASE 0.1.0:
 
 RELEASE >= 0.2.0:
 --------------
+* make playlist view multiselect
 * accept samba files
 * edit metadata
 * copy and paste from nautilus
 * album view
 * multi device
+* detect plug/unplugged devices with hal (http://lists.freedesktop.org/archives/hal/2005-January/001623.html)
 * support for fs based device
 * cover
 * backup/restore device

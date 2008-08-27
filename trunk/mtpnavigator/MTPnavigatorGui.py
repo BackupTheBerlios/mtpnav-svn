@@ -457,7 +457,7 @@ class TreeViewNavigator(gtk.TreeView):
         if gtk.gdk.keyval_name(event.keyval) == "Delete":
             selected = self.__get_selected_row_metadata(treeview)
             if selected.type == Metadata.TYPE_PLAYLIST_ITEM:
-                pass #TODO remove from playlist
+                self.__gui.transfer_manager.remove_track_from_playlist(selected)
             else:
                 self.__gui.delete_objects([selected])
 
