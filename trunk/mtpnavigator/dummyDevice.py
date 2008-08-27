@@ -11,11 +11,11 @@ class DummyDevice():
     FOLDER_LISTING = {1: (0, "Music"), 2: (0 , "System"), 3: (1, "Test folder")}
     DEFAULT_MUSIC_FOLDER = 1
 
-    FILE_LISTING = {10: (True, 1, "TEST.MP3", "title", "artist", "album", "genre", 1231, 123454),
+    FILE_LISTING = {10: (True, 1, "TEST.MP3", "title", "artist", "album", "genre", 1231, 1219847365),
                     11: (True, 2, "system.sys", "", "", "", "", 0, 0),
-                    12: (True, 1, "TEST2.MP3", "title2", "artist2", "album2", "genre2", 2222, 123454),
-                    13: (True, 3, "TEST3.MP3", "title3", "artist3", "album3", "genre3", 3333, 123454),
-                    14: (True, 3, "TEST4.MP3", "title4", "artist4", "album4", "genre4", 4444, 123454)
+                    12: (True, 1, "TEST2.MP3", "title2", "artist2", "album2", "genre2", 2222, 1219847365),
+                    13: (True, 3, "TEST3.MP3", "title3", "artist3", "album3", "genre3", 3333, 1219847365),
+                    14: (True, 3, "TEST4.MP3", "title4", "artist4", "album4", "genre4", 4444, 1219847365)
                     }
 
     PLAYLIST_LISTING = {15: (0, "testPL", [10,12,13])}
@@ -34,14 +34,15 @@ class DummyDevice():
     def disconnect(self):
         print("DUMMY: disconnected")
 
-    def send_track(self, metadata=None, callback=None):
-        TOTAL = 10000
+    def send_track(self, m, callback=None):
+        TOTAL = 1000
         for i in range(0,TOTAL):
             callback(i, TOTAL)
-        file_next_id+=1
-        m.id=str(file_next_id)
-        file_listing.append((True, file_next_id, DEFAULT_MUSIC_FOLDER, m.filename, m.title, m.artist, m.album, m.genre, m.filesize, m.date))
-        m.parent_id = str(DEFAULT_MUSIC_FOLDER)
+        self.object_next_id+=1
+        m.id=str(self.object_next_id)
+        if m.parent_id==0:
+            m.parent_id = str(self.DEFAULT_MUSIC_FOLDER)
+        self.FILE_LISTING[m.id] = (True, m.parent_id, m.filename, m.title, m.artist, m.album, m.genre, m.filesize, m.date)
         print("DUMMY: track added: %s" % m.to_string())
         return m            
         

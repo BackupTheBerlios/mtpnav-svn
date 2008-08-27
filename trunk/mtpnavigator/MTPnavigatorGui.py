@@ -356,6 +356,17 @@ class MTPnavigator:
     def activate_mode(self, mode):
         if DEBUG: debug_trace("activating mode %i" % mode, sender=self)
         track_model = None
+        
+        # show or hide cloumns
+        t = self.__treeview_files
+        file_columns_visible = [t.COL_FILE_NAME]
+        track_columns_visible = [t.COL_TITLE, t.COL_ARTIST, t.COL_ALBUM, t.COL_GENRE]
+        for col in file_columns_visible:
+            t.get_column(col).set_visible(mode == MODE_FOLDER_VIEW)
+        for col in track_columns_visible:
+            t.get_column(col).set_visible(mode == MODE_PLAYLIST_VIEW)
+
+        # set models
         if mode == MODE_PLAYLIST_VIEW:
             track_model = self.__device_engine.get_track_listing_model()
             navigator_model = self.__device_engine.get_playlist_tree_model()
@@ -536,6 +547,14 @@ class TreeViewNavigator(gtk.TreeView):
         
 
 class TreeViewFiles(gtk.TreeView):
+    first_col=0
+    if DEBUG_ID: first_col=3
+    COL_FILE_NAME = first_col + 1
+    COL_TITLE = first_col + 2
+    COL_ARTIST = first_col + 3
+    COL_ALBUM = first_col + 4
+    COL_GENRE = first_col + 5
+    
     def __init__(self, gui):
         gtk.TreeView.__init__(self)
         self.__gui = gui
