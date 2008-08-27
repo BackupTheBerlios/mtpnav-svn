@@ -165,10 +165,20 @@ class MTPDevice():
         m = self.__MTPDevice.get_playlist(int(metadata.parent_id))
         m.append(int(metadata.id))
         self.__MTPDevice.update_playlist(m)
-        
+
     def remove_track_from_playlist(self, metadata):
         m = self.__MTPDevice.get_playlist(int(metadata.parent_id))
-        m.remove(int(metadata.id))
+        index = -1
+        count = 0
+        for track in m:
+            if track == int(metadata.id):
+                index = count
+                break
+            count += 1
+        if index >= 0:
+            del m[index]
+        else:
+            if DEBUG: debug_trace("Can't find track %s in playlist %s" % (metadata.title, metadata.parent_id), sender=self)
         self.__MTPDevice.update_playlist(m)
 
     def remove_object(self, object_id):

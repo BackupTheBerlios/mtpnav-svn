@@ -20,7 +20,7 @@ try:
 except Exception, exc:
     if DEBUG: debug_trace("can't import pymtp", exception=exc)
     pymtp_available = False
-    
+
 VERSION="0.1.a3"
 
 DATA_PATH = os.path.join("/usr", "share", "mtpnavigator")
@@ -314,7 +314,7 @@ class MTPnavigator:
 
     def connect_device(self):
         self.__device_engine = None
-        
+
         if "--dummy-device" in sys.argv:
             import dummyDevice
             dev = dummyDevice.DummyDevice()
@@ -356,7 +356,7 @@ class MTPnavigator:
     def activate_mode(self, mode):
         if DEBUG: debug_trace("activating mode %i" % mode, sender=self)
         track_model = None
-        
+
         # show or hide cloumns
         t = self.__treeview_files
         file_columns_visible = [t.COL_FILE_NAME]
@@ -393,7 +393,7 @@ class MTPnavigator:
         if len(to_del)==0: return
         to_remove_from_playlist = []
         (folder_count, playlist_count, file_count, track_count) = (0, 0, 0, 0)
-        
+
         for metadata in to_del:
             if metadata.type == Metadata.TYPE_FOLDER: folder_count+=1
             if metadata.type == Metadata.TYPE_PLAYLIST: playlist_count+=1
@@ -417,12 +417,12 @@ class MTPnavigator:
             confirm_dlg.destroy()
             if response <> gtk.RESPONSE_OK:
                 return
-    
+
             # send order to transfer manager
             for metadata in to_del:
                 if DEBUG: debug_trace("deleting file with ID %s (%s)" % (metadata.id, metadata.filename), sender=self)
                 self.transfer_manager.del_file(metadata)
-            
+
         # remove tracks from playlist
         for metadata in to_remove_from_playlist:
             self.transfer_manager.remove_track_from_playlist(metadata)
@@ -541,10 +541,10 @@ class TreeViewNavigator(gtk.TreeView):
         (model, iter) = self.get_selection().get_selected()
         metadata = model.get_metadata_from_iter(iter)
         return metadata
-        
+
     def get_selected_rows_metadata(self):
         return [self.get_selected_row_metadata()]
-        
+
 
 class TreeViewFiles(gtk.TreeView):
     first_col=0
@@ -554,7 +554,7 @@ class TreeViewFiles(gtk.TreeView):
     COL_ARTIST = first_col + 3
     COL_ALBUM = first_col + 4
     COL_GENRE = first_col + 5
-    
+
     def __init__(self, gui):
         gtk.TreeView.__init__(self)
         self.__gui = gui
@@ -610,7 +610,7 @@ class TreeViewFiles(gtk.TreeView):
         self.connect('drag_data_received', self.on_drag_data_received)
 
     def on_drag_data_get(self, treeview, drag_context, data, info, time):
-        selected = self.__get_selected_rows_metadata()
+        selected = self.get_selected_rows_metadata()
         d = []
         for metadata in selected:
             d.append(metadata.encode_as_string())
