@@ -467,7 +467,7 @@ class TreeViewNavigator(gtk.TreeView):
         self.connect('drag_data_get', self.on_drag_data_get)
 
         # drag and drop destination
-        self.enable_model_drag_dest([DND_TARGET_INTERN], gtk.gdk.ACTION_COPY)
+        self.enable_model_drag_dest([DND_TARGET_INTERN, DND_TARGET_EXTERN_FILE], gtk.gdk.ACTION_COPY)
         self.connect('drag_data_received', self.on_drag_data_received)
 
     def set_mode(self, mode):
@@ -510,7 +510,10 @@ class TreeViewNavigator(gtk.TreeView):
             if data and data.format == 8: # 8 = type string
                 # process the list containing dropped objects
                 for uri in data.data.split('\r\n')[:-1]:
-                    self.send_file(uri, parent)
+                    if self.__mode == MODE_PLAYLIST_VIEW:
+                        self.__gui.transfer_manager.send_extern_file_to_playlist(parent, uri, selrow_metadata)                        
+                    else:
+                        self.__gui.transfer_manager.send_file(uri, parent)
                 drag_context.drop_finish(success=True, time=time)
             else:
                 drag_context.drop_finish(success=False, time=time)
@@ -609,7 +612,7 @@ class TreeViewFiles(gtk.TreeView):
 
         # drag and drop destination
         #FIXME: make TreeModelFilter DND dest capable
-        self.enable_model_drag_dest([DND_TARGET_EXTERN_FILE], gtk.gdk.ACTION_COPY)
+        self.drag_dest_set(gtk.gdk.BUTTON1_MASK, [DND_TARGET_EXTERN_FILE], gtk.gdk.ACTION_COPY)
         self.connect('drag_data_received', self.on_drag_data_received)
 
     def on_drag_data_get(self, treeview, drag_context, data, info, time):

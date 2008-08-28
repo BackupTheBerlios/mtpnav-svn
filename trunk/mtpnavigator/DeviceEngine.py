@@ -74,8 +74,11 @@ class DeviceEngine:
     def create_folder(self, metadata):
         return self.__device.create_folder(metadata)
 
-    def add_track_to_playlist(self, metadata):
-        return self.__device.add_track_to_playlist(metadata)
+    def add_track_to_playlist(self, metadata, callback):
+        return self.__device.add_track_to_playlist(metadata, callback)
+        
+    def send_file_to_playlist(self, metadata, callback):
+        return self.__device.send_file_to_playlist(metadata, callback)
         
     def remove_track_from_playlist(self, metadata):
         return self.__device.remove_track_from_playlist(metadata)

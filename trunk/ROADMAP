@@ -1,16 +1,6 @@
 
 RELEASE 0.1.0:
 --------------
-    FIXME:
-    * TEST: seg fault when deleting many files (search throught the model instead od caching iter)
-    *       fix metadata and filenames encoding (accent and special charaters). Pass encode("utf-16") to pymtp
-    *       warn when disconnecting during transfer (disconnect before exit)
-    *       prevent deleting system folders and files (waiting response from libmtp list)
-    *       check if job already present before adding
-    *       refuse adding others than tracks in track view ?
-    *       identify from device what is a track and what is a file
-    *       expand parent when add file or folder
-
     PRERELEASE 0.1.a1: RELEASED 04/08/2008
         * view device information
         * view tracks listing
@@ -31,6 +21,9 @@ RELEASE 0.1.0:
         * columns resizable
         * use action and uimanager to create menu and toolbox (hide create dir for track view)
 
+-------------------------------------------------------------------------------------------------------------------------
+IN PROGRESS.....
+
     PRERELEASE 0.1.a3: IN DEVELOPMENT
 	* DONE: icons instead of SEND, CREATE, DEL... on transfer list
     *       messages on transfer list (sending x to playlist y, deleting k, adding z...)
@@ -38,13 +31,15 @@ RELEASE 0.1.0:
     * DONE: intern drag and drop support
     * DONE: delete when filtered
     * DONE: manage playlist (add and remove playlist, add and remove tracks)
+    * TEST: add extern file directly in playlist
     *       order files within playlist
     *       move track between 2 playlists
     * DONE: remove tracks from playlist
-    *       move files/directories. Need patching actual pymtp
+    *       move files/directories. Need patching actual pymtp (see libmtp.LIBMTP_Update_Track_Metadata)
     *       get file from device
     *       rigth click context menus
     * DONE: dummy device implemented for safe testing (use option --dummy-device)
+    *       display filetype (see pymtp.LIBMTP_File.filetype and pymtp.get_filetype_description)
 
     PRERELEASE 0.1.a4: PLANNED
     *       get metadata from ogg files tags
@@ -56,6 +51,18 @@ RELEASE 0.1.0:
     *       parametrize metadata from directory/file scheme if no tag
     *       display tooltips on track view and job list (artist, title genre...)
     *       about dialog
+
+    FIXME:
+    * TEST: seg fault when deleting many files (search throught the model instead od caching iter)
+    *       cache file/track listing in mtp_device
+    *       use transfer manager for getting file/tracks/playlist listing (=progression bar since it can take some time)
+    *       fix metadata and filenames encoding (accent and special charaters). Pass encode("utf-16") to pymtp
+    *       warn when disconnecting during transfer (disconnect before exit)
+    *       prevent deleting system folders and files (waiting response from libmtp list)
+    *       check if job already present before adding
+    *       refuse adding others than tracks in track view ?
+    *       identify from device what is a track and what is a file
+    *       expand parent when add file or folder
 
     RELEASE 0.1.0beta0 PLANNED
     * 	test and fixes + prereleases done
@@ -70,8 +77,10 @@ RELEASE 0.1.0:
     RELEASE 0.1.x PLANNED
     * bug fixes
 
+
 RELEASE >= 0.2.0:
 --------------
+* format device (libmt can that)
 * make playlist view multiselect
 * accept samba files
 * edit metadata
@@ -83,4 +92,4 @@ RELEASE >= 0.2.0:
 * cover
 * backup/restore device
 * choose columns to display
-* play tracks
+* play tracks (see LIBMTP_Get_File_To_File_Descriptor())

@@ -162,12 +162,24 @@ class MTPDevice():
         return metadata
 
     def add_track_to_playlist(self, metadata):
-        m = self.__MTPDevice.get_playlist(int(metadata.parent_id))
+        m = self.__MTPDevice.get_playlist(int(metadata.parent_id))  # read from and update playlist cache
         m.append(int(metadata.id))
         self.__MTPDevice.update_playlist(m)
+        
+    def send_file_to_playlist(self, metadata, callback):
+        playlist_id = metadata.parent_id
+        # send file
+        metadata = self.send_track(metadata, callback)
+        parent_id = metadata.parent_id
+        #add to plalist
+        metadata.parent_id = playlist_id
+        self.add_track_to_playlist(metadata)
+
+        metadata.parent_id = parent_id
+        return (metadata, playlist_id)
 
     def remove_track_from_playlist(self, metadata):
-        m = self.__MTPDevice.get_playlist(int(metadata.parent_id))
+        m = self.__MTPDevice.get_playlist(int(metadata.parent_id))  # read from and update playlist cache
         index = -1
         count = 0
         for track in m:
@@ -191,6 +203,7 @@ class MTPDevice():
 
     def get_track_listing(self):
         listing = []
+        #FIXME: Cache listing
         try:
             listing = self.__MTPDevice.get_tracklisting()
             tracks = []
@@ -204,6 +217,7 @@ class MTPDevice():
 
     def get_folder_listing(self):
         listing = []
+        #FIXME: Cache listing
         try:
             listing = self.__MTPDevice.get_folder_list().values()
             folders = []
@@ -217,6 +231,7 @@ class MTPDevice():
 
     def get_playlist_listing(self):
         listing = []
+        #FIXME: Cache listing
         try:
             listing = self.__MTPDevice.get_playlists()
             playlists = []
@@ -230,10 +245,11 @@ class MTPDevice():
 
     def get_tracks_for_playlist(self, playlist):
         tracks = []
+        #FIXME: Cache listing
         try:
             playlist = self.__MTPDevice.get_playlist(int(playlist.id))
             for track_id in playlist:
-                track = self.__MTPDevice.get_track_metadata(track_id)
+                track = self.__MTPDevice.get_track_metadata(track_id) #FIXME: Cache file listing and get from ther
                 m = Metadata.get_from_MTPTrack(track)
                 m.type = Metadata.TYPE_PLAYLIST_ITEM
                 m.parent = playlist
@@ -279,6 +295,6 @@ class MTPDevice():
 
     def __file_exist(self, filename):
         file_names = []
-        for file in self.get_file_listing():
-             file_names.append(file.title)
+        for file in self.get_file_listing(): #FIXME: use file cache instead
+             file_names.append(file.title) 
         return filename in file_names

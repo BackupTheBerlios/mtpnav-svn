@@ -45,7 +45,7 @@ class DummyDevice():
         m.id=str(self.object_next_id)
         if m.parent_id==0:
             m.parent_id = str(self.DEFAULT_MUSIC_FOLDER)
-        self.FILE_LISTING[m.id] = (True, m.parent_id, m.filename, m.title, m.artist, m.album, m.genre, m.filesize, m.date)
+        self.FILE_LISTING[self.object_next_id] = (True, m.parent_id, m.filename, m.title, m.artist, m.album, m.genre, m.filesize, m.date)
         print("DUMMY: track added: %s" % m.to_string())
         return m            
         
@@ -67,6 +67,18 @@ class DummyDevice():
         playlist = self.PLAYLIST_LISTING[int(metadata.parent_id)]
         playlist[2].append(int(metadata.id))       
         print "DUMMY: track %s added to playlist %s" % (metadata.title, metadata.parent_id)
+        
+    def send_file_to_playlist(self, metadata, callback):
+        playlist_id = metadata.parent_id
+        # send file
+        metadata = self.send_track(metadata, callback)
+        parent_id = metadata.parent_id
+        #add to plalist
+        metadata.parent_id = playlist_id
+        self.add_track_to_playlist(metadata)
+
+        metadata.parent_id = parent_id
+        return (metadata, playlist_id)       
         
     def remove_track_from_playlist(self, metadata):
         playlist = self.PLAYLIST_LISTING[int(metadata.parent_id)]
