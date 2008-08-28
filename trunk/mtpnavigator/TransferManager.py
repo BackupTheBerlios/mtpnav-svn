@@ -216,9 +216,9 @@ class ProcessQueueThread(Thread):
                 if job.action == TransferManager.ACTION_SEND:
                     metadata = self.__device_engine.send_file(job.metadata, self.__device_callback)
                     trace("%s sent successfully. New id is %s" % (job.object_id, metadata.id), sender=self)
-                    self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
                     job.object_id = metadata.id
                     job.metadata = metadata
+                    self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
 
                 elif job.action == TransferManager.ACTION_DEL:
                     self.__device_engine.del_file(job.object_id)
@@ -227,16 +227,16 @@ class ProcessQueueThread(Thread):
                 elif job.action == TransferManager.ACTION_CREATE_FOLDER:
                     metadata = self.__device_engine.create_folder(job.metadata)
                     trace("New folder %s created succesfully. New id is %s" % (job.object_id, metadata.id), sender=self)
-                    self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
                     job.object_id = metadata.id
                     job.metadata = metadata
+                    self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
 
                 elif job.action == TransferManager.ACTION_CREATE_PLAYLIST:
                     metadata = self.__device_engine.create_playlist(job.metadata)
                     trace("New playlist %s created succesfully. New id is %s" % (job.object_id, metadata.id), sender=self)
-                    self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
                     job.object_id = metadata.id
                     job.metadata = metadata
+                    self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
 
                 elif job.action == TransferManager.ACTION_ADD_TO_PLAYLIST:
                     self.__device_engine.add_track_to_playlist(job.metadata)
@@ -245,9 +245,9 @@ class ProcessQueueThread(Thread):
                 elif job.action == TransferManager.ACTION_SEND_FILE_TO_PLAYLIST:
                     (metadata, playlist_id) = self.__device_engine.send_file_to_playlist(job.metadata, self.__device_callback)
                     trace("Track %s successfully sent and added to playlist %s" % (job.metadata.title, job.metadata.parent_id), sender=self)
-                    self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
                     job.object_id = metadata.id
                     job.metadata = metadata
+                    self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
                     # FIXME find a way to pass playlist_id for refreshing playlist model
 
                 elif job.action == TransferManager.ACTION_REMOVE_FROM_PLAYLIST:
@@ -279,24 +279,24 @@ class TransfertQueueModel(gtk.ListStore):
 
     def __init__(self):
         gtk.ListStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_FLOAT, gobject.TYPE_PYOBJECT)
-        self.__cache = {}
         # lock to prevent more thread for updating the model at the same time
         self.__lock = Lock()
 
-    def __get_iter(self, object_id):
-        try:
-            if self.__cache[object_id].get_path():
-                return  self.get_iter(self.__cache[object_id].get_path())
-            return None
-        except KeyError, exc:
-            return None
+    def __get_iter(self, job_id):
+        print job_id
+        iter = None
+        iter = self.get_iter_first()
+        while iter:
+            if self.get(iter, self.COL_JOB_ID)[0] == job_id:
+                break
+            iter = self.iter_next(iter)
+        return iter
 
     def append(self, track):
         if DEBUG_LOCK: debug_trace(".append(): requesting lock (%s)" % track[0], sender=self)
         self.__lock.acquire()
         if DEBUG_LOCK: debug_trace(".append(): lock acquired (%s)" % track[0], sender=self)
         iter = gtk.ListStore.append(self, track)
-        self.__cache[track[0]] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()
         if DEBUG_LOCK: debug_trace(".append(): lock released(%s)" % track[0], sender=self)
         return iter
