@@ -26,7 +26,7 @@ class TransferManager():
             ACTION_GET: gtk.STOCK_GO_UP,
             ACTION_CREATE_FOLDER: gtk.STOCK_DIRECTORY,
             ACTION_CREATE_PLAYLIST: gtk.STOCK_EDIT,
-            ACTION_ADD_TO_PLAYLIST: gtk.STOCK_ADD, 
+            ACTION_ADD_TO_PLAYLIST: gtk.STOCK_ADD,
             ACTION_REMOVE_FROM_PLAYLIST: gtk.STOCK_REMOVE,
             ACTION_SEND_FILE_TO_PLAYLIST: gtk.STOCK_GO_DOWN
           }
@@ -130,11 +130,11 @@ class TransferManager():
         #TODO: handle previous_track in job
         track.parent_id = play_list_id
         self.__queue_job(self.ACTION_ADD_TO_PLAYLIST, track)
-        
+
     def remove_track_from_playlist(self, playlist_item_metadata):
         if DEBUG: debug_trace("request for removing %s from playlist %s" % (playlist_item_metadata.title, playlist_item_metadata.parent_id), sender=self)
         self.__queue_job(self.ACTION_REMOVE_FROM_PLAYLIST, playlist_item_metadata)
-        
+
     def __convert_file_url_to_metadata(self, file_url):
         url = urlparse(file_url)
         if url.scheme == "file":
@@ -144,7 +144,7 @@ class TransferManager():
         else:
             notify_warning("%s is not a file" % file_url)
             return None
-        
+
     def send_extern_file_to_playlist(self, play_list_id, file_url, previous_track):
         """
             send an extern file to the device then add it to the playlist
@@ -241,15 +241,15 @@ class ProcessQueueThread(Thread):
                 elif job.action == TransferManager.ACTION_ADD_TO_PLAYLIST:
                     self.__device_engine.add_track_to_playlist(job.metadata)
                     trace("Track %s successfully added to playlist %s" % (job.metadata.title, job.metadata.parent_id), sender=self)
-                    (metadata, playlist_id) = self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
+
+                elif job.action == TransferManager.ACTION_SEND_FILE_TO_PLAYLIST:
+                    (metadata, playlist_id) = self.__device_engine.send_file_to_playlist(job.metadata, self.__device_callback)
+                    trace("Track %s successfully sent and added to playlist %s" % (job.metadata.title, job.metadata.parent_id), sender=self)
+                    self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
                     job.object_id = metadata.id
                     job.metadata = metadata
                     # FIXME find a way to pass playlist_id for refreshing playlist model
-                    
-                elif job.action == TransferManager.ACTION_SEND_FILE_TO_PLAYLIST:
-                    self.__device_engine.send_file_to_playlist(job.metadata, self.__device_callback)
-                    trace("Track %s successfully sent and added to playlist %s" % (job.metadata.title, job.metadata.parent_id), sender=self)
-                    
+
                 elif job.action == TransferManager.ACTION_REMOVE_FROM_PLAYLIST:
                     self.__device_engine.remove_track_from_playlist(job.metadata)
                     trace("Track %s successfully removed from playlist %s" % (job.metadata.title, job.metadata.parent_id), sender=self)

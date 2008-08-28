@@ -74,12 +74,12 @@ class DeviceEngine:
     def create_folder(self, metadata):
         return self.__device.create_folder(metadata)
 
-    def add_track_to_playlist(self, metadata, callback):
-        return self.__device.add_track_to_playlist(metadata, callback)
-        
+    def add_track_to_playlist(self, metadata):
+        return self.__device.add_track_to_playlist(metadata)
+
     def send_file_to_playlist(self, metadata, callback):
         return self.__device.send_file_to_playlist(metadata, callback)
-        
+
     def remove_track_from_playlist(self, metadata):
         return self.__device.remove_track_from_playlist(metadata)
 
@@ -154,9 +154,9 @@ class ObjectListingModel(gtk.ListStore):
 
     def __get_iter(self, object_id):
         iter = None
-        iter = self.get_iter_first()                 
+        iter = self.get_iter_first()
         while iter:
-            if self.get(iter, self.OBJECT_ID)[0] == object_id:  
+            if self.get(iter, self.OBJECT_ID)[0] == object_id:
                 break
             iter = self.iter_next(iter)
         return iter
@@ -220,14 +220,14 @@ class ContainerTreeModel(gtk.TreeStore):
     def __get_iter(self, object_id):
         #start recursive search through the tree
         return self.__recurs_get_iter(object_id, self.get_iter_first() )
-        
+
     def __recurs_get_iter(self, object_id, iter):
         while iter:
-            if self.get(iter, self.OBJECT_ID)[0] == object_id:  
+            if self.get(iter, self.OBJECT_ID)[0] == object_id:
                 return iter
             #recursively browse the children
             iter_child = self.__recurs_get_iter(object_id, self.iter_children(iter))
-            if iter_child: 
+            if iter_child:
                 return iter_child
             iter = self.iter_next(iter)
         return iter
