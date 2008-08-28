@@ -8,7 +8,7 @@ ERRMSG_ALREADY_EXIST = "Already exists on the device" #TRANSLATE
 
 
 class DummyDevice():
-    FOLDER_LISTING = {1: (0, "Music"), 2: (0 , "System"), 3: (1, "Test folder")}
+    FOLDER_LISTING = {1: (0, "Music"), 2: (0 , "System"), 3: (1, "Test folder"), 4: (3, "Level 2")}
     DEFAULT_MUSIC_FOLDER = 1
 
     FILE_LISTING = {10: (True, 1, "TEST.MP3", "title", "artist", "album", "genre", 1231, 1219847365),
@@ -21,7 +21,10 @@ class DummyDevice():
     PLAYLIST_LISTING = {15: (0, "testPL", [10,12,13])}
 
     object_next_id = 16
-
+    
+    for object_next_id in range(object_next_id,30):
+        FILE_LISTING[object_next_id]=(True, 1, "test %i" % object_next_id, "test %i" % object_next_id,  "artist", "album", "genre", 1231, 1219847365)
+        
     def __init__(self):
         pass
 
@@ -49,7 +52,7 @@ class DummyDevice():
     def create_folder(self, metadata=None):
         self.object_next_id+=1
         metadata.id = str(self.object_next_id)
-        self.FOLDER_LISTING[metadata.id] = (0, metadata.title, ())
+        self.FOLDER_LISTING[self.object_next_id] = (0, metadata.title, ())
         print "DUMMY: play list created: %s" % metadata.to_string()
         return metadata
     

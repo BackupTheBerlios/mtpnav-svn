@@ -2,10 +2,9 @@
 RELEASE 0.1.0:
 --------------
     FIXME:
-    *       adding already existing track to playlist = segfault
+    * TEST: seg fault when deleting many files (search throught the model instead od caching iter)
     *       fix metadata and filenames encoding (accent and special charaters). Pass encode("utf-16") to pymtp
     *       warn when disconnecting during transfer (disconnect before exit)
-    *       seg fault when deleting many files (try gtk.gdk.threads_enter and leave. Try setting daemon to false)
     *       prevent deleting system folders and files (waiting response from libmtp list)
     *       check if job already present before adding
     *       refuse adding others than tracks in track view ?
@@ -13,26 +12,26 @@ RELEASE 0.1.0:
     *       expand parent when add file or folder
 
     PRERELEASE 0.1.a1: RELEASED 04/08/2008
-    * DONE: view device information
-    * DONE: view tracks listing
-    * DONE: add file to device
-    * DONE: add file to device per drag and drop
-    * DONE: delete files
-    * DONE: job queue
-    * DONE: get metadata from mp3 files tags
+        * view device information
+        * view tracks listing
+        * add file to device
+        * add file to device per drag and drop
+        * delete files
+        * job queue
+        * get metadata from mp3 files tags
 
     PRERELEASE 0.1.a2: RELEASED 14/08/2008
-    * DONE: entry in gnome menu
-    * DONE: view files and folders listing
-    * DONE: add a directory. Prevent adding directory to parent 0
-    * DONE: remove a whole directory (directory and contained files)
-    * DONE: add file to directory
-    * DONE: button to cancel job in transfer window
-    * DONE: identify transfers errors for all operation (already on device/device full)
-    * DONE: columns resizable
-    * DONE: use action and uimanager to create menu and toolbox (hide create dir for track view)
+        * entry in gnome menu
+        * view files and folders listing
+        * add a directory. Prevent adding directory to parent 0
+        * remove a whole directory (directory and contained files)
+        * add file to directory
+        * button to cancel job in transfer window
+        * identify transfers errors for all operation (already on device/device full)
+        * columns resizable
+        * use action and uimanager to create menu and toolbox (hide create dir for track view)
 
-    PRERELEASE 0.1.a3: IN DEVELOPPMENT
+    PRERELEASE 0.1.a3: IN DEVELOPMENT
 	* DONE: icons instead of SEND, CREATE, DEL... on transfer list
     *       messages on transfer list (sending x to playlist y, deleting k, adding z...)
     * DONE: playlist and folder/files view
@@ -40,7 +39,7 @@ RELEASE 0.1.0:
     * DONE: delete when filtered
     * DONE: manage playlist (add and remove playlist, add and remove tracks)
     *       order files within playlist
-    *       move between 2 playlists
+    *       move track between 2 playlists
     * DONE: remove tracks from playlist
     *       move files/directories. Need patching actual pymtp
     *       get file from device
@@ -59,7 +58,7 @@ RELEASE 0.1.0:
     *       about dialog
 
     RELEASE 0.1.0beta0 PLANNED
-    * 	test and fixes + prerelease done
+    * 	test and fixes + prereleases done
     *   deb
     *   central version number + svn revision + changelog
     *   logo

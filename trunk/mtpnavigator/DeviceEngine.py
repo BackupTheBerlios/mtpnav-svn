@@ -113,21 +113,22 @@ class ObjectListingModel(gtk.ListStore):
         self.__filter_folders.set_visible_func(self.__filter_folder)
         self.__current_folder_id = None
 
-        self.__cache = {}
         # lock to prevent more thread for updating the model at the same time
         self.__lock = Lock()
 
+        tracks = []
         # add all tracks
         tracks_list = _device.get_track_listing()
         for track_metadata in tracks_list:
             assert type(track_metadata) is type(Metadata.Metadata())
             self.append(track_metadata)
+            tracks.append(track_metadata.id)
 
         # add other files (the ones which are not already registered as tracks)
         file_list = _device.get_file_listing()
         for file_metadata in file_list:
             assert type(file_metadata) is type(Metadata.Metadata())
-            if not file_metadata.id in self.__cache.keys():
+            if not file_metadata.id in tracks:
                 self.append(file_metadata)
 
     def __filter_type(self, model, iter, type):
@@ -149,10 +150,13 @@ class ObjectListingModel(gtk.ListStore):
         self.__filter_folders.refilter()
 
     def __get_iter(self, object_id):
-        try:
-            return  self.get_iter(self.__cache[object_id].get_path())
-        except KeyError, exc:
-            return None
+        iter = None
+        iter = self.get_iter_first()                 
+        while iter:
+            if self.get(iter, self.OBJECT_ID)[0] == object_id:  
+                break
+            iter = self.iter_next(iter)
+        return iter
 
     def append(self, metadata):
         assert type(metadata) is type(Metadata.Metadata())
@@ -167,7 +171,6 @@ class ObjectListingModel(gtk.ListStore):
 
         row = [m.id, m.parent_id, m.type, m.filename, m.title, m.artist, m.album, m.genre, util.format_filesize(m.filesize), m.filesize, date_str, m.date, m.get_icon(), m]
         iter = gtk.ListStore.append(self, row)
-        self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()
 
         if DEBUG_LOCK: debug_trace(".append(): lock released (%s)" % m.id, sender=self)
@@ -202,7 +205,6 @@ class ContainerTreeModel(gtk.TreeStore):
     def __init__(self, _device):
         gtk.TreeStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING,
                     gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)
-        self.__cache = {}
         # lock to prevent more thread for updating the model at the same time
         self.__lock = Lock()
         self._device = _device
@@ -213,10 +215,19 @@ class ContainerTreeModel(gtk.TreeStore):
         pass
 
     def __get_iter(self, object_id):
-        try:
-            return  self.get_iter(self.__cache[object_id].get_path())
-        except KeyError, exc:
-            return None
+        #start recursive search through the tree
+        return self.__recurs_get_iter(object_id, self.get_iter_first() )
+        
+    def __recurs_get_iter(self, object_id, iter):
+        while iter:
+            if self.get(iter, self.OBJECT_ID)[0] == object_id:  
+                return iter
+            #recursively browse the children
+            iter_child = self.__recurs_get_iter(object_id, self.iter_children(iter))
+            if iter_child: 
+                return iter_child
+            iter = self.iter_next(iter)
+        return iter
 
     def append(self, metadata):
         assert type(metadata) is type(Metadata.Metadata())
@@ -230,7 +241,6 @@ class ContainerTreeModel(gtk.TreeStore):
         row = [metadata.id, metadata.parent_id, metadata.title, metadata.get_icon(), metadata]
 
         iter = gtk.TreeStore.append(self, parent, row)
-        self.__cache[m.id] = gtk.TreeRowReference(self, self.get_path(iter))
         self.__lock.release()
         if DEBUG_LOCK: debug_trace(".append(): lock released (%s)" % m.id, sender=self)
         return iter
