@@ -35,6 +35,7 @@ IN PROGRESS.....
     *       order files within playlist
     *       move track between 2 playlists
     * DONE: remove tracks from playlist
+    * TEST: add menu "create folder/playlist"
     *       move files/directories. Need patching actual pymtp (see libmtp.LIBMTP_Update_Track_Metadata)
     *       get file from device
     *       rigth click context menus
@@ -42,6 +43,7 @@ IN PROGRESS.....
     *       display filetype (see pymtp.LIBMTP_File.filetype and pymtp.get_filetype_description)
 
     PRERELEASE 0.1.a4: PLANNED
+    *       rename "del object" menu item to "del folder/playlist/file/track"
     *       get metadata from ogg files tags
     *       trace debug and exceptions
     *       translation
