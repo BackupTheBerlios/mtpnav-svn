@@ -380,7 +380,6 @@ class MTPnavigator:
         self.__treeview_navigator.set_mode(mode)
         self.__treeview_navigator.set_model(navigator_model)
         self.__treeview_navigator.get_selection().select_path(0)
-        self.__treeview_files.columns_autosize() # FIXME
         self.__treeview_navigator.expand_all()
         self.__current_mode = mode
         self.__empty_new_object_entry()
@@ -572,28 +571,32 @@ class TreeViewFiles(gtk.TreeView):
         self.append_column(col)
 
         # other columns to create: (visible, title, model_col, sort_col, sizing, width, resizable)
-        cols = [(DEBUG_ID, "object ID", t.OBJECT_ID, t.OBJECT_ID, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, False)
-        ,(DEBUG_ID, "parent ID", t.PARENT_ID, t.PARENT_ID, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, False)
-        ,(DEBUG_ID, "type", t.TYPE, t.TYPE, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, False)
-        ,(True, "file", t.FILE_NAME, t.FILE_NAME, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
-        ,(True, "title", t.TITLE, t.TITLE, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
-        ,(True, "artist", t.ARTIST, t.ARTIST, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
-        ,(True, "album", t.ALBUM, t.ALBUM, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
-        ,(True, "genre", t.GENRE, t.GENRE, gtk.TREE_VIEW_COLUMN_FIXED, COL_DEFAULT_WIDTH, True)
-        ,(True, "length", t.SIZE_STR, t.SIZE_INT, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, True)
-        ,(True, "date", t.DATE_STR, t.DATE, gtk.TREE_VIEW_COLUMN_AUTOSIZE, -1, True)]
+        cols = [(DEBUG_ID, "object ID", t.OBJECT_ID, t.OBJECT_ID, -1)
+        ,(DEBUG_ID, "parent ID", t.PARENT_ID, t.PARENT_ID, -1)
+        ,(DEBUG_ID, "type", t.TYPE, t.TYPE, -1)
+        ,(True, "file", t.FILE_NAME, t.FILE_NAME, COL_DEFAULT_WIDTH)
+        ,(True, "title", t.TITLE, t.TITLE, COL_DEFAULT_WIDTH)
+        ,(True, "artist", t.ARTIST, t.ARTIST, COL_DEFAULT_WIDTH)
+        ,(True, "album", t.ALBUM, t.ALBUM, COL_DEFAULT_WIDTH)
+        ,(True, "genre", t.GENRE, t.GENRE, COL_DEFAULT_WIDTH)
+        ,(True, "length", t.SIZE_STR, t.SIZE_INT, -1)
+        ,(True, "date", t.DATE_STR, t.DATE, -1)]
 
         for c in cols:
             if not c[0]: continue
             col = gtk.TreeViewColumn(c[1])
             cell = gtk.CellRendererText()
-            cell.set_property('ellipsize', pango.ELLIPSIZE_END)
             col.pack_start(cell, True)
             col.set_attributes(cell, text=c[2])
             col.set_sort_column_id(c[3])
-            col.set_sizing(c[4])
-            if c[5]>0: col.set_fixed_width(c[5])
-            col.set_resizable(c[6])
+            if c[4]>0: 
+                col.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+                cell.set_property('ellipsize', pango.ELLIPSIZE_END)
+                col.set_fixed_width(c[4])
+                col.set_resizable(True)
+            else:
+                col.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+                col.set_resizable(False)
             self.append_column(col)
 
         # add support for del key

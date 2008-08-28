@@ -14,7 +14,7 @@ class DummyDevice():
     FILE_LISTING = {10: (True, 1, "TEST.MP3", "title", "artist", "album", "genre", 1231, 1219847365),
                     11: (True, 2, "system.sys", "", "", "", "", 0, 0),
                     12: (True, 1, "TEST2.MP3", "title2", "artist2", "album2", "genre2", 2222, 1219847365),
-                    13: (True, 3, "TEST3.MP3", "title3", "artist3", "album3", "genre3", 3333, 1219847365),
+                    13: (True, 3, "TEST3.MP3", "title3", "artist3", "album3", "genre3", 333333, 1219847365),
                     14: (True, 3, "TEST4.MP3", "title4", "artist4", "album4", "genre4", 4444, 1219847365)
                     }
 
