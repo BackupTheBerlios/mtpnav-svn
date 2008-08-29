@@ -55,7 +55,7 @@ IN PROGRESS.....
     *       about dialog
 
     FIXME:
-    * TEST: seg fault when deleting many files (search throught the model instead od caching iter)
+    * TEST: seg fault when deleting many files (added thread_leave, thread_enter)
     *       cache file/track listing in mtp_device
     *       use transfer manager for getting file/tracks/playlist listing (=progression bar since it can take some time)
     *       fix metadata and filenames encoding (accent and special charaters). Pass encode("utf-16") to pymtp

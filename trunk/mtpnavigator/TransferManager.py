@@ -44,7 +44,9 @@ class TransferManager():
         process_queue_thread = ProcessQueueThread(device_engine, self, self.__queue, self.__model)
         process_queue_thread.add_observer(self.__observe_queue_thread)
         process_queue_thread.setDaemon(True)
+        gtk.gdk.threads_enter()
         process_queue_thread.start()
+        gtk.gdk.threads_leave()
         self.__transfer_treeview = transfer_treeview
         self.__notebook = notebook
         self.__disk_usage_progress_bar = disk_usage_progress_bar

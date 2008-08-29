@@ -680,6 +680,8 @@ class TreeViewFiles(gtk.TreeView):
         return metadata
 
 if __name__ == "__main__":
-    mtpnav = MTPnavigator()
+	mtpnav = MTPnavigator()
     gtk.gdk.threads_init()
+    gtk.gdk.threads_enter()
     gtk.main()
+    gtk.gdk.threads_leave()

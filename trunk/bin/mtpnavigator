@@ -30,4 +30,6 @@ import mtpnavigator
 if __name__ == "__main__":
     mtpnav = mtpnavigator.MTPnavigator()
     gtk.gdk.threads_init()
+    gtk.gdk.threads_enter()
     gtk.main()
+    gtk.gdk.threads_leave()
