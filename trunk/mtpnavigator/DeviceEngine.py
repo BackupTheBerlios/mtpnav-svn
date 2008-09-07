@@ -292,9 +292,7 @@ class TreeModelFilterDNDDest(gtk.TreeModelFilter, gtk.TreeDragDest):
         #self.model = model
 
     def drag_data_received(self, dest, selection_data):
-        print "ICI %s" % selection_data.data
         return True
 
     def row_drop_possible(self, dest_path, selection_data):
-        print "LA %s" % selection_data.data
         return True

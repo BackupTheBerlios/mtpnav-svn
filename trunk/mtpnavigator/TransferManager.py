@@ -285,7 +285,6 @@ class TransfertQueueModel(gtk.ListStore):
         self.__lock = Lock()
 
     def __get_iter(self, job_id):
-        print job_id
         iter = None
         iter = self.get_iter_first()
         while iter:

@@ -169,7 +169,7 @@ class MTPnavigator:
             return
         selection = treeview.get_selected_rows_metadata()
         self.delete_objects(selection)
-        
+
     def on_create_folder_item_activate(self, emiter):
         dialog = GetTextDialog(self.window, "Enter the new folder name")
         if dialog.run() == gtk.RESPONSE_OK: #TRANSLATE
@@ -527,7 +527,7 @@ class TreeViewNavigator(gtk.TreeView):
                 # process the list containing dropped objects
                 for uri in data.data.split('\r\n')[:-1]:
                     if self.__mode == MODE_PLAYLIST_VIEW:
-                        self.__gui.transfer_manager.send_extern_file_to_playlist(parent, uri, selrow_metadata)                        
+                        self.__gui.transfer_manager.send_extern_file_to_playlist(parent, uri, selrow_metadata)
                     else:
                         self.__gui.transfer_manager.send_file(uri, parent)
                 drag_context.drop_finish(success=True, time=time)
@@ -608,7 +608,7 @@ class TreeViewFiles(gtk.TreeView):
             col.pack_start(cell, True)
             col.set_attributes(cell, text=c[2])
             col.set_sort_column_id(c[3])
-            if c[4]>0: 
+            if c[4]>0:
                 col.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
                 cell.set_property('ellipsize', pango.ELLIPSIZE_END)
                 col.set_fixed_width(c[4])
@@ -680,7 +680,7 @@ class TreeViewFiles(gtk.TreeView):
         return metadata
 
 if __name__ == "__main__":
-	mtpnav = MTPnavigator()
+    mtpnav = MTPnavigator()
     gtk.gdk.threads_init()
     gtk.gdk.threads_enter()
     gtk.main()

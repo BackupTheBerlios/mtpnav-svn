@@ -40,9 +40,10 @@ IN PROGRESS.....
     *       get file from device
     *       rigth click context menus
     * DONE: dummy device implemented for safe testing (use option --dummy-device)
-    *       display filetype (see pymtp.LIBMTP_File.filetype and pymtp.get_filetype_description)
 
     PRERELEASE 0.1.a4: PLANNED
+    *       use transfer manager for getting file/tracks/playlist listing (=progression bar since it can take some time)
+    *       display filetype (see pymtp.LIBMTP_File.filetype and pymtp.get_filetype_description)
     *       rename "del object" menu item to "del folder/playlist/file/track"
     *       get metadata from ogg files tags
     *       trace debug and exceptions
@@ -55,9 +56,9 @@ IN PROGRESS.....
     *       about dialog
 
     FIXME:
-    * TEST: seg fault when deleting many files (added thread_leave, thread_enter)
+    * 		invald iter when deleting many files
+	*		extern DND into file treeview (filtermodel not dragdest) 
     *       cache file/track listing in mtp_device
-    *       use transfer manager for getting file/tracks/playlist listing (=progression bar since it can take some time)
     *       fix metadata and filenames encoding (accent and special charaters). Pass encode("utf-16") to pymtp
     *       warn when disconnecting during transfer (disconnect before exit)
     *       prevent deleting system folders and files (waiting response from libmtp list)
