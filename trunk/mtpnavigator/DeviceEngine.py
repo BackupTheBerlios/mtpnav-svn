@@ -143,10 +143,10 @@ class ObjectListingModel(gtk.ListStore):
         return self.get_value(iter, self.PARENT_ID) == self.__current_folder_id
 
     def get_tracks(self):
-        return self.__filter_tracks
+        return gtk.TreeModelSort(self.__filter_tracks)
 
     def get_files(self):
-        return self.__filter_folders
+        return gtk.TreeModelSort(self.__filter_folders)
 
     def set_current_folder(self, folder_id):
         self.__current_folder_id = folder_id
