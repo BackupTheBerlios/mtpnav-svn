@@ -286,13 +286,3 @@ class PlaylistTreeModel(ContainerTreeModel):
                 track.parent_id = playlist.id
                 self.append(track)
 
-class TreeModelFilterDNDDest(gtk.TreeModelFilter, gtk.TreeDragDest):
-    def __init__(self, model):
-        gtk.TreeModelFilter.__init__(self)
-        #self.model = model
-
-    def drag_data_received(self, dest, selection_data):
-        return True
-
-    def row_drop_possible(self, dest_path, selection_data):
-        return True

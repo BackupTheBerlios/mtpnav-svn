@@ -621,14 +621,17 @@ class TreeViewFiles(gtk.TreeView):
         # add support for del key
         self.add_events(gtk.gdk.KEY_PRESS)
         self.connect("key_press_event", self.on_keyboard_event)
-
+        
        # drag and drop source
-        self.drag_source_set(gtk.gdk.BUTTON1_MASK, [DND_TARGET_INTERN], gtk.gdk.ACTION_MOVE)
+        #self.drag_source_set(gtk.gdk.BUTTON1_MASK, [DND_TARGET_INTERN], gtk.gdk.ACTION_MOVE)
+        self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [DND_TARGET_INTERN], gtk.gdk.ACTION_MOVE)
         self.connect('drag_data_get', self.on_drag_data_get)
 
         # drag and drop destination
         #FIXME: make TreeModelFilter DND dest capable
-        self.drag_dest_set(gtk.gdk.BUTTON1_MASK, [DND_TARGET_EXTERN_FILE], gtk.gdk.ACTION_COPY)
+        #self.drag_dest_set(gtk.gdk.BUTTON1_MASK, [DND_TARGET_EXTERN_FILE], gtk.gdk.ACTION_COPY)
+        self.enable_model_drag_dest([DND_TARGET_EXTERN_FILE], gtk.gdk.ACTION_COPY)
+        self.connect('drag_drop', self.on_drag_drop)
         self.connect('drag_data_received', self.on_drag_data_received)
 
     def on_drag_data_get(self, treeview, drag_context, data, info, time):
@@ -639,8 +642,15 @@ class TreeViewFiles(gtk.TreeView):
         data_string = "&&".join(d)
         if DEBUG: debug_trace("on_drag_data_get: send data %s" % data_string, sender=self)
         data.set(data.target, 8, data_string) # 8 = type string
+    
+    def on_drag_drop(self, treeview, drag_context, x, y, time):
+        print "COUCOU"
+        target = self.drag_dest_find_target(drag_context, [DND_TARGET_EXTERN_FILE])
+        self.drag_get_data(drag_context, target, time)
+        self.stop_emission('drag_drop')
 
     def on_drag_data_received(self, treeview, drag_context, x, y, data, info, time):
+        print "LALA"
         if info == DND_EXTERN:
             if DEBUG: debug_trace("extern drag and drop detected with data %s" % data.data, sender=self)
             if data and data.format == 8: # 8 = type string
@@ -652,7 +662,7 @@ class TreeViewFiles(gtk.TreeView):
 
                 # process the list containing dropped objects
                 for uri in data.data.split('\r\n')[:-1]:
-                    self.send_file(uri, selrow_metadata)
+                    self.__gui.transfer_manager.send_file(uri, selrow_metadata)
                 drag_context.drop_finish(success=True, time=time)
             else:
                 drag_context.drop_finish(success=False, time=time)
