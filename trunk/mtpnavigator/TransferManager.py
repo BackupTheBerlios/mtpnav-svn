@@ -159,7 +159,7 @@ class TransferManager():
             self.__queue_job(self.ACTION_SEND_FILE_TO_PLAYLIST, metadata)
 
     def send_file(self, file_url, parent_id):
-        if DEBUG: debug_trace("request for sending %s" % file_url, sender=self)
+        if DEBUG: debug_trace("request for sending %s to parent %s" % (file_url, parent_id), sender=self)
         metadata = self.__convert_file_url_to_metadata(file_url)
         metadata.parent_id = parent_id
         if metadata:

@@ -31,7 +31,7 @@ IN PROGRESS.....
     * DONE: intern drag and drop support
     * DONE: delete when filtered
     * DONE: manage playlist (add and remove playlist, add and remove tracks)
-    * TEST: add extern file directly in playlist
+    * DONE: add extern file directly in playlist
     *       order files within playlist
     *       move track between 2 playlists
     * DONE: remove tracks from playlist
@@ -56,8 +56,8 @@ IN PROGRESS.....
     *       about dialog
 
     FIXME:
+    *       change current folder to parent when removing a folder
     * 		invald iter when deleting many files
-	*		extern DND into file treeview (filtermodel not dragdest) 
     *       cache file/track listing in mtp_device
     *       fix metadata and filenames encoding (accent and special charaters). Pass encode("utf-16") to pymtp
     *       warn when disconnecting during transfer (disconnect before exit)

@@ -114,9 +114,9 @@ class MTPDevice():
             raise DeviceEngine.DeviceError("Can't disconnect device")
 
     def send_track(self, metadata=None, callback=None):
-        parent = int(metadata.parent_id)
+        parent = metadata.parent_id
         try:
-            new_id =self.__MTPDevice.send_track_from_file( metadata.path, metadata.filename, metadata.to_MTPTrack(), parent, callback=callback)
+            new_id =self.__MTPDevice.send_track_from_file( metadata.path, metadata.filename, metadata.to_MTPTrack(), int(parent), callback=callback)
             # read metadata again, because they can be changed by the device (i.e. parent_id or paraneter not handled)
             metadata = Metadata.get_from_MTPTrack(self.__MTPDevice.get_track_metadata(new_id))
         except IOError:
@@ -165,9 +165,10 @@ class MTPDevice():
         m = self.__MTPDevice.get_playlist(int(metadata.parent_id))  # read from and update playlist cache
         m.append(int(metadata.id))
         self.__MTPDevice.update_playlist(m)
-        
+
     def send_file_to_playlist(self, metadata, callback):
         playlist_id = metadata.parent_id
+        metadata.parent_id = 0 #FIXME: get default music folder
         # send file
         metadata = self.send_track(metadata, callback)
         parent_id = metadata.parent_id
@@ -296,5 +297,5 @@ class MTPDevice():
     def __file_exist(self, filename):
         file_names = []
         for file in self.get_file_listing(): #FIXME: use file cache instead
-             file_names.append(file.title) 
+             file_names.append(file.title)
         return filename in file_names

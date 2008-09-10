@@ -198,7 +198,7 @@ class MTPnavigator:
         self.exit()
 
     def on_send_files(self, widget):
-        parent_id = self.__get_currently_selected_folder()
+        parent_id = self.__get_current_folder()
 
         # create and open the file chooser
         title = "Select files to transfer to the device"
@@ -246,7 +246,7 @@ class MTPnavigator:
 
     #--- CONTROL METHODS -----------------------
 
-    def __get_currently_selected_folder(self):
+    def get_current_folder(self):
         return self.__current_folder
 
     def get_selected_rows_metadata(self, treeview):
@@ -261,7 +261,7 @@ class MTPnavigator:
         return metadata
 
     def __create_folder(self, new_folder_name):
-        parent_id = self.__get_currently_selected_folder()
+        parent_id = self.get_current_folder()
         self.transfer_manager.create_folder(new_folder_name, parent_id)
 
     def __create_playlist(self, new_playlist_name):
@@ -621,7 +621,7 @@ class TreeViewFiles(gtk.TreeView):
         # add support for del key
         self.add_events(gtk.gdk.KEY_PRESS)
         self.connect("key_press_event", self.on_keyboard_event)
-        
+
        # drag and drop source
         #self.drag_source_set(gtk.gdk.BUTTON1_MASK, [DND_TARGET_INTERN], gtk.gdk.ACTION_MOVE)
         self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, [DND_TARGET_INTERN], gtk.gdk.ACTION_MOVE)
@@ -642,9 +642,8 @@ class TreeViewFiles(gtk.TreeView):
         data_string = "&&".join(d)
         if DEBUG: debug_trace("on_drag_data_get: send data %s" % data_string, sender=self)
         data.set(data.target, 8, data_string) # 8 = type string
-    
+
     def on_drag_drop(self, treeview, drag_context, x, y, time):
-        print "COUCOU"
         target = self.drag_dest_find_target(drag_context, [DND_TARGET_EXTERN_FILE])
         self.drag_get_data(drag_context, target, time)
         self.stop_emission('drag_drop')
@@ -658,11 +657,11 @@ class TreeViewFiles(gtk.TreeView):
                 selrow_metadata = None
                 drop_info = treeview.get_dest_row_at_pos(x, y)
                 if drop_info:
-                    selrow_metadata = treeview.get_model().get_metadata(drop_info[0])
+                    selrow_metadata = treeview.get_model().get_model().get_model().get_metadata(drop_info[0])
 
                 # process the list containing dropped objects
                 for uri in data.data.split('\r\n')[:-1]:
-                    self.__gui.transfer_manager.send_file(uri, selrow_metadata)
+                    self.__gui.transfer_manager.send_file(uri, self.__gui.get_current_folder())
                 drag_context.drop_finish(success=True, time=time)
             else:
                 drag_context.drop_finish(success=False, time=time)
@@ -685,7 +684,7 @@ class TreeViewFiles(gtk.TreeView):
         metadata = []
         (model, paths) = self.get_selection().get_selected_rows()
         for path in paths:
-            row = model.get_model().get_metadata(model.convert_path_to_child_path(path))
+            row = model.get_model().get_model().get_metadata(model.convert_path_to_child_path(path))
             metadata.append(row)
         return metadata
 
