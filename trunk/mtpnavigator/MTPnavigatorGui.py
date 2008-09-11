@@ -49,7 +49,7 @@ class MTPnavigator:
         self.__device_engine = None
         self.transfer_manager = None
         self.__current_mode = None
-        self.__current_folder = None
+        self.__current_folder = 0
 
         # bind to glade
         self.gtkbuilder = gtk.Builder()
@@ -172,17 +172,15 @@ class MTPnavigator:
 
     def on_create_folder_item_activate(self, emiter):
         dialog = GetTextDialog(self.window, "Enter the new folder name") #TRANSLATE
-        resp = dialog.run()
-        dialog.destroy()
-        if resp == gtk.RESPONSE_OK: 
+        if dialog.run() == gtk.RESPONSE_OK: 
             self.__create_folder(dialog.get_text())
+        dialog.destroy()
 
     def on_create_playlist_item_activate(self, emiter):
-        dialog = GetTextDialog(self.window, "Enter the new playlist name")
-        resp = dialog.run()
+        dialog = GetTextDialog(self.window, "Enter the new playlist name") #TRANSLATE
+        if dialog.run() == gtk.RESPONSE_OK:  
+            self.__create_playlist(dialog.get_text())
         dialog.destroy()
-        if resp == gtk.RESPONSE_OK: 
-            self.__create_folder(dialog.get_text())
 
     def on_button_cancel_job_clicked(self, emiter):
         (model, paths) = self.transfer_manager.get_selection().get_selected_rows()
