@@ -58,6 +58,7 @@ class GetTextDialog(gtk.MessageDialog):
         self.set_markup(message)
         self.entry = gtk.Entry()
         self.vbox.pack_end(self.entry, True, True, 0)
+        self.entry.set_property("visible",True)
 
     def get_text(self):
         self.show_all()

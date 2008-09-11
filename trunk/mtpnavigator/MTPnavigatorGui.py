@@ -171,16 +171,18 @@ class MTPnavigator:
         self.delete_objects(selection)
 
     def on_create_folder_item_activate(self, emiter):
-        dialog = GetTextDialog(self.window, "Enter the new folder name")
-        if dialog.run() == gtk.RESPONSE_OK: #TRANSLATE
-            self.__create_folder(dialog.get_text())
+        dialog = GetTextDialog(self.window, "Enter the new folder name") #TRANSLATE
+        resp = dialog.run()
         dialog.destroy()
+        if resp == gtk.RESPONSE_OK: 
+            self.__create_folder(dialog.get_text())
 
     def on_create_playlist_item_activate(self, emiter):
         dialog = GetTextDialog(self.window, "Enter the new playlist name")
-        if dialog.run() == gtk.RESPONSE_OK: #TRANSLATE
-            self.__create_playlist(dialog.get_text())
+        resp = dialog.run()
         dialog.destroy()
+        if resp == gtk.RESPONSE_OK: 
+            self.__create_folder(dialog.get_text())
 
     def on_button_cancel_job_clicked(self, emiter):
         (model, paths) = self.transfer_manager.get_selection().get_selected_rows()
