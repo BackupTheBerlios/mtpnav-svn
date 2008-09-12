@@ -32,11 +32,10 @@ IN PROGRESS.....
     * DONE: delete when filtered
     * DONE: manage playlist (add and remove playlist, add and remove tracks)
     * DONE: add extern file directly in playlist
-    * TEST: add track to a given position within playlist
     *       order files within playlist
     *       move track between 2 playlists
     * DONE: remove tracks from playlist
-    * TEST: add menu "create folder/playlist"
+    * DONE: add menu "create folder/playlist"
     *       move files/directories. Need patching actual pymtp (see libmtp.LIBMTP_Update_Track_Metadata)
     *       get file from device
     *       rigth click context menus
@@ -57,7 +56,9 @@ IN PROGRESS.....
     *       about dialog
 
     FIXME:
+    *       segfault when adding track to a given position within playlist
     *       change current folder to parent when removing a folder
+    *       update playlist model when sending a file directly to playlist
     * 		invald iter when deleting many files
     *       cache file/track listing in mtp_device
     *       fix metadata and filenames encoding (accent and special charaters). Pass encode("utf-16") to pymtp

@@ -165,8 +165,14 @@ class MTPDevice():
         playlist = self.__MTPDevice.get_playlist(int(metadata.parent_id))  # read from and update playlist cache
         previous = int(metadata.previous_object)
         if previous in playlist:
-            index = playlist.index(previous)
-            playlist.insert(index, int(metadata.id))
+            new_playlist = pymtp.LIBMTP_Playlist()
+            new_playlist.playlist_id = playlist.playlist_id
+            new_playlist.name = playlist.name
+            for track in playlist:
+                if track == previous:
+                    new_playlist.append(int(metadata.id))
+                new_playlist.append(track)
+            playlist = new_playlist
         else:
             playlist.append(int(metadata.id))
         self.__MTPDevice.update_playlist(playlist)
@@ -263,7 +269,9 @@ class MTPDevice():
             return tracks
         except pymtp.CommandFailed:
             raise DeviceEngine.UnknowError(ERRMSG_UNKNOW)
-        return None
+        except pymtp.ObjectNotFound:
+            if DEBUG: debug_trace("WARNING: a track is referenced in playlist but does not exist!", sender=self)
+            return tracks
 
     def get_file_listing(self):
         listing = []

@@ -219,7 +219,10 @@ class ContainerTreeModel(gtk.TreeStore):
 
     def __get_iter(self, object_id):
         #start recursive search through the tree
-        return self.__recurs_get_iter(object_id, self.get_iter_first() )
+        iter = self.__recurs_get_iter(object_id, self.get_iter_first() )
+        if DEBUG and not iter:
+            debug_trace("Iter not found for %s" % object_id, sender=self)
+        return iter
 
     def __recurs_get_iter(self, object_id, iter):
         while iter:
@@ -240,7 +243,7 @@ class ContainerTreeModel(gtk.TreeStore):
         if DEBUG_LOCK: debug_trace(".append(): lock acquired (%s)" % m.id, sender=self)
         parent=0
         parent = self.__get_iter(m.parent_id)
-        
+
 
         row = [metadata.id, metadata.parent_id, metadata.title, metadata.get_icon(), metadata]
 
@@ -252,7 +255,7 @@ class ContainerTreeModel(gtk.TreeStore):
         self.__lock.release()
         if DEBUG_LOCK: debug_trace(".append(): lock released (%s)" % m.id, sender=self)
         return iter
-        
+
     def get_metadata(self, path):
         return self.get_metadata_from_iter(self.get_iter(path))
 

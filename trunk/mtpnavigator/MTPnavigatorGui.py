@@ -172,13 +172,13 @@ class MTPnavigator:
 
     def on_create_folder_item_activate(self, emiter):
         dialog = GetTextDialog(self.window, "Enter the new folder name") #TRANSLATE
-        if dialog.run() == gtk.RESPONSE_OK: 
+        if dialog.run() == gtk.RESPONSE_OK:
             self.__create_folder(dialog.get_text())
         dialog.destroy()
 
     def on_create_playlist_item_activate(self, emiter):
         dialog = GetTextDialog(self.window, "Enter the new playlist name") #TRANSLATE
-        if dialog.run() == gtk.RESPONSE_OK:  
+        if dialog.run() == gtk.RESPONSE_OK:
             self.__create_playlist(dialog.get_text())
         dialog.destroy()
 
@@ -332,6 +332,7 @@ class MTPnavigator:
         self.__device_engine = None
 
         if "--dummy-device" in sys.argv:
+            debug_trace("USE DUMMY DEVICE")
             import dummyDevice
             dev = dummyDevice.DummyDevice()
         else:
