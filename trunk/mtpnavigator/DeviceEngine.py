@@ -240,14 +240,19 @@ class ContainerTreeModel(gtk.TreeStore):
         if DEBUG_LOCK: debug_trace(".append(): lock acquired (%s)" % m.id, sender=self)
         parent=0
         parent = self.__get_iter(m.parent_id)
+        
 
         row = [metadata.id, metadata.parent_id, metadata.title, metadata.get_icon(), metadata]
 
-        iter = gtk.TreeStore.append(self, parent, row)
+        previous_object = self.__get_iter(metadata.previous_object)
+        if previous_object:
+            iter = gtk.TreeStore.insert_before(self, parent, previous_object, row)
+        else:
+            iter = gtk.TreeStore.append(self, parent, row)
         self.__lock.release()
         if DEBUG_LOCK: debug_trace(".append(): lock released (%s)" % m.id, sender=self)
         return iter
-
+        
     def get_metadata(self, path):
         return self.get_metadata_from_iter(self.get_iter(path))
 

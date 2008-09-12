@@ -527,7 +527,7 @@ class TreeViewNavigator(gtk.TreeView):
                 # process the list containing dropped objects
                 for uri in data.data.split('\r\n')[:-1]:
                     if self.__mode == MODE_PLAYLIST_VIEW:
-                        self.__gui.transfer_manager.send_extern_file_to_playlist(parent, uri, selrow_metadata)
+                        self.__gui.transfer_manager.send_extern_file_to_playlist(parent, uri, selrow_metadata.id)
                     else:
                         self.__gui.transfer_manager.send_file(uri, parent)
                 drag_context.drop_finish(success=True, time=time)
@@ -544,7 +544,7 @@ class TreeViewNavigator(gtk.TreeView):
                         drag_context.drop_finish(success=False, time=time)
                         if DEBUG: debug_trace("An invalid object type was dropped: %i" % i, sender=self)
                         return
-                    self.__gui.transfer_manager.add_track_to_playlist(parent, metadata, selrow_metadata)
+                    self.__gui.transfer_manager.add_track_to_playlist(parent, metadata, selrow_metadata.id)
                 else:
                     pass #TODO: move file to dir
             drag_context.drop_finish(success=True, time=time)

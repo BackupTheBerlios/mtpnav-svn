@@ -87,14 +87,13 @@ class TransferManager():
                 self.__device_engine.get_folder_tree_model().append(job.metadata)
             elif job.action==self.ACTION_CREATE_PLAYLIST:
                 self.__device_engine.get_playlist_tree_model().append(job.metadata)
-            elif job.action==self.ACTION_ADD_TO_PLAYLIST:
-                self.__device_engine.get_playlist_tree_model().append(job.metadata)
             elif job.action==self.ACTION_REMOVE_FROM_PLAYLIST:
                 self.__device_engine.get_playlist_tree_model().remove_object(job.metadata.id)
             elif job.action==self.ACTION_ADD_TO_PLAYLIST:
+                self.__device_engine.get_playlist_tree_model().append(job.metadata)
+            elif job.action==self.ACTION_SEND_FILE_TO_PLAYLIST:
                 self.__device_engine.get_object_listing_model().append(job.metadata)
-                #FIXME: pass the playlist_id to parent_id before updating
-                #self.__device_engine.get_playlist_tree_model().append(job.metadata)
+                self.__device_engine.get_playlist_tree_model().append(job.metadata)
 
     def __queue_job(self, job_type, metadata):
         assert type(metadata) is type(Metadata.Metadata())
@@ -131,6 +130,7 @@ class TransferManager():
         if DEBUG: debug_trace("request for adding %s to playlist %s" % (track.title, play_list_id), sender=self)
         #TODO: handle previous_track in job
         track.parent_id = play_list_id
+        track.previous_object = previous_track
         self.__queue_job(self.ACTION_ADD_TO_PLAYLIST, track)
 
     def remove_track_from_playlist(self, playlist_item_metadata):
@@ -155,6 +155,7 @@ class TransferManager():
         if DEBUG: debug_trace("request for sending extern file %s to playlist %s" % (file_url, play_list_id), sender=self)
         metadata = self.__convert_file_url_to_metadata(file_url)
         metadata.parent_id = play_list_id
+        metadata.previous_object = previous_track
         if metadata:
             self.__queue_job(self.ACTION_SEND_FILE_TO_PLAYLIST, metadata)
 

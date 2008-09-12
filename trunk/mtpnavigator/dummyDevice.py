@@ -64,8 +64,13 @@ class DummyDevice():
         return metadata
 
     def add_track_to_playlist(self, metadata):
-        playlist = self.PLAYLIST_LISTING[int(metadata.parent_id)]
-        playlist[2].append(int(metadata.id))       
+        playlist = self.PLAYLIST_LISTING[int(metadata.parent_id)][2]
+        previous = int(metadata.previous_object)
+        if previous in playlist:
+            index = playlist.index(previous)
+            playlist.insert(index, int(metadata.id))
+        else:
+            playlist.append(int(metadata.id))
         print "DUMMY: track %s added to playlist %s" % (metadata.title, metadata.parent_id)
         
     def send_file_to_playlist(self, metadata, callback):

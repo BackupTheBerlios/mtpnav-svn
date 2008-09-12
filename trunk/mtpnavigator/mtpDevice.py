@@ -162,9 +162,14 @@ class MTPDevice():
         return metadata
 
     def add_track_to_playlist(self, metadata):
-        m = self.__MTPDevice.get_playlist(int(metadata.parent_id))  # read from and update playlist cache
-        m.append(int(metadata.id))
-        self.__MTPDevice.update_playlist(m)
+        playlist = self.__MTPDevice.get_playlist(int(metadata.parent_id))  # read from and update playlist cache
+        previous = int(metadata.previous_object)
+        if previous in playlist:
+            index = playlist.index(previous)
+            playlist.insert(index, int(metadata.id))
+        else:
+            playlist.append(int(metadata.id))
+        self.__MTPDevice.update_playlist(playlist)
 
     def send_file_to_playlist(self, metadata, callback):
         playlist_id = metadata.parent_id

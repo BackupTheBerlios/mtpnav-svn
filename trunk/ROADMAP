@@ -32,6 +32,7 @@ IN PROGRESS.....
     * DONE: delete when filtered
     * DONE: manage playlist (add and remove playlist, add and remove tracks)
     * DONE: add extern file directly in playlist
+    * TEST: add track to a given position within playlist
     *       order files within playlist
     *       move track between 2 playlists
     * DONE: remove tracks from playlist
