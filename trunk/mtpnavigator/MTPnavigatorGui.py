@@ -119,7 +119,7 @@ class MTPnavigator:
         self.__actiongroup_connected.add_actions([('SendFiles', gtk.STOCK_OPEN, '_Send files to device...', '<Control>S', 'Pickup files to transfer into the device', self.on_send_files),
                                  ('Delete', gtk.STOCK_DELETE, '_Delete', None, 'Delete the selected objects from device', self.on_delete_item_activate),
                                  ('CreateFolder', None, 'Create _folder', None, 'Add a new folder into the currently selected folder', self.on_create_folder_item_activate),
-                                 ('CreatePlaylist', None, 'Create _playlist', None, 'Create a new palyist', self.on_create_playlist_item_activate)
+                                 ('CreatePlaylist', None, 'Create _playlist', None, 'Create a new playlist', self.on_create_playlist_item_activate)
                                  ])
         self.__actiongroup_connected.get_action('SendFiles').set_property('short-label', '_Send...')
         self.__actiongroup_connected.set_sensitive(False)

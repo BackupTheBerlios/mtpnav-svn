@@ -84,7 +84,8 @@ IN PROGRESS.....
 
 
 RELEASE >= 0.2.0:
---------------
+-----------------
+* import from playlist (m3u). Send files + convert playlist to mtp-playlist. Import on drop
 * format device (libmt can that)
 * make playlist view multiselect
 * accept samba files
