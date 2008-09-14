@@ -172,7 +172,7 @@ class TransferManager():
 
     def cancel_job(self, job_to_cancel):
         job_to_cancel.canceled = True
-        self.__model.remove_job(job_to_cancel.object_id) # FIXME: not for current job
+        self.__model.remove_job(job_to_cancel.object_id) #FIXME: not for current job
 
 class ProcessQueueThread(Thread):
     SIGNAL_QUEUE_CHANGED = 1
@@ -251,7 +251,7 @@ class ProcessQueueThread(Thread):
                     job.object_id = metadata.id
                     job.metadata = metadata
                     self.__model.modify(job.object_id, TransfertQueueModel.COL_JOB_ID, id)
-                    # FIXME find a way to pass playlist_id for refreshing playlist model
+                    # FIXME: find a way to pass playlist_id for refreshing playlist model
 
                 elif job.action == TransferManager.ACTION_REMOVE_FROM_PLAYLIST:
                     self.__device_engine.remove_track_from_playlist(job.metadata)

@@ -67,7 +67,7 @@ class MTPnavigator:
 
         TEXT_COLOR_DEFAULT = self.__getWidget("entry_add_object").get_style().text[gtk.STATE_NORMAL]
 
-        wwidth=800  #TODO save size
+        wwidth=800  #TODO: save size
         wheight=600
         self.window.set_default_size(wwidth, wheight)
         self.window.set_size_request(500,350)
@@ -355,7 +355,7 @@ class MTPnavigator:
 
         self.__show_connected_state(True)
 
-        # FIXME Do not pass gui elements. use observer/observable instead
+        # FIXME: Do not pass gui elements. use observer/observable instead
         tv = self.__getWidget("treeview_transfer_manager")
         notebook = self.__getWidget("notebook_device_info")
         prog_bar = self.__getWidget("progressbar_disk_usage")
