@@ -6,7 +6,6 @@ import mimetypes
 import Metadata
 from notifications import *
 import util
-from threading import Lock
 import datetime
 
 class DeviceError(Exception):
@@ -116,9 +115,6 @@ class ObjectListingModel(gtk.ListStore):
         self.__filter_folders.set_visible_func(self.__filter_folder)
         self.__current_folder_id = None
 
-        # lock to prevent more thread for updating the model at the same time
-        self.__lock = Lock()
-
         tracks = []
         # add all tracks
         tracks_list = _device.get_track_listing()
@@ -168,15 +164,9 @@ class ObjectListingModel(gtk.ListStore):
         if metadata.date:
             date_str = datetime.datetime.fromtimestamp(metadata.date).strftime('%a %d %b %Y')
 
-        if DEBUG_LOCK: debug_trace(".append(): requesting lock (%s)" % m.id, sender=self)
-        self.__lock.acquire()
-        if DEBUG_LOCK: debug_trace(".append(): lock acquired (%s)" % m.id, sender=self)
-
         row = [m.id, m.parent_id, m.type, m.filename, m.title, m.artist, m.album, m.genre, util.format_filesize(m.filesize), m.filesize, date_str, m.date, m.get_icon(), m]
         iter = gtk.ListStore.append(self, row)
-        self.__lock.release()
 
-        if DEBUG_LOCK: debug_trace(".append(): lock released (%s)" % m.id, sender=self)
         return iter
 
     def get_metadata(self, path):
@@ -186,16 +176,11 @@ class ObjectListingModel(gtk.ListStore):
         return self.get(iter, self.METADATA)[0]
 
     def remove_object(self, object_id):
-        if DEBUG_LOCK: debug_trace(".remove_object(): requesting lock (%s)" % object_id, sender=self)
-        self.__lock.acquire()
-        if DEBUG_LOCK: debug_trace(".remove_object(): lock acquired (%s)" % object_id, sender=self)
         it = self.__get_iter(object_id)
         if it:
             self.remove(it)
         else:
             if DEBUG: debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
-        self.__lock.release()
-        if DEBUG_LOCK: debug_trace(".remove_object(): lock released (%s)" % object_id, sender=self)
 
 class ContainerTreeModel(gtk.TreeStore):
     """ contains object parenting other object: folder, playlist or album """
@@ -208,8 +193,6 @@ class ContainerTreeModel(gtk.TreeStore):
     def __init__(self, _device):
         gtk.TreeStore.__init__(self, gobject.TYPE_STRING, gobject.TYPE_STRING,
                     gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)
-        # lock to prevent more thread for updating the model at the same time
-        self.__lock = Lock()
         self._device = _device
 
         self.fill()
@@ -238,9 +221,6 @@ class ContainerTreeModel(gtk.TreeStore):
     def append(self, metadata):
         assert type(metadata) is type(Metadata.Metadata())
         m=metadata
-        if DEBUG_LOCK: debug_trace(".append(): requesting lock (%s)" % m.id, sender=self)
-        self.__lock.acquire()
-        if DEBUG_LOCK: debug_trace(".append(): lock acquired (%s)" % m.id, sender=self)
         parent=0
         parent = self.__get_iter(m.parent_id)
 
@@ -252,8 +232,6 @@ class ContainerTreeModel(gtk.TreeStore):
             iter = gtk.TreeStore.insert_before(self, parent, previous_object, row)
         else:
             iter = gtk.TreeStore.append(self, parent, row)
-        self.__lock.release()
-        if DEBUG_LOCK: debug_trace(".append(): lock released (%s)" % m.id, sender=self)
         return iter
 
     def get_metadata(self, path):
@@ -263,17 +241,12 @@ class ContainerTreeModel(gtk.TreeStore):
         return self.get(iter, self.METADATA)[0]
 
     def remove_object(self, object_id):
-        if DEBUG_LOCK: debug_trace(".remove_object(): requesting lock (%s)" % object_id, sender=self)
-        self.__lock.acquire()
-        if DEBUG_LOCK: debug_trace(".remove_object(): lock acquired (%s)" % object_id, sender=self)
         it = self.__get_iter(object_id)
         if it:
             self.remove(it)
         else:
             if DEBUG: debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
-        self.__lock.release()
-        if DEBUG_LOCK: debug_trace(".remove_object(): lock released (%s)" % object_id, sender=self)
-
+ 
 class FolderTreeModel(ContainerTreeModel):
     def fill(self):
         # add folder list

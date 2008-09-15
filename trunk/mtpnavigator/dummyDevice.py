@@ -22,7 +22,7 @@ class DummyDevice():
 
     object_next_id = 16
     
-    for object_next_id in range(object_next_id,100):
+    for object_next_id in range(object_next_id,500):
         FILE_LISTING[object_next_id]=(True, 1, "test %i" % object_next_id, "test %i" % object_next_id,  "artist", "album", "genre", 1231, 1219847365)
         
     def __init__(self):
