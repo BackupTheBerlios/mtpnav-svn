@@ -66,34 +66,34 @@ class TransferManager():
 
     def __observe_queue_thread(self, signal, *args):
         if signal == ProcessQueueThread.SIGNAL_DEVICE_CONTENT_CHANGED:
-            self.__disk_usage_progress_bar.set_fraction(float(args[1])/float(args[2]))
-            self.__disk_usage_progress_bar.set_text("%s of %s" % (util.format_filesize(args[1]), util.format_filesize(args[2])))
+            gobject.idle_add(self.__disk_usage_progress_bar.set_fraction, float(args[1])/float(args[2]))
+            gobject.idle_add(self.__disk_usage_progress_bar.set_text, "%s of %s" % (util.format_filesize(args[1]), util.format_filesize(args[2])))
             if DEBUG: debug_trace("notified SIGNAL_DEVICE_CONTENT_CHANGED", sender=self)
             job = args[0]
             if job.action==self.ACTION_SEND:
-                self.__device_engine.get_object_listing_model().append(job.metadata)
+                gobject.idle_add(self.__device_engine.get_object_listing_model().append, job.metadata)
             elif job.action==self.ACTION_DEL:
                 if job.metadata.type == Metadata.TYPE_FOLDER:
-                    self.__device_engine.get_folder_tree_model().remove_object(job.metadata.id)
+                    gobject.idle_add(self.__device_engine.get_folder_tree_model().remove_object, job.metadata.id)
                 elif job.metadata.type == Metadata.TYPE_PLAYLIST:
-                    self.__device_engine.get_playlist_tree_model().remove_object(job.metadata.id)
+                    gobject.idle_add(self.__device_engine.get_playlist_tree_model().remove_object, job.metadata.id)
                 elif job.metadata.type == Metadata.TYPE_TRACK:
-                    self.__device_engine.get_object_listing_model().remove_object(job.metadata.id)
+                    gobject.idle_add(self.__device_engine.get_object_listing_model().remove_object, job.metadata.id)
                     # also try to remove from playlist model if the track belogn a playlist
-                    self.__device_engine.get_playlist_tree_model().remove_object(job.metadata.id)
+                    gobject.idle_add(self.__device_engine.get_playlist_tree_model().remove_object, job.metadata.id)
                 else:
-                   self.__device_engine.get_object_listing_model().remove_object(job.metadata.id)
+                   gobject.idle_add(self.__device_engine.get_object_listing_model().remove_object, job.metadata.id)
             elif job.action==self.ACTION_CREATE_FOLDER:
-                self.__device_engine.get_folder_tree_model().append(job.metadata)
+                gobject.idle_add(self.__device_engine.get_folder_tree_model().append, job.metadata)
             elif job.action==self.ACTION_CREATE_PLAYLIST:
-                self.__device_engine.get_playlist_tree_model().append(job.metadata)
+                gobject.idle_add(self.__device_engine.get_playlist_tree_model().append, job.metadata)
             elif job.action==self.ACTION_REMOVE_FROM_PLAYLIST:
-                self.__device_engine.get_playlist_tree_model().remove_object(job.metadata.id)
+                gobject.idle_add(self.__device_engine.get_playlist_tree_model().remove_object, job.metadata.id)
             elif job.action==self.ACTION_ADD_TO_PLAYLIST:
-                self.__device_engine.get_playlist_tree_model().append(job.metadata)
+                gobject.idle_add(self.__device_engine.get_playlist_tree_model().append, job.metadata)
             elif job.action==self.ACTION_SEND_FILE_TO_PLAYLIST:
-                self.__device_engine.get_object_listing_model().append(job.metadata)
-                self.__device_engine.get_playlist_tree_model().append(job.metadata)
+                gobject.idle_add(self.__device_engine.get_object_listing_model().append, job.metadata)
+                gobject.idle_add(self.__device_engine.get_playlist_tree_model().append, job.metadata)
 
     def __queue_job(self, job_type, metadata):
         assert type(metadata) is type(Metadata.Metadata())
