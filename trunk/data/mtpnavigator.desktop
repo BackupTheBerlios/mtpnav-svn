@@ -1,10 +1,10 @@
 [Desktop Entry]
-Name=mtpnavigator media player manager
-Name[fr]=mtpnavigator gestionnaire de lecteur de média
+Name=MtpNavigator Portable Media Player Manager
+Name[fr]=MtpNavigator Gestionnaire De Baladeur Multimédia
 GenericName=portable media player manager
-GenericName[fr]=gestionnaire de lecteur de média portable
-Comment=Easily manage your MTP based portable media player
-Comment[fr]=Gérez facilement votre lecteur de média portable
+GenericName[fr]=gestionnaire de baladeur multimédia
+Comment=Manage your MTP-protocol based portable media player
+Comment[fr]=Gérez votre baladeur multimédia utilisant le protocol MTP
 Exec=mtpnavigator
 Icon=multimedia-player
 Terminal=false

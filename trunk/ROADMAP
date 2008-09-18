@@ -42,6 +42,7 @@ IN PROGRESS.....
     * DONE: dummy device implemented for safe testing (use option --dummy-device)
 
     PRERELEASE 0.1.a4: PLANNED
+    *       read and try to apply the GNOME Human Interface Guidelines http://developer.gnome.org/projects/gup/hig/
     *       use transfer manager for getting file/tracks/playlist listing (=progression bar since it can take some time)
     *       display filetype (see pymtp.LIBMTP_File.filetype and pymtp.get_filetype_description)
     *       rename "del object" menu item to "del folder/playlist/file/track"
@@ -99,3 +100,4 @@ RELEASE >= 0.2.0:
 * backup/restore device
 * choose columns to display
 * play tracks (see LIBMTP_Get_File_To_File_Descriptor())
+* move deleted track to local trash instead of deleting ?

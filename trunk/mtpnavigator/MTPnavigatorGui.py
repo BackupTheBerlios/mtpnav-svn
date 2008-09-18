@@ -22,6 +22,7 @@ except Exception, exc:
     pymtp_available = False
 
 VERSION="0.1.a3"
+APPLICATION_NAME="MTP navigator"
 
 DATA_PATH = os.path.join("/usr", "share", "mtpnavigator")
 if "--local" in sys.argv or "-l" in sys.argv: DATA_PATH = "./data"
@@ -71,7 +72,6 @@ class MTPnavigator:
         wheight=600
         self.window.set_default_size(wwidth, wheight)
         self.window.set_size_request(500,350)
-        self.window.set_title("MTP navigatore " + VERSION)
         #self.__getWidget("vpaned_main").set_position(wheight-250) #TODO: save position
 
         self.__create_combo_change_mode()
@@ -283,6 +283,7 @@ class MTPnavigator:
         self.__getWidget("label_device_name2").set_markup("<b>" + connected_device + "</b>")
 
         if not is_connected:
+            self.window.set_title(APPLICATION_NAME)
             prog_bar = self.__getWidget("progressbar_disk_usage")
             prog_bar.set_fraction(0)
             prog_bar.set_text("")
@@ -291,6 +292,7 @@ class MTPnavigator:
             prog_bar.set_text("")
             self.__getWidget("label_information").set_text("No device connected")
         else:
+            self.window.set_title(connected_device + " - " + APPLICATION_NAME )
             # disk usage
             used = self.__device_engine.get_device().get_diskusage()[0]
             total = self.__device_engine.get_device().get_diskusage()[1]

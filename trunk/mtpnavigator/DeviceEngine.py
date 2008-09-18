@@ -150,6 +150,8 @@ class ObjectListingModel(gtk.ListStore):
 
     def __get_iter(self, object_id):
         iter = None
+        if not object_id:
+            return None
         iter = self.get_iter_first()
         while iter:
             if self.get(iter, self.OBJECT_ID)[0] == object_id:
@@ -167,7 +169,7 @@ class ObjectListingModel(gtk.ListStore):
         row = [m.id, m.parent_id, m.type, m.filename, m.title, m.artist, m.album, m.genre, util.format_filesize(m.filesize), m.filesize, date_str, m.date, m.get_icon(), m]
         iter = gtk.ListStore.append(self, row)
 
-        return iter
+        return False # needed by idle_add
 
     def get_metadata(self, path):
         return self.get_metadata_from_iter(self.get_iter(path))
@@ -181,6 +183,7 @@ class ObjectListingModel(gtk.ListStore):
             self.remove(it)
         else:
             if DEBUG: debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
+        return False # needed by idle_add
 
 class ContainerTreeModel(gtk.TreeStore):
     """ contains object parenting other object: folder, playlist or album """
@@ -202,6 +205,8 @@ class ContainerTreeModel(gtk.TreeStore):
 
     def __get_iter(self, object_id):
         #start recursive search through the tree
+        if not object_id:
+            return None
         iter = self.__recurs_get_iter(object_id, self.get_iter_first() )
         if DEBUG and not iter:
             debug_trace("Iter not found for %s" % object_id, sender=self)
@@ -221,18 +226,14 @@ class ContainerTreeModel(gtk.TreeStore):
     def append(self, metadata):
         assert type(metadata) is type(Metadata.Metadata())
         m=metadata
-        parent=0
         parent = self.__get_iter(m.parent_id)
-
-
         row = [metadata.id, metadata.parent_id, metadata.title, metadata.get_icon(), metadata]
-
         previous_object = self.__get_iter(metadata.previous_object)
         if previous_object:
             iter = gtk.TreeStore.insert_before(self, parent, previous_object, row)
         else:
             iter = gtk.TreeStore.append(self, parent, row)
-        return iter
+        return False # needed by idle_add
 
     def get_metadata(self, path):
         return self.get_metadata_from_iter(self.get_iter(path))
@@ -246,6 +247,7 @@ class ContainerTreeModel(gtk.TreeStore):
             self.remove(it)
         else:
             if DEBUG: debug_trace("trying to remove non existing object %s from model" % object_id, sender=self)
+        return False # needed by idle_add
  
 class FolderTreeModel(ContainerTreeModel):
     def fill(self):
