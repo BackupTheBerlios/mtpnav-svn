@@ -125,11 +125,11 @@ class TransferManager():
         metadata.type = Metadata.TYPE_PLAYLIST
         self.__queue_job(self.ACTION_CREATE_PLAYLIST, metadata)
 
-    def add_track_to_playlist(self, play_list_id, track, previous_track):
+    def add_track_to_playlist(self, play_list_id, track, next_track):
         if DEBUG: debug_trace("request for adding %s to playlist %s" % (track.title, play_list_id), sender=self)
-        #TODO: handle previous_track in job
+        #TODO: handle next_track in job
         track.parent_id = play_list_id
-        track.previous_object = previous_track
+        track.next_object = next_track
         self.__queue_job(self.ACTION_ADD_TO_PLAYLIST, track)
 
     def remove_track_from_playlist(self, playlist_item_metadata):
@@ -146,7 +146,7 @@ class TransferManager():
             notify_warning("%s is not a file" % file_url)
             return None
 
-    def send_extern_file_to_playlist(self, play_list_id, file_url, previous_track):
+    def send_extern_file_to_playlist(self, play_list_id, file_url, next_track):
         """
             send an extern file to the device then add it to the playlist
             in one operation. Because the new object_id is needed to update the playlits
@@ -154,7 +154,7 @@ class TransferManager():
         if DEBUG: debug_trace("request for sending extern file %s to playlist %s" % (file_url, play_list_id), sender=self)
         metadata = self.__convert_file_url_to_metadata(file_url)
         metadata.parent_id = play_list_id
-        metadata.previous_object = previous_track
+        metadata.next_object = next_track
         if metadata:
             self.__queue_job(self.ACTION_SEND_FILE_TO_PLAYLIST, metadata)
 

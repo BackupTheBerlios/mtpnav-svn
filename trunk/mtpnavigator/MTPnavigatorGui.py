@@ -530,7 +530,10 @@ class TreeViewNavigator(gtk.TreeView):
                 # process the list containing dropped objects
                 for uri in data.data.split('\r\n')[:-1]:
                     if self.__mode == MODE_PLAYLIST_VIEW:
-                        self.__gui.transfer_manager.send_extern_file_to_playlist(parent, uri, selrow_metadata.id)
+                        next = None
+                        if selrow_metadata.type == Metadata.TYPE_PLAYLIST_ITEM:
+                            next = selrow_metadata.id 
+                        self.__gui.transfer_manager.send_extern_file_to_playlist(parent, uri, next)
                     else:
                         self.__gui.transfer_manager.send_file(uri, parent)
                 drag_context.drop_finish(success=True, time=time)
@@ -547,7 +550,10 @@ class TreeViewNavigator(gtk.TreeView):
                         drag_context.drop_finish(success=False, time=time)
                         if DEBUG: debug_trace("An invalid object type was dropped: %i" % i, sender=self)
                         return
-                    self.__gui.transfer_manager.add_track_to_playlist(parent, metadata, selrow_metadata.id)
+                    next = None
+                    if selrow_metadata.type == Metadata.TYPE_PLAYLIST_ITEM:
+                        next = selrow_metadata.id 
+                    self.__gui.transfer_manager.add_track_to_playlist(parent, metadata, next)
                 else:
                     pass #TODO: move file to dir
             drag_context.drop_finish(success=True, time=time)
@@ -652,7 +658,6 @@ class TreeViewFiles(gtk.TreeView):
         self.stop_emission('drag_drop')
 
     def on_drag_data_received(self, treeview, drag_context, x, y, data, info, time):
-        print "LALA"
         if info == DND_EXTERN:
             if DEBUG: debug_trace("extern drag and drop detected with data %s" % data.data, sender=self)
             if data and data.format == 8: # 8 = type string

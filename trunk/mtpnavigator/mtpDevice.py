@@ -163,13 +163,15 @@ class MTPDevice():
 
     def add_track_to_playlist(self, metadata):
         playlist = self.__MTPDevice.get_playlist(int(metadata.parent_id))  # read from and update playlist cache
-        previous = int(metadata.previous_object)
-        if previous in playlist:
+        next = None
+        if metadata.next_object: 
+            next = int(metadata.next_object)
+        if next in playlist:
             new_playlist = pymtp.LIBMTP_Playlist()
             new_playlist.playlist_id = playlist.playlist_id
             new_playlist.name = playlist.name
             for track in playlist:
-                if track == previous:
+                if track == next:
                     new_playlist.append(int(metadata.id))
                 new_playlist.append(track)
             playlist = new_playlist

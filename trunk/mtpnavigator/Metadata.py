@@ -46,7 +46,7 @@ class Metadata:
         self.rating = 0
         self.usecount = 0
         self.year = None
-        self.previous_object = None # needed for reordering playlist
+        self.next_object = None # needed for reordering playlist
 
     def get_icon(self):
         if self.type == TYPE_FOLDER: return "folder"

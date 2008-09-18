@@ -225,12 +225,11 @@ class ContainerTreeModel(gtk.TreeStore):
 
     def append(self, metadata):
         assert type(metadata) is type(Metadata.Metadata())
-        m=metadata
-        parent = self.__get_iter(m.parent_id)
+        parent = self.__get_iter(metadata.parent_id)
         row = [metadata.id, metadata.parent_id, metadata.title, metadata.get_icon(), metadata]
-        previous_object = self.__get_iter(metadata.previous_object)
-        if previous_object:
-            iter = gtk.TreeStore.insert_before(self, parent, previous_object, row)
+        next_object = self.__get_iter(metadata.next_object)
+        if next_object:
+            iter = gtk.TreeStore.insert_before(self, parent, next_object, row)
         else:
             iter = gtk.TreeStore.append(self, parent, row)
         return False # needed by idle_add

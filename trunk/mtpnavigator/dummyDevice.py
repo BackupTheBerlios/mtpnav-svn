@@ -65,10 +65,16 @@ class DummyDevice():
 
     def add_track_to_playlist(self, metadata):
         playlist = self.PLAYLIST_LISTING[int(metadata.parent_id)][2]
-        previous = int(metadata.previous_object)
-        if previous in playlist:
-            index = playlist.index(previous)
-            playlist.insert(index, int(metadata.id))
+        next = None
+        if metadata.next_object: 
+            next = int(metadata.next_object)
+        if next in playlist:
+            new_playlist = []
+            for track in playlist:
+                if track == next:
+                    new_playlist.append(int(metadata.id))
+                new_playlist.append(track)
+            playlist = new_playlist
         else:
             playlist.append(int(metadata.id))
         print "DUMMY: track %s added to playlist %s" % (metadata.title, metadata.parent_id)
