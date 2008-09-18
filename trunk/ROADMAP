@@ -26,7 +26,6 @@ IN PROGRESS.....
 
     PRERELEASE 0.1.a3: IN DEVELOPMENT
 	* DONE: icons instead of SEND, CREATE, DEL... on transfer list
-    *       messages on transfer list (sending x to playlist y, deleting k, adding z...)
     * DONE: playlist and folder/files view
     * DONE: intern drag and drop support
     * DONE: delete when filtered
@@ -36,12 +35,13 @@ IN PROGRESS.....
     *       move track between 2 playlists
     * DONE: remove tracks from playlist
     * DONE: add menu "create folder/playlist"
-    *       move files/directories. Need patching actual pymtp (see libmtp.LIBMTP_Update_Track_Metadata)
-    *       get file from device
-    *       rigth click context menus
     * DONE: dummy device implemented for safe testing (use option --dummy-device)
 
     PRERELEASE 0.1.a4: PLANNED
+    *       messages on transfer list (sending x to playlist y, deleting k, adding z...)
+    *       rigth click context menus
+    *       move files/directories. Need patching actual pymtp (see libmtp.LIBMTP_Update_Track_Metadata)
+    *       get file from device
     *       read and try to apply the GNOME Human Interface Guidelines http://developer.gnome.org/projects/gup/hig/
     *       use transfer manager for getting file/tracks/playlist listing (=progression bar since it can take some time)
     *       display filetype (see pymtp.LIBMTP_File.filetype and pymtp.get_filetype_description)
