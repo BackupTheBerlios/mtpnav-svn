@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import pygtk
 pygtk.require("2.0")
 import gtk
@@ -21,8 +23,10 @@ except Exception, exc:
     if DEBUG: debug_trace("can't import pymtp", exception=exc)
     pymtp_available = False
 
-VERSION="0.1.a3"
 APPLICATION_NAME="MTP navigator"
+VERSION="0.1.a3"
+AUTHORS="Jerome Chabod"
+COPYRIGHT="Copyright (c) 2008 Jerome Chabod"
 
 DATA_PATH = os.path.join("/usr", "share", "mtpnavigator")
 if "--local" in sys.argv or "-l" in sys.argv: DATA_PATH = "./data"
@@ -98,6 +102,9 @@ class MTPnavigator:
                     <menuitem action="CreateFolder"/>
                     <menuitem action="CreatePlaylist"/>
                 </menu>
+                <menu  action="Help">
+                    <menuitem action="About"/>
+                </menu>
             </menubar>
             <toolbar action="Toolbar">
                 <toolitem action="Connect"/>
@@ -115,6 +122,8 @@ class MTPnavigator:
                                  ('Connect', gtk.STOCK_CONNECT, '_Connect', None, 'Connect the device', self.on_connect_device),
                                  ('Disconnect', gtk.STOCK_DISCONNECT, '_Disconnect', None, 'Disconnect the device', self.on_disconnect_device),
                                  ('Quit', gtk.STOCK_QUIT, '_Quit', None, 'Quit the Program', self.on_quit),
+                                 ('Help', None, '_Help'),
+                                 ('About', gtk.STOCK_ABOUT, '_About', None, 'About ' + APPLICATION_NAME, self.on_about)
                                  ])
         self.__actiongroup_connected = gtk.ActionGroup('ActionConnected')
         self.__actiongroup_connected.add_actions([('SendFiles', gtk.STOCK_OPEN, '_Send files to device...', '<Control>S', 'Pickup files to transfer into the device', self.on_send_files),
@@ -194,6 +203,15 @@ class MTPnavigator:
 
     def on_quit(self, emiter):
         self.exit()
+        
+    def on_about(self, emiter):
+        dlg = self.__getWidget("aboutdialog")
+        dlg.set_program_name(APPLICATION_NAME)
+        dlg.set_version(VERSION)
+        dlg.set_copyright(COPYRIGHT)
+        dlg.set_authors(AUTHORS)
+        dlg.run() 
+        dlg.hide()
 
     def on_window_mtpnav_destroy(self, widget):
         self.exit()
