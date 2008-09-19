@@ -51,6 +51,7 @@ class MTPnavigator:
         self.transfer_manager = None
         self.__current_mode = None
         self.__current_folder = 0
+        self.__file_chooser_current_folder = None
 
         # bind to glade
         self.gtkbuilder = gtk.Builder()
@@ -206,11 +207,13 @@ class MTPnavigator:
         fs = gtk.FileChooserDialog(title, self.window, gtk.FILE_CHOOSER_ACTION_OPEN, buttons)
         fs.set_select_multiple(True)
         fs.set_default_response(gtk.RESPONSE_OK)
-        #fs.set_current_folder("") #TODO: remember previous path
+        if self.__file_chooser_current_folder:
+            fs.set_current_folder(self.__file_chooser_current_folder) 
         response = fs.run()
         if response == gtk.RESPONSE_OK:
             for uri in fs.get_uris():
                 self.transfer_manager.send_file(uri, parent_id)
+            self.__file_chooser_current_folder = fs.get_current_folder() 
         fs.destroy()
 
     def on_combo_change_mode_changed(self, combo):
