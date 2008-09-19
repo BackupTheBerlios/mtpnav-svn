@@ -198,7 +198,7 @@ class MTPnavigator:
         self.exit()
 
     def on_send_files(self, widget):
-        parent_id = self.__get_current_folder()
+        parent_id = self.get_current_folder()
 
         # create and open the file chooser
         title = "Select files to transfer to the device"
