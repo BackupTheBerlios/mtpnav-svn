@@ -211,10 +211,13 @@ class MTPnavigator:
             fs.set_current_folder(self.__file_chooser_current_folder) 
         response = fs.run()
         if response == gtk.RESPONSE_OK:
-            for uri in fs.get_uris():
-                self.transfer_manager.send_file(uri, parent_id)
+            uris = fs.get_uris()
             self.__file_chooser_current_folder = fs.get_current_folder() 
-        fs.destroy()
+            fs.destroy()
+            for uri in uris:
+                self.transfer_manager.send_file(uri, parent_id)
+        else:            
+            fs.destroy()
 
     def on_combo_change_mode_changed(self, combo):
         iter = combo.get_active_iter()

@@ -38,7 +38,6 @@ IN PROGRESS.....
     * DONE: dummy device implemented for safe testing (use option --dummy-device)
 
     PRERELEASE 0.1.a4: PLANNED
-    *       messages on transfer list (sending x to playlist y, deleting k, adding z...)
     *       rigth click context menus
     *       move files/directories. Need patching actual pymtp (see libmtp.LIBMTP_Update_Track_Metadata)
     *       get file from device
@@ -60,7 +59,6 @@ IN PROGRESS.....
     *       segfault when adding track to a given position within playlist
     *       change current folder to parent when removing a folder
     *       update playlist model when sending a file directly to playlist
-    * 		invald iter when deleting many files
     *       cache file/track listing in mtp_device
     *       fix metadata and filenames encoding (accent and special charaters). Pass encode("utf-16") to pymtp
     *       warn when disconnecting during transfer (disconnect before exit)
@@ -71,7 +69,7 @@ IN PROGRESS.....
     *       expand parent when add file or folder
 
     RELEASE 0.1.0beta0 PLANNED
-    * 	test and fixes + prereleases done
+    * 	test and fixes 
     *   deb
     *   central version number + svn revision + changelog
     *   logo

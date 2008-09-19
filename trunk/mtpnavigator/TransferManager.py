@@ -20,14 +20,14 @@ class TransferManager():
     ACTION_ADD_TO_PLAYLIST = 5
     ACTION_REMOVE_FROM_PLAYLIST = 6
     ACTION_SEND_FILE_TO_PLAYLIST = 7
-    icons={ ACTION_SEND: gtk.STOCK_GO_DOWN,
-            ACTION_DEL: gtk.STOCK_DELETE,
-            ACTION_GET: gtk.STOCK_GO_UP,
-            ACTION_CREATE_FOLDER: gtk.STOCK_DIRECTORY,
-            ACTION_CREATE_PLAYLIST: gtk.STOCK_EDIT,
-            ACTION_ADD_TO_PLAYLIST: gtk.STOCK_ADD,
-            ACTION_REMOVE_FROM_PLAYLIST: gtk.STOCK_REMOVE,
-            ACTION_SEND_FILE_TO_PLAYLIST: gtk.STOCK_GO_DOWN
+    actions={ ACTION_SEND: (gtk.STOCK_GO_DOWN, "Send track %s to device"),
+            ACTION_DEL: (gtk.STOCK_DELETE, "Delete track %s from device"),
+            ACTION_GET: (gtk.STOCK_GO_UP, "Get track %s from device"),
+            ACTION_CREATE_FOLDER: (gtk.STOCK_DIRECTORY, "Create folder %s"),
+            ACTION_CREATE_PLAYLIST: (gtk.STOCK_EDIT, "Create playlist %s"),
+            ACTION_ADD_TO_PLAYLIST: (gtk.STOCK_ADD, "Add track %s to playlist"),
+            ACTION_REMOVE_FROM_PLAYLIST: (gtk.STOCK_REMOVE, "Remove track %s from playlist"),
+            ACTION_SEND_FILE_TO_PLAYLIST: (gtk.STOCK_GO_DOWN, "Send track %s to playlist")
           }
 
     STATUS_QUEUED = "queued"
@@ -310,7 +310,7 @@ class TransfertQueueModel(gtk.ListStore):
         if it:
             self.set_value(it, column, value)
             if column==self.COL_ACTION:
-                self.set_value(it, self.COL_ACTION_STOCK, TransferManager.icons(value))
+                self.set_value(it, self.COL_ACTION_STOCK, TransferManager.actions(value)[0])
         else:
             debug_trace("trying to update non existing object %s from model" % object_id, sender=self)
 
@@ -329,4 +329,5 @@ class Job():
         """
             return a list of attributes. needed for model
         """
-        return [self.object_id, self.action, TransferManager.icons[self.action], self.metadata.title, self.status, self.progress, self]
+        info = TransferManager.actions[self.action][1] % self.metadata.title
+        return [self.object_id, self.action, TransferManager.actions[self.action][0], info, self.status, self.progress, self]
