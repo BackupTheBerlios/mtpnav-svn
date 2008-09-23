@@ -530,7 +530,7 @@ class TreeViewNavigator(gtk.TreeView):
         self.__gui.change_current_folder(folder)
 
     def on_drag_data_get(self, treeview, drag_context, data, info, time):
-        selected = self.get_selected_row_metadata()
+        selected = self.get_selected_rows_metadata()
         d = []
         for metadata in selected:
             d.append(metadata.encode_as_string())
@@ -570,14 +570,23 @@ class TreeViewNavigator(gtk.TreeView):
                 metadata = Metadata.decode_from_string(m)
                 if DEBUG: debug_trace("intern drag and drop detected with data %s" % metadata.to_string(), sender=self)
                 if self.__mode == MODE_PLAYLIST_VIEW:
-                    if metadata.type != Metadata.TYPE_TRACK and metadata.type != Metadata.TYPE_PLAYLIST_ITEM:
+                    next = None
+                    if selrow_metadata.type == Metadata.TYPE_PLAYLIST_ITEM:
+                        next = selrow_metadata.id
+                    if metadata.type == Metadata.TYPE_TRACK: 
+                        self.__gui.transfer_manager.add_track_to_playlist(parent, metadata, next)
+                    elif metadata.type == Metadata.TYPE_PLAYLIST_ITEM:
+                        if metadata.parent_id == selrow_metadata.id or metadata.parent_id == selrow_metadata.parent_id:
+                            # move within playlist
+                            self.__gui.transfer_manager.move_track_within_playlist(parent, metadata, next)
+                        else:
+                            # move between playlist
+                            debug_trace("NOT IMPLEMENTED YET")
+                            pass
+                    else:
                         drag_context.drop_finish(success=False, time=time)
                         if DEBUG: debug_trace("An invalid object type was dropped: %i" % i, sender=self)
                         return
-                    next = None
-                    if selrow_metadata.type == Metadata.TYPE_PLAYLIST_ITEM:
-                        next = selrow_metadata.id 
-                    self.__gui.transfer_manager.add_track_to_playlist(parent, metadata, next)
                 else:
                     pass #TODO: move file to dir
             drag_context.drop_finish(success=True, time=time)

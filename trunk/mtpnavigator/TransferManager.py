@@ -20,6 +20,7 @@ class TransferManager():
     ACTION_ADD_TO_PLAYLIST = 5
     ACTION_REMOVE_FROM_PLAYLIST = 6
     ACTION_SEND_FILE_TO_PLAYLIST = 7
+    ACTION_MOVE_WITHIN_PLAYLIST = 8
     actions={ ACTION_SEND: (gtk.STOCK_GO_DOWN, "Send track %s to device"),
             ACTION_DEL: (gtk.STOCK_DELETE, "Delete track %s from device"),
             ACTION_GET: (gtk.STOCK_GO_UP, "Get track %s from device"),
@@ -27,7 +28,8 @@ class TransferManager():
             ACTION_CREATE_PLAYLIST: (gtk.STOCK_EDIT, "Create playlist %s"),
             ACTION_ADD_TO_PLAYLIST: (gtk.STOCK_ADD, "Add track %s to playlist"),
             ACTION_REMOVE_FROM_PLAYLIST: (gtk.STOCK_REMOVE, "Remove track %s from playlist"),
-            ACTION_SEND_FILE_TO_PLAYLIST: (gtk.STOCK_GO_DOWN, "Send track %s to playlist")
+            ACTION_SEND_FILE_TO_PLAYLIST: (gtk.STOCK_GO_DOWN, "Send track %s to playlist"),
+            ACTION_MOVE_WITHIN_PLAYLIST: (gtk.STOCK_GO_DOWN, "Move track %s") #FIXME: find a stock item
           }
 
     STATUS_QUEUED = "queued"
@@ -90,6 +92,9 @@ class TransferManager():
                 gobject.idle_add(self.__device_engine.get_playlist_tree_model().remove_object, job.metadata.id)
             elif job.action==self.ACTION_ADD_TO_PLAYLIST:
                 gobject.idle_add(self.__device_engine.get_playlist_tree_model().append, job.metadata)
+            elif job.action==self.ACTION_MOVE_WITHIN_PLAYLIST:
+                gobject.idle_add(self.__device_engine.get_playlist_tree_model().remove_object, job.metadata.id)
+                gobject.idle_add(self.__device_engine.get_playlist_tree_model().append, job.metadata)
             elif job.action==self.ACTION_SEND_FILE_TO_PLAYLIST:
                 gobject.idle_add(self.__device_engine.get_object_listing_model().append, job.metadata)
                 gobject.idle_add(self.__device_engine.get_playlist_tree_model().append, job.metadata)
@@ -131,6 +136,13 @@ class TransferManager():
         track.parent_id = play_list_id
         track.next_object = next_track
         self.__queue_job(self.ACTION_ADD_TO_PLAYLIST, track)
+        
+    def move_track_within_playlist(self, play_list_id, track, next_track):
+        if DEBUG: debug_trace("request for moving %s within playlist %s" % (track.title, play_list_id), sender=self)
+        #TODO: handle next_track in job
+        track.parent_id = play_list_id
+        track.next_object = next_track
+        self.__queue_job(self.ACTION_MOVE_WITHIN_PLAYLIST, track)
 
     def remove_track_from_playlist(self, playlist_item_metadata):
         if DEBUG: debug_trace("request for removing %s from playlist %s" % (playlist_item_metadata.title, playlist_item_metadata.parent_id), sender=self)
@@ -243,6 +255,10 @@ class ProcessQueueThread(Thread):
                 elif job.action == TransferManager.ACTION_ADD_TO_PLAYLIST:
                     self.__device_engine.add_track_to_playlist(job.metadata)
                     trace("Track %s successfully added to playlist %s" % (job.metadata.title, job.metadata.parent_id), sender=self)
+                    
+                elif job.action == TransferManager.ACTION_MOVE_WITHIN_PLAYLIST:
+                    self.__device_engine.move_track_within_playlist(job.metadata)
+                    trace("Track %s successfully move within playlist %s" % (job.metadata.title, job.metadata.parent_id), sender=self)
 
                 elif job.action == TransferManager.ACTION_SEND_FILE_TO_PLAYLIST:
                     (metadata, playlist_id) = self.__device_engine.send_file_to_playlist(job.metadata, self.__device_callback)

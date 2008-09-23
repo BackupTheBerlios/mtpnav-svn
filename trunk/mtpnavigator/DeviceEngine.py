@@ -75,7 +75,11 @@ class DeviceEngine:
 
     def add_track_to_playlist(self, metadata):
         return self.__device.add_track_to_playlist(metadata)
-
+        
+    def move_track_within_playlist(self, metadata):
+        self.__device.remove_track_from_playlist(metadata)
+        return self.__device.add_track_to_playlist(metadata)
+        
     def send_file_to_playlist(self, metadata, callback):
         return self.__device.send_file_to_playlist(metadata, callback)
 

@@ -31,7 +31,7 @@ IN PROGRESS.....
     * DONE: delete when filtered
     * DONE: manage playlist (add and remove playlist, add and remove tracks)
     * DONE: add extern file directly in playlist
-    *       order files within playlist
+    * IN PROGRESS:  order files within playlist
     *       move track between 2 playlists
     * DONE: remove tracks from playlist
     * DONE: add menu "create folder/playlist"

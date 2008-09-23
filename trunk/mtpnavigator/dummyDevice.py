@@ -92,6 +92,7 @@ class DummyDevice():
         return (metadata, playlist_id)       
         
     def remove_track_from_playlist(self, metadata):
+        print "DUMMY: tray to delete track %s from playlist %s" % (metadata.title, metadata.parent_id)
         playlist = self.PLAYLIST_LISTING[int(metadata.parent_id)]
         playlist[2].remove(int(metadata.id))       
         print "DUMMY: track %s deleted from playlist %s" % (metadata.title, metadata.parent_id)

@@ -84,6 +84,7 @@ class Metadata:
         """
         m=[]
         m.append(self.id)
+        m.append(self.parent_id)
         m.append(str(self.type))
         m.append(self.title)
         mstr="##".join(m)
@@ -103,7 +104,7 @@ class Metadata:
 
 def decode_from_string(mstr):
     m = Metadata()
-    (m.id, type, m.title) = mstr.split("##")
+    (m.id, m.parent_id, type, m.title) = mstr.split("##")
     m.type=int(type)
     if DEBUG: debug_trace("Metada decoded: %s" % m.to_string())
     return m
