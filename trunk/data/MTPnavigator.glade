@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Sat Aug 23 18:11:05 2008 -->
+<!--Generated with glade3 3.4.5 on Sun Jan  4 16:42:45 2009 -->
 <glade-interface>
   <widget class="GtkWindow" id="window_mtpnav">
     <property name="title" translatable="yes">MTPnavigator</property>
@@ -9,6 +9,9 @@
     <child>
       <widget class="GtkVBox" id="vbox_main">
         <property name="visible">True</property>
+        <child>
+          <placeholder/>
+        </child>
         <child>
           <widget class="GtkVBox" id="vbox_Menu_And_ToolBar">
             <property name="visible">True</property>
@@ -22,6 +25,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
+            <property name="position">1</property>
           </packing>
         </child>
         <child>
@@ -123,196 +127,14 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkNotebook" id="notebook_device_info">
+              <widget class="GtkExpander" id="expander1">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="tab_pos">GTK_POS_LEFT</property>
-                <property name="tab_hborder">3</property>
                 <child>
-                  <widget class="GtkVBox" id="vbox2">
+                  <widget class="GtkVBox" id="PanelWaitingAtion">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkLabel" id="label_device_name">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="yalign">0</property>
-                        <property name="xpad">5</property>
-                        <property name="ypad">5</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Device name&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
-                        <property name="single_line_mode">True</property>
-                      </widget>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="GtkHBox" id="hbox_device_information">
-                        <property name="visible">True</property>
-                        <property name="sensitive">False</property>
-                        <child>
-                          <widget class="GtkTable" id="table1">
-                            <property name="visible">True</property>
-                            <property name="n_rows">2</property>
-                            <property name="n_columns">2</property>
-                            <child>
-                              <widget class="GtkProgressBar" id="progressbar_batterie_level">
-                                <property name="visible">True</property>
-                                <property name="text" translatable="yes"></property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                                <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkProgressBar" id="progressbar_disk_usage">
-                                <property name="visible">True</property>
-                                <property name="text" translatable="yes"></property>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkVBox" id="vbox4">
-                                <property name="visible">True</property>
-                                <child>
-                                  <widget class="GtkImage" id="image2">
-                                    <property name="visible">True</property>
-                                    <property name="icon_name">drive-removable-media</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label4">
-                                    <property name="visible">True</property>
-                                    <property name="label" translatable="yes">used space</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </widget>
-                              <packing>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="x_options"></property>
-                                <property name="y_options"></property>
-                                <property name="x_padding">5</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkVBox" id="vbox6">
-                                <property name="visible">True</property>
-                                <child>
-                                  <widget class="GtkImage" id="image1">
-                                    <property name="visible">True</property>
-                                    <property name="icon_name">battery</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label7">
-                                    <property name="visible">True</property>
-                                    <property name="label" translatable="yes">batterie level</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </widget>
-                              <packing>
-                                <property name="x_options"></property>
-                                <property name="y_options"></property>
-                                <property name="x_padding">5</property>
-                              </packing>
-                            </child>
-                          </widget>
-                          <packing>
-                            <property name="padding">10</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="GtkVBox" id="vbox8">
-                            <property name="visible">True</property>
-                            <child>
-                              <widget class="GtkLabel" id="label_information">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">No device connected</property>
-                                <property name="use_markup">True</property>
-                                <property name="wrap">True</property>
-                              </widget>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                          </widget>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="padding">10</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                      </widget>
-                      <packing>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </widget>
-                </child>
-                <child>
-                  <widget class="GtkVBox" id="vbox5">
-                    <child>
-                      <widget class="GtkImage" id="image4">
-                        <property name="visible">True</property>
-                        <property name="icon_size">5</property>
-                        <property name="icon_name">multimedia-player</property>
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkLabel" id="label1">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">Device
-information</property>
-                        <property name="justify">GTK_JUSTIFY_CENTER</property>
-                      </widget>
-                      <packing>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </widget>
-                  <packing>
-                    <property name="type">tab</property>
-                    <property name="tab_fill">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="GtkVBox" id="vbox9">
-                    <property name="visible">True</property>
-                    <child>
-                      <widget class="GtkHBox" id="hbox1">
+                      <widget class="GtkHBox" id="title">
                         <property name="visible">True</property>
                         <child>
                           <widget class="GtkLabel" id="label_device_name2">
@@ -321,7 +143,7 @@ information</property>
                             <property name="yalign">0</property>
                             <property name="xpad">5</property>
                             <property name="ypad">5</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Device name&lt;/b&gt;</property>
+                            <property name="label" translatable="yes">&lt;b&gt;Waiting actions&lt;/b&gt;</property>
                             <property name="use_markup">True</property>
                             <property name="justify">GTK_JUSTIFY_RIGHT</property>
                             <property name="single_line_mode">True</property>
@@ -368,34 +190,14 @@ information</property>
                       </packing>
                     </child>
                   </widget>
-                  <packing>
-                    <property name="position">1</property>
-                  </packing>
                 </child>
                 <child>
-                  <widget class="GtkVBox" id="vbox7">
+                  <widget class="GtkLabel" id="label1">
                     <property name="visible">True</property>
-                    <child>
-                      <widget class="GtkImage" id="image5">
-                        <property name="visible">True</property>
-                        <property name="stock">gtk-execute</property>
-                        <property name="icon_size">5</property>
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkLabel" id="label2">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">Job list</property>
-                      </widget>
-                      <packing>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
+                    <property name="label" translatable="yes">&lt;b&gt;Waiting actions&lt;/b&gt;</property>
                   </widget>
                   <packing>
-                    <property name="type">tab</property>
-                    <property name="position">1</property>
-                    <property name="tab_fill">False</property>
+                    <property name="type">label_item</property>
                   </packing>
                 </child>
               </widget>
@@ -406,7 +208,88 @@ information</property>
             </child>
           </widget>
           <packing>
-            <property name="position">1</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkHBox" id="statusBar">
+            <property name="visible">True</property>
+            <property name="spacing">10</property>
+            <child>
+              <widget class="GtkLabel" id="label_device_name">
+                <property name="visible">True</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <property name="xpad">5</property>
+                <property name="ypad">5</property>
+                <property name="label" translatable="yes">&lt;b&gt;Device name&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+                <property name="single_line_mode">True</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkHBox" id="hbox3">
+                <property name="visible">True</property>
+                <child>
+                  <widget class="GtkImage" id="image1">
+                    <property name="visible">True</property>
+                    <property name="icon_name">battery</property>
+                  </widget>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkProgressBar" id="progressbar_batterie_level">
+                    <property name="visible">True</property>
+                    <property name="text" translatable="yes"></property>
+                  </widget>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkHBox" id="hbox4">
+                <property name="visible">True</property>
+                <child>
+                  <widget class="GtkImage" id="image2">
+                    <property name="visible">True</property>
+                    <property name="icon_name">drive-removable-media</property>
+                  </widget>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkProgressBar" id="progressbar_disk_usage">
+                    <property name="visible">True</property>
+                    <property name="text" translatable="yes"></property>
+                  </widget>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">-1</property>
           </packing>
         </child>
       </widget>

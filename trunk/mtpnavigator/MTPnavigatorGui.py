@@ -295,7 +295,7 @@ class MTPnavigator:
         self.__actiongroup_connected.set_sensitive(is_connected)
         self.__actiongroup.get_action("Connect").set_visible(not is_connected)
         self.__actiongroup.get_action("Disconnect").set_visible(is_connected)
-        self.__getWidget("hbox_device_information").set_sensitive(is_connected)
+        #self.__getWidget("hbox_device_information").set_sensitive(is_connected)
         self.__getWidget("scrolledwindow_files").set_sensitive(is_connected)
         self.__getWidget("vbox1").set_sensitive(is_connected)
 
@@ -331,13 +331,6 @@ class MTPnavigator:
             fraction = float(current)/float(max)
             prog_bar.set_fraction(fraction)
             prog_bar.set_text("%i%%" % (fraction * 100))
-
-            # general information
-            infos = self.__device_engine.get_device().get_information()
-            text=""
-            for info in infos:
-                text += "<b>" + info[0] + ":</b> " + info[1] + "\n"
-            self.__getWidget("label_information").set_markup(text)
 
     def __empty_new_object_entry(self, ):
         if self.__current_mode == MODE_PLAYLIST_VIEW:

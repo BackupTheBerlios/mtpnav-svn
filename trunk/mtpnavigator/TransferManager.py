@@ -91,7 +91,7 @@ class TransferManager():
             elif job.action==self.ACTION_REMOVE_FROM_PLAYLIST:
                 gobject.idle_add(self.__device_engine.get_playlist_tree_model().remove_object, job.metadata.id)
             elif job.action==self.ACTION_ADD_TO_PLAYLIST:
-                gobject.idle_add(self.__device_engine.get_playlist_tree_model().append, job.metadata)
+                pass #gobject.idle_add(self.__device_engine.get_playlist_tree_model().append, job.metadata)
             elif job.action==self.ACTION_MOVE_WITHIN_PLAYLIST:
                 gobject.idle_add(self.__device_engine.get_playlist_tree_model().remove_object, job.metadata.id)
                 gobject.idle_add(self.__device_engine.get_playlist_tree_model().append, job.metadata)
